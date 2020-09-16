@@ -1,0 +1,45 @@
+[
+    {
+        "name": "kosinix/grafika",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/kosinix/grafika.git",
+            "reference": "211f61fc334b8b36616b23e8af7c5727971d96ee"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://files.phpcomposer.com/files/kosinix/grafika/211f61fc334b8b36616b23e8af7c5727971d96ee.zip",
+            "reference": "211f61fc334b8b36616b23e8af7c5727971d96ee",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3"
+        },
+        "time": "2017-06-20 03:13:49",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Grafika\\": "src/Grafika"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT",
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Nico Amarilla",
+                "homepage": "https://www.kosinix.com"
+            }
+        ],
+        "description": "An image manipulation library for PHP.",
+        "homepage": "http://kosinix.github.io/grafika",
+        "keywords": [
+            "grafika"
+        ]
+    }
+]

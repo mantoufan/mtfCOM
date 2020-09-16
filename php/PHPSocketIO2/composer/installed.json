@@ -1,0 +1,82 @@
+[
+    {
+        "name": "workerman/workerman-for-win",
+        "version": "v3.3.2",
+        "version_normalized": "3.3.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/walkor/workerman-for-win.git",
+            "reference": "40e8d204fa0b3cf845f2ac1cb8d97fa7e11ddf37"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/walkor/workerman-for-win/zipball/40e8d204fa0b3cf845f2ac1cb8d97fa7e11ddf37",
+            "reference": "40e8d204fa0b3cf845f2ac1cb8d97fa7e11ddf37",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3"
+        },
+        "time": "2016-07-29 04:24:19",
+        "type": "project",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Workerman\\": "./"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "walkor",
+                "email": "walkor@workerman.net",
+                "homepage": "http://www.workerman.net",
+                "role": "Developer"
+            }
+        ],
+        "description": "An asynchronous event driven PHP framework for easily building fast, scalable network applications.",
+        "homepage": "http://www.workerman.net",
+        "keywords": [
+            "asynchronous",
+            "event-loop"
+        ]
+    },
+    {
+        "name": "workerman/phpsocket.io-for-win",
+        "version": "v1.0.8",
+        "version_normalized": "1.0.8.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/walkor/phpsocket.io-for-win.git",
+            "reference": "edb0e9dc50ba97ac59c925077482c8f0ab5aabe8"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/walkor/phpsocket.io-for-win/zipball/edb0e9dc50ba97ac59c925077482c8f0ab5aabe8",
+            "reference": "edb0e9dc50ba97ac59c925077482c8f0ab5aabe8",
+            "shasum": ""
+        },
+        "require": {
+            "workerman/workerman-for-win": ">=3.1.8"
+        },
+        "time": "2016-11-04 15:50:19",
+        "type": "project",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "PHPSocketIO\\": "./src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "homepage": "http://www.workerman.net",
+        "keywords": [
+            "Socket.io"
+        ]
+    }
+]

@@ -1,0 +1,65 @@
+[
+    {
+        "name": "wapmorgan/unified-archive",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wapmorgan/UnifiedArchive.git",
+            "reference": "8e3cd6243ad75a44cbe4a02cc7c3f4a02a635f6c"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://packagist.phpcomposer.com/files/wapmorgan/UnifiedArchive/8e3cd6243ad75a44cbe4a02cc7c3f4a02a635f6c.zip",
+            "reference": "8e3cd6243ad75a44cbe4a02cc7c3f4a02a635f6c",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "suggest": {
+            "ext-bz2": "Allows unpack tar archives with bz2 compression.",
+            "ext-rar": "Allows unpack RAR archives.",
+            "ext-xz": "Allows unpack tar archives with lzma2 compression.",
+            "ext-zip": "Allows unpack ZIP archives.",
+            "ext-zlib": "Allows unpack GZ files and tar archives with gzip compression.",
+            "ncompress": "Allows unpack tar archives with LZW compression.",
+            "pear/archive_tar": "Allows unpack of TAR archives. (strongly recommended)",
+            "phpclasses/php-iso-file": "Allows unpack iso-9660 images."
+        },
+        "time": "2015-08-28 10:16:09",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "wapmorgan\\UnifiedArchive\\": "src/"
+            },
+            "files": [
+                "src/function.gzip_stat.php",
+                "src/REGISTER_LZW_STREAM_WRAPPER.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "wapmorgan",
+                "email": "wapmorgan@gmail.com",
+                "role": "developer"
+            }
+        ],
+        "description": "UnifiedArchive - unified interface to archive (zip, rar, gz, tar, tar.gz, tar.bz2, tar.x, tar.Z, iso-9660) for listing, reading, extracting and creation + built-in console packer and unpacker + fully implemented PclZip-like interface (create, listContent, extract, properties, add, delete, merge, duplicate).",
+        "keywords": [
+            "archive",
+            "gzip",
+            "iso-9660",
+            "lzma2",
+            "ncompress",
+            "rar",
+            "tar",
+            "zip"
+        ]
+    }
+]

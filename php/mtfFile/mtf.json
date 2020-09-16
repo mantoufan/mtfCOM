@@ -1,0 +1,34 @@
+{
+	"php":[
+		"mtfUnit",
+		"mtfQueue",
+		"mtfGuid",
+		"mtfUrl",
+		"mtfAttr",
+		"mtfColor",
+		"mtfCode",
+		"Grafika",
+		"UnifiedArchive",
+		"Torrent",
+		"mtfCrypt",
+		"mtfRelate",
+		"mtfKey",
+		"LanguageDetector",
+		"mtfSub",
+		"mtfProxyCurl",
+		"ColorThief",
+		"mtfBBcode",
+		"mtfRand",
+		"mtfZH",
+		"sabre",
+		"mtfKeyword",
+		"mtfFileConf"
+	],
+	"zip":[
+		"php/mtfFile/bin/Win32-FFmpeg.zip",
+		"php/mtfFile/bin/Win32-LibreOffice.zip",
+		"php/mtfFile/bin/Win32-Detect.zip",
+		"php/mtfFile/bin/Win32-Waifu2x.zip",
+		"php/mtfFile/fonts/dengkuanzhenghei.zip"
+	]
+}

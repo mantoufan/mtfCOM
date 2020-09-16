@@ -1,0 +1,8 @@
+{
+	"php":[
+		"JavaScriptPacker",
+		"mtfGuid",
+		"mtfUrl",
+		"mtfTpl"
+	]
+}

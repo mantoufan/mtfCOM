@@ -1,0 +1,9 @@
+{
+	"php":[
+		"mtfHTTP",
+		"mtfCrypt",
+		"mtfGuid",
+		"mtfMysql",
+		"mtfTpl"
+	]
+}
