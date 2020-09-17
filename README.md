@@ -11,7 +11,7 @@ mtf通用组件库，包含多个PHP模块和Javascript模块，其中以`mtf`�
 - 模块独立：可单独或组合使用
 - 模块依赖关系
     - Javascript模块：在命名上体现
-        - 命名：模块名 + 依赖模块名（多个用 英文半角句号 . 分隔） + '.js' 
+        - 命名：模块名 + 依赖模块名（多个用 英文半角句号 . 分隔） + .js 
         - 例如`mtfHelp.mtfLang.notify.jquery.js`表明这是一个名为`mtfHelp`的模块，它依赖于`mtfLang` `notify`和`juqery`模块
     - PHP模块：通过`mtf.json`表达
 - 云端编译  
