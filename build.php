@@ -1,7 +1,7 @@
 <?php
 $g_dom='.';
 $g_usr='madfan';
-$g_psd='1991madfan925';
+$g_psd='';
 $g_root=str_replace('\\','/',dirname(__file__)).'/';
 $j=@$_POST['j'];$usr=@$_POST['usr'];
 if($j){
