@@ -4387,8 +4387,8 @@ class mtfFile{
 					$_img[0]['l']=1;
 				}
 			}
-			
-			$_ar['xiongzhang']=array('id'=>$_xiongzhang_id,'u'=>'https://'.$_h.'/'.$_id,'t'=>$_tdk['t'],'d'=>$_tdk['d'],'z'=>str_replace(' ','T',$_tdk['z']),'p'=>$_img);
+			// 不再生成熊掌ID相关数据
+			// $_ar['xiongzhang']=array('id'=>$_xiongzhang_id,'u'=>'https://'.$_h.'/'.$_id,'t'=>$_tdk['t'],'d'=>$_tdk['d'],'z'=>str_replace(' ','T',$_tdk['z']),'p'=>$_img);
 		}
 		return $_ar;
 	}
