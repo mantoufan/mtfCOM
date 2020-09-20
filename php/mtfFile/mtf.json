@@ -22,7 +22,8 @@
 		"mtfZH",
 		"sabre",
 		"mtfKeyword",
-		"mtfFileConf"
+		"mtfFileConf",
+		"mtfWebP"
 	],
 	"zip":[
 		"php/mtfFile/bin/Win32-FFmpeg.zip",

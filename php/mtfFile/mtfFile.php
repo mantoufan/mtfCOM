@@ -25,6 +25,7 @@ class mtfFile{
 	public $mtfCode;
 	public $mtfZH;
 	public $mtfKeyword;
+	public $mtfWebP;
 	private $_root;
 	private $__config=array('w'=>'','h'=>'','nl'=>0,'default'=>'','ext'=>'');
 	
@@ -84,6 +85,10 @@ class mtfFile{
 
 		include_once($_root.'../mtfFileConf/mtfFileConf.php');
 		$mtfFileConf = new mtfFileConf();
+
+		include_once($_root.'../mtfWebP/mtfWebP.php');
+		$this->mtfWebP = new mtfWebP();
+
 		$this->maxTime = $mtfFileConf->maxTime;
 		$this->root = $mtfFileConf->root;
 		$this->dir = $mtfFileConf->dir;
@@ -405,10 +410,17 @@ class mtfFile{
 						}
 					}
 				}
-				
+				error_reporting(E_ALL);
+
+ini_set('display_errors','On');
 				$editor->save($image, $_d['p']);
+
 				//首次预览时，对预览图进行校正
 				$this->_get_ture_orientation_img($_d['p']);
+
+				if ($_d['e']==='webp') {
+					$this->mtfWebP->convert($_d['p'], $_d['p'], 75);
+				}
 				
 				//剪裁
 				if(@$_c['waifu']){
