@@ -410,9 +410,7 @@ class mtfFile{
 						}
 					}
 				}
-				error_reporting(E_ALL);
 
-ini_set('display_errors','On');
 				$editor->save($image, $_d['p']);
 
 				//首次预览时，对预览图进行校正
@@ -4315,7 +4313,7 @@ ini_set('display_errors','On');
 				$_tag=$_key;
 			}
 		}
-		return array('key'=>$this->fileKey($_i),'source'=>$_source,'sub'=>$_sub)+($_txt?array('txt'=>$_txt):array())+($_tag?array('k'=>$_tag):array());
+		return array('poster'=>array('i'=>$_i, 'e'=>'gif'),'key'=>$this->fileKey($_i),'source'=>$_source,'sub'=>$_sub)+($_txt?array('txt'=>$_txt):array())+($_tag?array('k'=>$_tag):array());
 	}
 	
 	private function _isDownGifExt($_e,$_t='',$_i=''){
@@ -4740,8 +4738,7 @@ ini_set('display_errors','On');
 										$_data['msg']='2';//读取动态和消息
 									}else{
 										$_data['msg']=$_data['sub']='1';//读取消息
-									}
-									
+									}	
 										
 									$_a=array_merge($_a,$_p);
 									$_ai=implode(',',$_a);
