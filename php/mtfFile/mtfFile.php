@@ -1235,11 +1235,13 @@ class mtfFile{
 					}
 					if(@$_a['img'] && count($_a['img']) > 1){
 						$_ar['list']['ps']=count($_a['img']);
+						$_ar['list']['ps900']= floor(900 / $_ar['list']['ps']);
 						$_ar['list']['psn']=$this->conf['list']['max_p_length']-$_ar['list']['ps']+2;
 					}
 					if(@$_arv['dm']){//弹幕中图片
 						$_ar['list']['dm']=1;
 						$_ar['list']['ps']=3;
+						$_ar['list']['ps900']= floor(900 / $_ar['list']['ps']);
 					}elseif(@$_a['audio']){
 						$_ar['list']['audio']=$_a['audio'];
 					}
