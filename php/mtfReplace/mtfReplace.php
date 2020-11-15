@@ -6,7 +6,7 @@ class mtfReplace {
         switch ($ext) {
             case 'js':
             case 'css':
-                return "\n" . '/*' . $md5 . '*/' . "\n";
+                return "\n" . '/*yzhan:' . $md5 . '*/' . "\n";
             break;
         }
         return '';
@@ -24,8 +24,8 @@ class mtfReplace {
                     if (stripos($content, $spacer) === FALSE) {
                         $content = str_replace($pattern, $pattern . $spacer . $replace . $spacer, $content);
                     } else {
-                        $spacer = addslashes($spacer);
-                        $content = preg_replace('/(' . $spacer . ').*?(' . $spacer . ')/', '$1' . $replace . '$2', $content);
+                        $spacer = addcslashes(addcslashes($spacer, '*'), '/');
+                        $content = preg_replace('/(' . $spacer . ').*?(' . $spacer . ')/', $replace ? '$1' . $replace . '$2' : '', $content);
                     } 
                 }
                 file_put_contents($path, $content);
