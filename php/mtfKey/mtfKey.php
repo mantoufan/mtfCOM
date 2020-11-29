@@ -233,8 +233,8 @@ class mtfKey
 				}elseif(@$_SESSION['T']>$this->keyTimes){
 					$this->_error('check-wrong-times',$_SESSION['T'].'|'.$this->keyTimes);
 					@session_write_close();
-				}elseif(!empty($_SERVER['HTTP_VIA'])&&stripos($_SERVER['HTTP_VIA'],'Baidu-CDN-Node')===FALSE&&stripos($_SERVER['HTTP_VIA'],'cache')===FALSE){//排除百度CDN与阿里CDN的节点
-					// $this->_error('check-wrong-via',$_SERVER['REMOTE_ADDR'].'|'.$_SERVER['HTTP_VIA'].'|'.$_SERVER['HTTP_X_FORWARDED_FOR']);
+				}elseif(!empty($_SERVER['HTTP_VIA']) && stripos($_SERVER['HTTP_VIA'], 'Baidu-CDN-Node')===FALSE && stripos($_SERVER['HTTP_VIA'], 'cache') === FALSE && stripos($_SERVER['HTTP_VIA'], 'yunjiasu') === FALSE){//排除百度CDN与阿里CDN的节点
+					$this->_error('check-wrong-via',$_SERVER['REMOTE_ADDR'].'|'.$_SERVER['HTTP_VIA'].'|'.$_SERVER['HTTP_X_FORWARDED_FOR']);
 					@session_write_close();
 				}else{
 
