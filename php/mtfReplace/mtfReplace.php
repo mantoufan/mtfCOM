@@ -5,12 +5,17 @@ class mtfReplace {
     private function spacer($ext, $md5) {
         switch ($ext) {
             case 'js':
+                return "\n" . '/*yzhan:' . $md5 . '*/' . "\n";
             case 'css':
             case 'wxss':
             case 'ttss':
             case 'qss':
             case 'acss':
-                return "\n" . '/*yzhan:' . $md5 . '*/' . "\n";
+            case 'php':
+                return '/*yzhan:' . $md5 . '*/';
+            case 'html':
+            case 'wxml':
+                return '<!--yzhan:' . $md5 . '-->';
             break;
 
         }
@@ -25,7 +30,11 @@ class mtfReplace {
             case 'ttss':
             case 'qss':
             case 'acss':
+            case 'php':
                 return '/*mzhan:' . $md5 . $content . '*/';
+            case 'html':
+            case 'wxml':
+                return '<!--mzhan:' . $md5 . '-->';
             break;
         }
         return '';
@@ -46,7 +55,7 @@ class mtfReplace {
                         $content = str_replace($pattern, ($is_replace ? $this->comment($ext, $md5, $pattern) : $pattern) . $spacer . $replace . $spacer, $content);
                     } else {
                         $spacer = addcslashes(addcslashes($spacer, '*'), '/');
-                        $content = preg_replace('/(' . $spacer . ').*?(' . $spacer . ')/', $replace ? '$1' . $replace . '$2' : '', $content);
+                        $content = preg_replace('/(' . $spacer . ')[\s\S]*?(' . $spacer . ')/', $replace ? '$1' . $replace . '$2' : '', $content);
                         if ($is_replace && $replace === '') {
                             $content = str_replace($this->comment($ext, $md5, $pattern), $pattern, $content);
                         }
