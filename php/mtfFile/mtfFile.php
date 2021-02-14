@@ -444,11 +444,11 @@ class mtfFile{
 			}
 			$_outTime=$this->maxTime*10;
 			set_time_limit($_outTime);//转码的进程比一般进程多5倍的运行时间
-			//-threads 2 使用双核心，该参数，PHP无法调用 scale=-2 确保视频高度始终为2的倍数
+			//-threads 2 使用双核心，该参数，PHP无法调用 scale=-2 确保视频高度始终为2的倍数。开启dxva2硬件加速
 			if($_f['t']==='video'){
-				$_h=popen($_root.'bin/WIN32/FFmpeg/ffmpeg -i "'.$_f['p'].'" -threads 2 -preset ultrafast -crf 28 -y -vf "scale='.$_d['c']['w'].':-2" -b '.$_c_b.'k -bufsize '.$_c_b.'K "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');
+				$_h=popen($_root.'bin/WIN32/FFmpeg/ffmpeg -hwaccel dxva2 -i "'.$_f['p'].'" -threads 2 -preset ultrafast -crf 28 -y -vf "scale='.$_d['c']['w'].':-2" -b '.$_c_b.'k -bufsize '.$_c_b.'K "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');
 			}else{
-				$_h=popen($_root.'bin/WIN32/FFmpeg/ffmpeg -i "'.$_f['p'].'" -threads 2 -preset ultrafast -y -b:a '.$_c_b.'k "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');	
+				$_h=popen($_root.'bin/WIN32/FFmpeg/ffmpeg -hwaccel dxva2 -i "'.$_f['p'].'" -threads 2 -preset ultrafast -y -b:a '.$_c_b.'k "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');	
 			}
 			$_i=0;
 			while($_i<$_outTime) {
@@ -4457,7 +4457,7 @@ class mtfFile{
 				$_people=0;
 				$_sql_union='';
 				
-				$_sql_default_v='i,a,e,nz,k,o,r,m,d,v,tt,w,t0,ar,nm,q,p,nrel,t1,url';
+				$_sql_default_v='i,a,e,nz,k,o,r,m,d,v,tt,w,t0,ar,nm,q,p,nrel,t0,t1,url';
 				$_sql_default_table='table';
 				
 				$_ch='';
@@ -4666,7 +4666,8 @@ class mtfFile{
 									break;
 								case 'rec':
 									//$_sql[]='i IN (100131,100133,100135,100136,100137,100138,100314,100315,100717,100749,104500)';
-									$_sql[]='i IN (100135,100136,100314,104500,100131)';
+									$_sql[]='o IN (100131, 100132, 100133, 100134, 100315, 115210)';
+									$_sql[]='p < 999999';
 									break;
 								case 'msg':	
 								case 'index':
@@ -5412,6 +5413,10 @@ class mtfFile{
 								
 								if(@$_var['fav']){
 									$_rr[$_v['i']]['list']['fav']=1;
+								}
+
+								if ($_v['t0']) {
+									$_rr[$_v['i']]['list']['t0']=$_v['t0'];
 								}
 								
 								if(@$this->_cache['nmsg1'][$_v['i']]){
