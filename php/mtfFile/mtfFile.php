@@ -444,11 +444,11 @@ class mtfFile{
 			}
 			$_outTime=$this->maxTime*10;
 			set_time_limit($_outTime);//转码的进程比一般进程多5倍的运行时间
-			//-threads 2 使用双核心，该参数，PHP无法调用 scale=-2 确保视频高度始终为2的倍数。开启dxva2硬件加速
+			//-threads 2 使用双核心，该参数，PHP无法调用 scale=-2 确保视频高度始终为2的倍数。开启硬件加速
 			if($_f['t']==='video'){
-				$_h=popen($_root.'bin/WIN32/FFmpeg/ffmpeg -hwaccel dxva2 -i "'.$_f['p'].'" -threads 2 -preset ultrafast -crf 28 -y -vf "scale='.$_d['c']['w'].':-2" -b '.$_c_b.'k -bufsize '.$_c_b.'K "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');
+				$_h=popen($_root.'bin/WIN32/FFmpeg/ffmpeg -hwaccel qsv -i "'.$_f['p'].'" -threads 2 -preset ultrafast -crf 30 -y -vf "scale='.$_d['c']['w'].':-2" -b '.$_c_b.'k -bufsize '.$_c_b.'K "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');
 			}else{
-				$_h=popen($_root.'bin/WIN32/FFmpeg/ffmpeg -hwaccel dxva2 -i "'.$_f['p'].'" -threads 2 -preset ultrafast -y -b:a '.$_c_b.'k "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');	
+				$_h=popen($_root.'bin/WIN32/FFmpeg/ffmpeg -hwaccel qsv -i "'.$_f['p'].'" -threads 2 -preset ultrafast -y -b:a '.$_c_b.'k "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');	
 			}
 			$_i=0;
 			while($_i<$_outTime) {
