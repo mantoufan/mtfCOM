@@ -66,8 +66,8 @@ class mtfTcn{
 		//$url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=' . SINA_APPKEY .'&url_long=' . $long_url;  
 		//$url = 'http://api.3w.cn/api.php?key=' . w3_APPKEY .'&url=' . $long_url; 
 		//$url = 'http://a.os120.com/surl/?url=' . $long_url; 
-		//$url = 'http://api.suowo.cn/api.htm?key=5e948905b1b63c650a02575a@4cbf344b3bff3c207dfe460004a43cf1&domain=2&expireDate='.date('Y-m-d', strtotime('+10year')).'&url='.$long_url;
-		$url = 'http://api.dm126.com/plugin/Suowo/?url=' . $long_url;
+		$url = 'http://api.suowo.cn/api.htm?key=5e948905b1b63c650a02575a@4cbf344b3bff3c207dfe460004a43cf1&domain=2&expireDate='.date('Y-m-d', strtotime('+10year')).'&url='.$long_url;
+		//$url = 'http://api.dm126.com/plugin/Suowo/?url=' . $long_url;
 		//获取请求结果  
 		$result = $this->_curl($url);
 		//下面这行注释用于调试，你可以把注释去掉看看从sina返回的信息是什么东西  
