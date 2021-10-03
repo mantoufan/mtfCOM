@@ -446,7 +446,7 @@ class mtfFile{
 			set_time_limit($_outTime);//转码的进程比一般进程多5倍的运行时间
 			//-threads 2 使用双核心，该参数，PHP无法调用 scale=-2 确保视频高度始终为2的倍数。开启硬件加速
 			if($_f['t']==='video'){
-				$_h=popen($_root.'bin/WIN32/FFmpeg/ffmpeg -hwaccel qsv -i "'.$_f['p'].'" -threads 2 -preset ultrafast -crf 32 -y -vf "scale='.$_d['c']['w'].':-2" -b '.$_c_b.'k -bufsize '.$_c_b.'K "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');
+				$_h=popen($_root.'bin/WIN32/FFmpeg/ffmpeg -hwaccel qsv -i "'.$_f['p'].'" -threads 2 -preset ultrafast -crf 30 -y -vf "scale='.$_d['c']['w'].':-2" -b '.$_c_b.'k -bufsize '.$_c_b.'K "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');
 			}else{
 				$_h=popen($_root.'bin/WIN32/FFmpeg/ffmpeg -hwaccel qsv -i "'.$_f['p'].'" -threads 2 -preset ultrafast -y -b:a '.$_c_b.'k "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');	
 			}
@@ -1039,7 +1039,7 @@ class mtfFile{
 					
 					if($_img){
 						$_is=implode(',',$_img);
-						$_r=$this->mtfMysql->sql('s',$this->db['table'],'a,k,e,i,url','WHERE i IN ('.$_is.') ORDER BY FIELD(i,'.$_is.')');
+						$_r=$this->mtfMysql->sql('s',$this->db['table'],'a,k,e,i,url,ch,cs,cv','WHERE i IN ('.$_is.') ORDER BY FIELD(i,'.$_is.')');
 						if($_r){
 							$this->_cache['img'][$_f['id']]=array();
 							foreach($_r as $_k=>$_v){
@@ -1081,6 +1081,14 @@ class mtfFile{
 								}
 								if($_v['e']==='gif'){//动画
 									$__a['g']=1;
+								}
+								$__a['width']=$_attr['宽度'][0];
+								$__a['height']=$_attr['高度'][0];
+								if (is_numeric($_v['ch']) && is_numeric($_v['cs']) && is_numeric($_v['cv'])) {
+									$_color = $this->mtfColor->hsv2rgb(array('h'=>$_v['ch'],'s'=>$_v['cs'],'v'=>$_v['cv']));
+									$__a['cr'] = $_color['r'];
+									$__a['cg'] = $_color['g'];
+									$__a['cb'] = $_color['b'];
 								}
 								$_ar['sub'][$_v['i']]['img']=$__a;
 								
@@ -3397,7 +3405,7 @@ class mtfFile{
 			}
 			
 			$_data['data']=strip_tags(str_replace('&nbsp;','',$_data['data']), "<p> <b> <br> <img> <div>");//先strip_tags再html_entity_decode
-			$_data['data']=html_entity_decode($_data['data']);//&amp;->& &quot;->" &#039;->' &lt;-> <  &gt;-> >
+			$_data['data']=html_entity_decode($_data['data']);//&amp;->& &quot;->" '->' &lt;-> <  &gt;-> >
 			$_bb=$this->mtfBBcode->parse($_data['data'],array('type'=>'add'));//先转BBcode，再转图片视频等
 			$_data['data']=@$_bb['s'];
 			
@@ -4457,7 +4465,7 @@ class mtfFile{
 				$_people=0;
 				$_sql_union='';
 				
-				$_sql_default_v='i,a,e,nz,k,o,r,m,d,v,tt,w,t0,ar,nm,q,p,nrel,t0,t1,url';
+				$_sql_default_v='i,a,e,nz,k,o,r,m,d,v,tt,w,t0,ar,nm,q,p,nrel,t0,t1,url,ch,cs,cv';
 				$_sql_default_table='table';
 				
 				$_ch='';
@@ -5102,13 +5110,14 @@ class mtfFile{
 								}
 								$_tdk['t']=$_data['k'].'_'.@$_key['标题'][0];
 								unset($_key['标题'][0]);
-								$_i=$_tag_i=$this->_ui($_data['k'],$_data['id']);
+								// $_i=$_tag_i=$this->_ui($_data['k'],$_data['id']);
+								$_i=$_tag_i=$this->_ui($_data['k']);
 							}else{
 								$_tdk['t']=$this->_k2ch($_data['k'],$_ch);
 								if($_tdk['t']!==$_data['k']){
 									$_tdk['t']=($_data['k']==='index' ? $_tdk['t'] : $this->_mtflang2span($_tdk['t']));
 								}
-								$_i=$_tag_i=$this->_ui(@$_tdk['t']);
+								$_i=$_tag_i=$this->_ui($_data['k']);
 							}
 							$_tdk['tag']=1;
 						}else{
@@ -5124,8 +5133,13 @@ class mtfFile{
 							if($__r){
 								if(!$_key){
 									$_key=array();
+								} else {
+									$_des = $_key['描述'][0];
 								}
 								$_key=array_merge($_key,$this->mtfAttr->parseA($__r['k'],'|'));
+								if ($_des) {
+									$_key['描述'][0] = preg_replace('/.+/', $_key['描述'][0], $_des, 1);
+								}
 							}
 							unset($_tag_i);
 						}else{
@@ -5327,6 +5341,14 @@ class mtfFile{
 									}
 									if($_v['url']){
 										$_h['img']['u']=$_v['url'];
+									}
+									$_h['img']['width']=$_attr['宽度'][0];
+									$_h['img']['height']=$_attr['高度'][0];
+									if (is_numeric($_v['ch']) && is_numeric($_v['cs']) && is_numeric($_v['cv'])) {
+										$_color = $this->mtfColor->hsv2rgb(array('h'=>$_v['ch'],'s'=>$_v['cs'],'v'=>$_v['cv']));
+										$_h['img']['cr'] = $_color['r'];
+										$_h['img']['cg'] = $_color['g'];
+										$_h['img']['cb'] = $_color['b'];
 									}
 								}elseif($_t==='video'||$_t==='audio'){
 									$_h[$_t]=$this->_getMedia($_v['i'],$_t,$_attr);
@@ -5706,8 +5728,12 @@ class mtfFile{
 					if($qrcode && !is_numeric($qrcode)){//过滤黑白漫画中的二维码·数字
 						$this->mtfQueue->urlAdd(array('class'=>'mtfMysql','sql'=>array('u',array('url'=>$qrcode),'WHERE i='.$_f['id'])),'数据',$this->conf['domain']['dat'],60);
 					}
+					$_attr = array();
+					list($width, $height) = getimagesize($_d['p']);
+					if ($width) $_attr['宽度'] = $width;
+					if ($height) $_attr['高度'] = $height;
 					
-					$this->mtfQueue->urlAdd(array('class'=>'mtfAttr','sql'=>array('i1',array('k'=>$this->tags($_d['p'])),'WHERE i='.$_f['id'])),'数据',$this->conf['domain']['dat'],60);
+					$this->mtfQueue->urlAdd(array('class'=>'mtfAttr','sql'=>array('i1',array('k'=>$this->tags($_d['p']),'a'=>$_attr),'WHERE i='.$_f['id'])),'数据',$this->conf['domain']['dat'],60);
 				}elseif($_f['t']==='video'||$_f['t']==='audio'){
 					if($_f['t']==='video'){
 						rename($_f['d'].'/'.$_f['id'].'.jpg',$_d['d'].'jpg');//缩略图

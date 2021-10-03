@@ -34,6 +34,28 @@ class mtfColor{
 	   $HSL['v'] = $V*255;
 	   return $HSL;
 	}
+	public function hsv2rgb($hsv)
+	{
+		$h = $hsv['h'];
+		$s = $hsv['s'];
+		$v = $hsv['v'];
+		$s /= 256.0;
+		if ($s == 0.0) return array($v,$v,$v);
+		$h /= (256.0 / 6.0);
+		$i = floor($h);
+		$f = $h - $i;
+		$p = (integer)($v * (1.0 - $s));
+		$q = (integer)($v * (1.0 - $s * $f));
+		$t = (integer)($v * (1.0 - $s * (1.0 - $f)));
+		switch($i) {
+			case 0: return array('r'=>$v,'g'=>$t,'b'=>$p);
+			case 1: return array('r'=>$q,'g'=>$v,'b'=>$p);
+			case 2: return array('r'=>$p,'g'=>$v,'b'=>$t);
+			case 3: return array('r'=>$p,'g'=>$q,'b'=>$v);
+			case 4: return array('r'=>$t,'g'=>$p,'b'=>$v);
+			default: return array('r'=>$v,'g'=>$p,'b'=>$q);
+		}
+	}
 	public function rec($_f_p,$_type='hsv'){
 		$_root=str_replace('\\','/',dirname(__file__)).'/';
 		include($_root.'../ColorThief/autoload.php');
