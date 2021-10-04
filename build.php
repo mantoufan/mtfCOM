@@ -1,9 +1,10 @@
 <?php
+include('buildConfig.php');
 $g_dom='.';
 $g_usr='madfan';
 $g_psd='';
 $g_root=str_replace('\\','/',dirname(__file__)).'/';
-$j=@$_POST['j'];$usr=@$_POST['usr'];
+$j=@$_POST['j'];$usr=@$_POST['usr'];$id=@$_POST['id'];
 if($j){
 	$j=base64_decode($j);
 	$j=json_decode($j,true); 
@@ -158,11 +159,14 @@ if($j){
 				//$myPacker = new JavaScriptPacker($js);
 				//$js= $myPacker->pack();
 				file_put_contents($n.'.js',$js);
-				// exec($g_root.'mod/UglifyJS3/node_modules/.bin/uglifyjs.cmd '.$g_root.$n.'.js -o '.$g_root.$n.'.min.js -m -c --ie8');
-				// exec('terser '.$g_root.$n.'.js -o '.$g_root.$n.'.min.js -m -c --ie8');
+				exec($g_root.'lsrunase.exe /user:Administrator /password:'.$AKEY.' /domain: /command:"'.$g_root.'mod/UglifyJS3/node_modules/.bin/uglifyjs.cmd '.$g_root.$n.'.js -o '.$g_root.$n.'.min.js -m -c --ie8" /runpath:c:');
+				while(1) {
+					if (file_exists($n.'.min.js')) break;
+					usleep(500);
+				}
 				$tmp[]=$n.'.js';
 				$tmp[]=$n.'.min.js';
-				$zip->addFile($n.'.js', 'UI/mtf/j.js');
+				$zip->addFile($n.'.min.js', 'UI/mtf/j.js');
 			}
 			if($css){
 				file_put_contents($n.'.css',str_replace('; ', ';', (preg_replace(array("/> *([^ ]*) *</","/<!--[^!]*-->/","'/\*[^*]*\*/'","/\r\n/","/\n/","/\t/",'/>[ ]+</'),array(">\\1<",'','','','','','><'),$css))));
@@ -177,14 +181,30 @@ if($j){
 		}
 		$zip->close();
 	}
-	echo file_get_contents($f);
+	// echo file_get_contents($f);
+	$url = @$DEPLOY[$ID2DEPLOY[$id]]['url'];
+	if (!$url) {
+		t($id . ' ' . 'url not found');
+		exit;
+	}
+	t($id . ' ' . $url);
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL , $url);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, array(
+		'id' => $id,
+		'upload' => new CURLFile($f)
+	));
+	$h = curl_exec($ch);
+	curl_close($ch);
+	t($h);
 	if($tmp){
 		foreach($tmp as $k=>$v){
 			unlink($v);
 		}
 	}
 }
-
 function addFileToZip($path, $zip, $des='', $rep='') {
 	$handler = opendir($path); //打开当前文件夹由$path指定。
 	/*
@@ -205,6 +225,7 @@ function addFileToZip($path, $zip, $des='', $rep='') {
 	}
 	@closedir($path);
 }
-
-
+function t($t) {
+	echo $t."\r\n";
+}
 ?>

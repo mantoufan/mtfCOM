@@ -1,4 +1,5 @@
 <?php
+  $id=basename(__DIR__);
 	$url='http://127.os120.com/build.php';
 	$j=file_get_contents('USR/mtf.json');$usr=array(); 
 	
@@ -15,7 +16,7 @@
 	$usr['crossdomain']['']=getFile('USR/crossdomain.xml');
 	$usr['crossdomain']['api']=getFile('USR/api-crossdomain.xml');
 	
-	$post_data=array('j'=>base64_encode($j),'usr'=>base64_encode(json_encode($usr)));
+	$post_data=array('id'=>$id,'j'=>base64_encode($j),'usr'=>base64_encode(json_encode($usr)));
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -23,20 +24,7 @@
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
 	$h=curl_exec($ch);
 	curl_close($ch);
-	$n=uniqid();
-	file_put_contents($n.'.zip',$h);
-	$zip = new ZipArchive;
-	if ($zip->open($n.'.zip') === TRUE)
-	{
-		$zip->extractTo('.');
-		$zip->close();
-	}
-	unlink($n.'.zip');
-	if($h){
-		echo 'done';
-	}else{
-		echo 'failed';	
-	}
+	echo $h;
 	function getDir($src){
 		$fL=glob($src.'/*');$l=count($fL);$a=array();
 		if($l>0){

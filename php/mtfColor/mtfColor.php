@@ -36,9 +36,9 @@ class mtfColor{
 	}
 	public function hsv2rgb($hsv)
 	{
-		$h = $hsv['h'];
-		$s = $hsv['s'];
-		$v = $hsv['v'];
+		$h = (integer)$hsv['h'];
+		$s = (integer)$hsv['s'];
+		$v = (integer)$hsv['v'];
 		$s /= 256.0;
 		if ($s == 0.0) return array($v,$v,$v);
 		$h /= (256.0 / 6.0);
