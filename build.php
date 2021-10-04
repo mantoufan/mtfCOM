@@ -158,10 +158,11 @@ if($j){
 				//$myPacker = new JavaScriptPacker($js);
 				//$js= $myPacker->pack();
 				file_put_contents($n.'.js',$js);
-				exec($g_root.'mod/UglifyJS3/node_modules/.bin/uglifyjs.cmd '.$g_root.$n.'.js -o '.$g_root.$n.'.min.js -m -c --ie8');
+				// exec($g_root.'mod/UglifyJS3/node_modules/.bin/uglifyjs.cmd '.$g_root.$n.'.js -o '.$g_root.$n.'.min.js -m -c --ie8');
+				// exec('terser '.$g_root.$n.'.js -o '.$g_root.$n.'.min.js -m -c --ie8');
 				$tmp[]=$n.'.js';
 				$tmp[]=$n.'.min.js';
-				$zip->addFile($n.'.min.js', 'UI/mtf/j.js');
+				$zip->addFile($n.'.js', 'UI/mtf/j.js');
 			}
 			if($css){
 				file_put_contents($n.'.css',str_replace('; ', ';', (preg_replace(array("/> *([^ ]*) *</","/<!--[^!]*-->/","'/\*[^*]*\*/'","/\r\n/","/\n/","/\t/",'/>[ ]+</'),array(">\\1<",'','','','','','><'),$css))));
