@@ -1,7 +1,10 @@
 <?php
-  $id=basename(__DIR__);
+  $ROOT = '../mtfApp/';
+  $params = getopt('i:');
+	$DIR = isset($params['i']) ? $ROOT.$params['i'] : (isset($argv[1]) ? $ROOT.$argv[1] : __DIR__);
+  $id=basename($DIR);
 	$url='http://127.os120.com/build.php';
-	$j=file_get_contents('USR/mtf.json');$usr=array(); 
+	$j=file_get_contents($DIR.'/USR/mtf.json');$usr=array(); 
 	
 	$usr['tpl']=getDir('USR/tpl');
 	$usr['lang']=getDir('USR/lang');
@@ -26,7 +29,7 @@
 	curl_close($ch);
 	echo $h;
 	function getDir($src){
-		$fL=glob($src.'/*');$l=count($fL);$a=array();
+		$fL=glob($DIR.'/'.$src.'/*');$l=count($fL);$a=array();
 		if($l>0){
 			for ($i=0; $i<$l; $i++) { 
 				$n=$fL[$i];
@@ -36,8 +39,8 @@
 		return $a;
 	}
 	function getFile($src){
-		if(file_exists($src)){
-			return file_get_contents($src);
+		if(file_exists($DIR.'/'.$src)){
+			return file_get_contents($DIR.'/'.$src);
 		}
 		return '';
 	}
