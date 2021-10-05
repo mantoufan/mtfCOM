@@ -1,30 +1,58 @@
 "use strict";
 
-var to_ascii = typeof atob == "undefined" ? function(b64) {
-    return new Buffer(b64, "base64").toString();
-} : atob;
-var to_base64 = typeof btoa == "undefined" ? function(str) {
-    return new Buffer(str).toString("base64");
-} : btoa;
+var to_ascii, to_base64;
+if (typeof Buffer == "undefined") {
+    to_ascii = atob;
+    to_base64 = btoa;
+} else if (typeof Buffer.alloc == "undefined") {
+    to_ascii = function(b64) {
+        return new Buffer(b64, "base64").toString();
+    };
+    to_base64 = function(str) {
+        return new Buffer(str).toString("base64");
+    };
+} else {
+    to_ascii = function(b64) {
+        return Buffer.from(b64, "base64").toString();
+    };
+    to_base64 = function(str) {
+        return Buffer.from(str).toString("base64");
+    };
+}
 
-function read_source_map(code) {
-    var match = /\n\/\/# sourceMappingURL=data:application\/json(;.*?)?;base64,(.*)/.exec(code);
-    if (!match) {
-        AST_Node.warn("inline source map not found");
-        return null;
+function read_source_map(name, toplevel) {
+    var comments = toplevel.end.comments_after;
+    for (var i = comments.length; --i >= 0;) {
+        var comment = comments[i];
+        if (comment.type != "comment1") break;
+        var match = /^# ([^\s=]+)=(\S+)\s*$/.exec(comment.value);
+        if (!match) break;
+        if (match[1] == "sourceMappingURL") {
+            match = /^data:application\/json(;.*?)?;base64,(\S+)$/.exec(match[2]);
+            if (!match) break;
+            return to_ascii(match[2]);
+        }
     }
-    return to_ascii(match[2]);
+    AST_Node.warn("inline source map not found: {name}", {
+        name: name,
+    });
+}
+
+function parse_source_map(content) {
+    try {
+        return JSON.parse(content);
+    } catch (ex) {
+        throw new Error("invalid input source map: " + content);
+    }
 }
 
 function set_shorthand(name, options, keys) {
-    if (options[name]) {
-        keys.forEach(function(key) {
-            if (options[key]) {
-                if (typeof options[key] != "object") options[key] = {};
-                if (!(name in options[key])) options[key][name] = options[name];
-            }
-        });
-    }
+    keys.forEach(function(key) {
+        if (options[key]) {
+            if (typeof options[key] != "object") options[key] = {};
+            if (!(name in options[key])) options[key][name] = options[name];
+        }
+    });
 }
 
 function init_cache(cache) {
@@ -43,10 +71,12 @@ function to_json(cache) {
 }
 
 function minify(files, options) {
-    var warn_function = AST_Node.warn_function;
     try {
         options = defaults(options, {
+            annotations: undefined,
             compress: {},
+            enclose: false,
+            ie: false,
             ie8: false,
             keep_fnames: false,
             mangle: {},
@@ -57,29 +87,34 @@ function minify(files, options) {
             sourceMap: false,
             timings: false,
             toplevel: false,
+            v8: false,
+            validate: false,
             warnings: false,
+            webkit: false,
             wrap: false,
         }, true);
-        var timings = options.timings && {
-            start: Date.now()
-        };
-        if (options.rename === undefined) {
-            options.rename = options.compress && options.mangle;
-        }
-        set_shorthand("ie8", options, [ "compress", "mangle", "output" ]);
-        set_shorthand("keep_fnames", options, [ "compress", "mangle" ]);
-        set_shorthand("toplevel", options, [ "compress", "mangle" ]);
-        set_shorthand("warnings", options, [ "compress" ]);
+        if (options.validate) AST_Node.enable_validation();
+        var timings = options.timings && { start: Date.now() };
+        if (options.rename === undefined) options.rename = options.compress && options.mangle;
+        if (options.annotations !== undefined) set_shorthand("annotations", options, [ "compress", "output" ]);
+        if (options.ie8) options.ie = options.ie || options.ie8;
+        if (options.ie) set_shorthand("ie", options, [ "compress", "mangle", "output" ]);
+        if (options.keep_fnames) set_shorthand("keep_fnames", options, [ "compress", "mangle" ]);
+        if (options.toplevel) set_shorthand("toplevel", options, [ "compress", "mangle" ]);
+        if (options.v8) set_shorthand("v8", options, [ "mangle", "output" ]);
+        if (options.webkit) set_shorthand("webkit", options, [ "compress", "mangle", "output" ]);
         var quoted_props;
         if (options.mangle) {
             options.mangle = defaults(options.mangle, {
                 cache: options.nameCache && (options.nameCache.vars || {}),
                 eval: false,
-                ie8: false,
+                ie: false,
                 keep_fnames: false,
                 properties: false,
                 reserved: [],
                 toplevel: false,
+                v8: false,
+                webkit: false,
             }, true);
             if (options.mangle.properties) {
                 if (typeof options.mangle.properties != "object") {
@@ -102,16 +137,15 @@ function minify(files, options) {
                 content: null,
                 filename: null,
                 includeSources: false,
+                names: true,
                 root: null,
                 url: null,
             }, true);
         }
         var warnings = [];
-        if (options.warnings && !AST_Node.warn_function) {
-            AST_Node.warn_function = function(warning) {
-                warnings.push(warning);
-            };
-        }
+        if (options.warnings) AST_Node.log_function(function(warning) {
+            warnings.push(warning);
+        }, options.warnings == "verbose");
         if (timings) timings.parse = Date.now();
         var toplevel;
         if (files instanceof AST_Toplevel) {
@@ -122,30 +156,45 @@ function minify(files, options) {
             }
             options.parse = options.parse || {};
             options.parse.toplevel = null;
+            var source_map_content = options.sourceMap && options.sourceMap.content;
+            if (typeof source_map_content == "string" && source_map_content != "inline") {
+                source_map_content = parse_source_map(source_map_content);
+            }
+            if (source_map_content) options.sourceMap.orig = Object.create(null);
             for (var name in files) if (HOP(files, name)) {
                 options.parse.filename = name;
-                options.parse.toplevel = parse(files[name], options.parse);
-                if (options.sourceMap && options.sourceMap.content == "inline") {
-                    if (Object.keys(files).length > 1)
-                        throw new Error("inline source map only works with singular input");
-                    options.sourceMap.content = read_source_map(files[name]);
+                options.parse.toplevel = toplevel = parse(files[name], options.parse);
+                if (source_map_content == "inline") {
+                    var inlined_content = read_source_map(name, toplevel);
+                    if (inlined_content) {
+                        options.sourceMap.orig[name] = parse_source_map(inlined_content);
+                    }
+                } else if (source_map_content) {
+                    options.sourceMap.orig[name] = source_map_content;
                 }
             }
-            toplevel = options.parse.toplevel;
         }
         if (quoted_props) {
             reserve_quoted_keys(toplevel, quoted_props);
         }
-        if (options.wrap) {
-            toplevel = toplevel.wrap_commonjs(options.wrap);
-        }
+        [ "enclose", "wrap" ].forEach(function(action) {
+            var option = options[action];
+            if (!option) return;
+            var orig = toplevel.print_to_string().slice(0, -1);
+            toplevel = toplevel[action](option);
+            files[toplevel.start.file] = toplevel.print_to_string().replace(orig, "");
+        });
+        if (options.validate) toplevel.validate_ast();
         if (timings) timings.rename = Date.now();
         if (options.rename) {
             toplevel.figure_out_scope(options.mangle);
             toplevel.expand_names(options.mangle);
         }
         if (timings) timings.compress = Date.now();
-        if (options.compress) toplevel = new Compressor(options.compress).compress(toplevel);
+        if (options.compress) {
+            toplevel = new Compressor(options.compress).compress(toplevel);
+            if (options.validate) toplevel.validate_ast();
+        }
         if (timings) timings.scope = Date.now();
         if (options.mangle) toplevel.figure_out_scope(options.mangle);
         if (timings) timings.mangle = Date.now();
@@ -154,43 +203,40 @@ function minify(files, options) {
             toplevel.mangle_names(options.mangle);
         }
         if (timings) timings.properties = Date.now();
-        if (options.mangle && options.mangle.properties) {
-            toplevel = mangle_properties(toplevel, options.mangle.properties);
-        }
+        if (options.mangle && options.mangle.properties) mangle_properties(toplevel, options.mangle.properties);
         if (timings) timings.output = Date.now();
         var result = {};
-        if (options.output.ast) {
-            result.ast = toplevel;
-        }
-        if (!HOP(options.output, "code") || options.output.code) {
+        var output = defaults(options.output, {
+            ast: false,
+            code: true,
+        });
+        if (output.ast) result.ast = toplevel;
+        if (output.code) {
             if (options.sourceMap) {
-                if (typeof options.sourceMap.content == "string") {
-                    options.sourceMap.content = JSON.parse(options.sourceMap.content);
-                }
-                options.output.source_map = SourceMap({
-                    file: options.sourceMap.filename,
-                    orig: options.sourceMap.content,
-                    root: options.sourceMap.root
-                });
+                output.source_map = SourceMap(options.sourceMap);
                 if (options.sourceMap.includeSources) {
                     if (files instanceof AST_Toplevel) {
                         throw new Error("original source content unavailable");
                     } else for (var name in files) if (HOP(files, name)) {
-                        options.output.source_map.get().setSourceContent(name, files[name]);
+                        output.source_map.setSourceContent(name, files[name]);
                     }
                 }
             }
-            delete options.output.ast;
-            delete options.output.code;
-            var stream = OutputStream(options.output);
+            delete output.ast;
+            delete output.code;
+            var stream = OutputStream(output);
             toplevel.print(stream);
             result.code = stream.get();
             if (options.sourceMap) {
-                result.map = options.output.source_map.toString();
-                if (options.sourceMap.url == "inline") {
-                    result.code += "\n//# sourceMappingURL=data:application/json;charset=utf-8;base64," + to_base64(result.map);
-                } else if (options.sourceMap.url) {
-                    result.code += "\n//# sourceMappingURL=" + options.sourceMap.url;
+                result.map = output.source_map.toString();
+                var url = options.sourceMap.url;
+                if (url) {
+                    result.code = result.code.replace(/\n\/\/# sourceMappingURL=\S+\s*$/, "");
+                    if (url == "inline") {
+                        result.code += "\n//# sourceMappingURL=data:application/json;charset=utf-8;base64," + to_base64(result.map);
+                    } else {
+                        result.code += "\n//# sourceMappingURL=" + url;
+                    }
                 }
             }
         }
@@ -211,7 +257,7 @@ function minify(files, options) {
                 properties: 1e-3 * (timings.output - timings.properties),
                 output: 1e-3 * (timings.end - timings.output),
                 total: 1e-3 * (timings.end - timings.start)
-            }
+            };
         }
         if (warnings.length) {
             result.warnings = warnings;
@@ -220,6 +266,7 @@ function minify(files, options) {
     } catch (ex) {
         return { error: ex };
     } finally {
-        AST_Node.warn_function = warn_function;
+        AST_Node.log_function();
+        AST_Node.disable_validation();
     }
 }
