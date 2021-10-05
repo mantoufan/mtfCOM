@@ -106,7 +106,7 @@ if($j){
 							}
 						}elseif($k==='php'){
 							if($v1){		
-								file_put_contents($n.$k1.'.'.$k,$v1);
+								file_put_contents($n.$k1.'.'.$k,strtr($v1,$ENV));
 								$tmp[]=$n.$k1.'.php';
 								if($k1==='api'){
 									$zip->addFile($n.$k1.'.'.$k, 'API/index'.'.'.$k);
