@@ -27,7 +27,6 @@ class mtfHTTP{
 		
 		//加速POST，减少1秒延迟 Expect: 请求gzip，并解压
 		curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1); //强制协议为1.1
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array("Expect: ","Accept-Encoding:gzip","SERVER: ".json_encode($_SERVER)));
 		
 		//开启GZIP解压，减少数据传输量
 		curl_setopt($ch, CURLOPT_ENCODING, 'gzip');
@@ -40,7 +39,8 @@ class mtfHTTP{
 			// 建议post数据可以使用http_build_query()函数处理, 能实现更好的兼容性, 更小的请求数据包
 			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($arv['p']));
 		}
-		curl_setopt($ch, CURLOPT_HTTPHEADER, $arv['h']);
+		// Expect 作用减少一次 POST 预检请求
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge(array("Expect: ","Accept-Encoding:gzip","SERVER: ".json_encode($_SERVER)),$arv['h']));
 		$_h=curl_exec($ch);
 		if(curl_errno($ch))
 		{
