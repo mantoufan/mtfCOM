@@ -29,6 +29,7 @@
 	curl_close($ch);
 	echo $h;
 	function getDir($src){
+		global $DIR;
 		$fL=glob($DIR.'/'.$src.'/*');$l=count($fL);$a=array();
 		if($l>0){
 			for ($i=0; $i<$l; $i++) { 
@@ -39,6 +40,7 @@
 		return $a;
 	}
 	function getFile($src){
+		global $DIR;
 		if(file_exists($DIR.'/'.$src)){
 			return file_get_contents($DIR.'/'.$src);
 		}
