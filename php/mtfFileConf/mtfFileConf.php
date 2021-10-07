@@ -82,9 +82,9 @@ class mtfFileConf{
 						'100131'=>'www.mantoufan.com',
 						'100132'=>'yuanmeng.us',
 						'100133'=>'mzhan.mantoufan.com',
+						'100138'=>'ac.mantoufan.com',
 						'100315'=>'v.madfan.cn',
 						'115210'=>'yu.mantoufan.com',
-						'118755'=>'wa.mantoufan.com'
 					),
 					'dy'=>array(
 						'100131'=>array(
