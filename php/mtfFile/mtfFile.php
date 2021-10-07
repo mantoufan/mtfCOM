@@ -606,7 +606,7 @@ class mtfFile{
 			}
 			if($_tpl==='card'){
 				if(@$_des){
-					$_a=$this->mtfBBcode->parse($_des,array('type'=>'ptdk'));
+					$_a=$this->mtfBBcode->parse($_des,array('type'=>'tdk'));
 					$__a['des']=@$_a['s'];
 					if(@$_a['b']){
 						$__a['b']=$_a['b'];
@@ -5108,7 +5108,8 @@ class mtfFile{
 								if($_dn){
 									$_tdk['dn']=$_dn;
 								}
-								$_tdk['t']=$_data['k'].'_'.@$_key['标题'][0];
+								$_dn_t = @$_key['标题'][0];
+								$_tdk['t']=$_data['k'].'_'.$_dn_t;
 								unset($_key['标题'][0]);
 								// $_i=$_tag_i=$this->_ui($_data['k'],$_data['id']);
 								$_i=$_tag_i=$this->_ui($_data['k']);
@@ -5151,12 +5152,13 @@ class mtfFile{
 						if(@$_key){
 							if(@$_key['标题'][0]){
 								$_tdk['t']=$_key['标题'][0];
+								if (!empty($_dn_t)) $_tdk['t'].='_'.$_dn_t;
 							}
 							if(@$_key['描述'][0]){
-								$_a=$this->mtfBBcode->parse(strtr($_key['描述'][0], array('：//'=>'://')), array('type'=>'ptdk'));
-								$_tdk['d']=@$_a['s'];
-								if(isset($_a['des'])){
-									$_tdk['des']=$_a['des'];
+								$_a=$this->mtfBBcode->parse(strtr($_key['描述'][0], array('：//'=>'://')), array('type'=>'tdk'));
+								$_tdk['des'] = preg_replace('/^\n|\n$/', '', $_a['d']);
+								if ($_a['d'] !== $_a['s']) {
+									$_tdk['d'] = str_replace($_a['d'], '', @$_a['s']);
 								}
 							}
 							$_key2=$_key;
@@ -5562,8 +5564,10 @@ class mtfFile{
 									unset($_a['des']);
 									unset($_a['tag']);
 								}elseif(@$_dat_ar[1]['order']==='my' && @$_a['b']){//只有主页显示友情链接
-									$bhtml.=$_a['b'];
+									$_tmp = explode('_', $_dat_ar[1]['page']);
+									if ($_tmp[0] === '1') $bhtml.=$_a['b'];
 									unset($_a['b']);
+									unset($_tmp);
 								}
 								
 								$_rrr=$this->_jsonOrder($_rrr,$_v['i'],array('people'=>$_a+(@$_data['sub']?array('sub'=>1):array())+(@$_dat['sub']===2?array('subp'=>1):array())));//如果要显示子文章，则sub=1，不显示 ♥/粉丝/关注

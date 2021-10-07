@@ -16,6 +16,7 @@ class mtfBBcode{
 		return '<span class="'.$this->className.' '.$this->_lang.'">'.$_s.'</span>';
 	}
 	public function parse($_s,$_arv=array()){
+		$_d=$_s;
 		preg_match_all("/\[(.*?)\](.*?)\[\/\\1\]/s",$_s,$_ar);// /s.号匹配换行符
 		$_bb=array();
 		$_bb_html=array();
@@ -229,8 +230,9 @@ class mtfBBcode{
 						case 'add':
 							
 						break;
-						default:
-							$_h=array();
+						case 'tdk':
+						  $_d = str_replace($_a, '', $_d);
+							$_h = array();
 							$__ar=array_filter(explode("\n",str_replace("\r","\n",strip_tags($_c))));
 							foreach($__ar as $__k=>$__v){
 								$__a=explode(' ',$__v);
@@ -244,16 +246,17 @@ class mtfBBcode{
 								}
 								$_h[]='<div>'.$__h.'</div>';
 							}
-							$_s=str_replace($_a,'<div class=\''.$this->classNameMenu.'\'>'.implode('',$_h).'</div>',$_s);
+							$_s = str_replace($_a,'<div class=\''.$this->classNameMenu.'\'>'.implode('',$_h).'</div>',$_s);
 						break;
 					}
 					break;
 				case 'flink'://友情链接
 					switch (@$_arv['type'])
 					{
-						case 'ptdk':
-							$_b=$_c;
-							$_s=str_replace($_a,'',$_s);
+						case 'tdk':
+							$_b = $_c;
+							$_d = str_replace($_a, '', $_d);
+							$_s = str_replace($_a, '', $_s);
 						break;
 					}
 					break;
@@ -273,8 +276,8 @@ class mtfBBcode{
 				case 'html':
 					switch (@$_arv['type'])
 					{
-						case 'ptdk':
-							$_des = str_replace($_a,  '', $_s);
+						case 'tdk':
+							$_d = str_replace($_a, '', $_d);
 							$_c = preg_replace_callback('/style="(.*?)"/', function($matches){
 								return str_replace('：', ':', $matches[0]);
 							}, $_c);
@@ -296,8 +299,8 @@ class mtfBBcode{
 			return array('bb'=>array_unique($_bb),'bb_html'=>$_bb_html,'s'=>$_s);
 		}elseif($_arv['type']==='add'){
 			return array('av'=>$_av,'s'=>$_s,'ss'=>@$_ss);
-		}elseif($_arv['type']==='ptdk'){
-			return array('b'=>$_b,'s'=>$_s, 'des'=>@$_des);
+		}elseif($_arv['type']==='tdk'){
+			return array('b'=>$_b,'d'=>$_d,'s'=>$_s);
 		}else{
 			return $_s;
 		}
