@@ -1,0 +1,5 @@
+{
+    "require": {
+        "voku/html-min": "^4.4"
+    }
+}
