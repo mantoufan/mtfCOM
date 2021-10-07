@@ -155,9 +155,6 @@ if($j){
 			$js=($js?$js."\n":'').@$c['js'];
 			$css=@$c['css'];
 			if($js){
-				//include('php/JavaScriptPacker/JavaScriptPacker.php');
-				//$myPacker = new JavaScriptPacker($js);
-				//$js= $myPacker->pack();
 				file_put_contents($n.'.js',$js);
 				exec($g_root.'lsrunase.exe /user:Administrator /password:'.$AKEY.' /domain: /command:"'.$g_root.'mod/UglifyJS3/node_modules/.bin/uglifyjs.cmd '.$g_root.$n.'.js -o '.$g_root.$n.'.min.js -m -c --ie8" /runpath:c:');
 				while(1) {
@@ -169,7 +166,13 @@ if($j){
 				$zip->addFile($n.'.min.js', 'UI/mtf/j.js');
 			}
 			if($css){
-				file_put_contents($n.'.css',str_replace('; ', ';', (preg_replace(array("/> *([^ ]*) *</","/<!--[^!]*-->/","'/\*[^*]*\*/'","/\r\n/","/\n/","/\t/",'/>[ ]+</'),array(">\\1<",'','','','','','><'),$css))));
+				file_put_contents($n.'.css',$css);
+				exec($g_root.'lsrunase.exe /user:Administrator /password:'.$AKEY.' /domain: /command:"'.$g_root.'mod/CleanCss/node_modules/.bin/cleancss.cmd '.$g_root.$n.'.css -o '.$g_root.$n.'.min.css" /runpath:c:');
+				while(1) {
+					if (file_exists($n.'.min.css')) break;
+					usleep(500);
+				}
+				rename($n.'.min.css', $n.'.css');
 				$tmp[]=$n.'.css';	
 				$zip->addFile($n.'.css', 'UI/mtf/c.css');
 			}
