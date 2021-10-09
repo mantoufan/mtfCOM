@@ -49,7 +49,7 @@ if($j){
 					}elseif($k==='js'||$k==='css'){
 						$c[$k].=($c[$k]?"\n":'').file_get_contents($k.'/'.$v1.'.'.$k);	
 					}elseif($k==='tpl'){
-						$c[$k][$v1]=file_get_contents($k.'/'.$v1.'.'.$k);
+						$c[$k][$v1]=htmlMinify(file_get_contents($k.'/'.$v1.'.html'));
 					}elseif($k==='lang'||$k==='json'){
 						include_once('php/mtfLang/mtfLang.php');
 						$l=new mtfLang($v1.'/'.$k);
@@ -85,7 +85,7 @@ if($j){
 						if($k==='js'||$k==='css'){
 							$c[$k].=($c[$k]?"\n":'').$v1;
 						}elseif($k==='tpl'){
-							$c[$k][stristr($k1,'.',true)]=$v1;
+							$c[$k][stristr($k1,'.',true)]=htmlMinify($v1);
 						}elseif($k==='lang'||$k==='json'){
 							$k1=stristr($k1,'.',true);
 							if($c[$k][$k1]){
@@ -95,7 +95,7 @@ if($j){
 							}
 						}elseif($k==='html'){
 							if($v1){	
-								$html=trim(preg_replace(array("/> *([^ ]*) *</","/<!--[^!]*-->/","'/\*[^*]*\*/'","/\r\n/","/\n/","/\t/",'/>[ ]+</'),array(">\\1<",'','','','','','><'),$v1));	
+								$html=htmlMinify($v1);	
 								if($k1==='app'){
 									$c['tpl'][$k1]=$html;	
 								}else{
@@ -230,5 +230,8 @@ function addFileToZip($path, $zip, $des='', $rep='') {
 }
 function t($t) {
 	echo $t."\r\n";
+}
+function htmlMinify($h) {
+	return trim(preg_replace(array("/> *([^ ]*) *</","/<!--[^!]*-->/","'/\*[^*]*\*/'","/\r\n/","/\n/","/\t/",'/>[ ]+</'),array(">\\1<",'','','','','','><'), $h));
 }
 ?>
