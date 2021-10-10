@@ -5901,7 +5901,7 @@ class mtfFile{
 	}
 	
 	public function fileKey($_id,$_action='get',$_key=''){
-		$_k=md5($_id.substr(time(),0,6));//链接2小时有效
+		$_k=md5($_id.substr(time(),0,5));//链接 27 小时有效
 		if($_action==='get'){
 			return $_k;
 		}else{
