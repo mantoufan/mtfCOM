@@ -5664,7 +5664,7 @@ class mtfFile{
 					$_rrr=array_merge($_rrr,$_relate);
 				}
 				if($bhtml){
-					$_rrr[]=array(0=>array('tpl'=>$bhtml));
+					$_rrr[]=array(array('tpl'=>$bhtml));
 				}
 				return $_rrr;
 			}
