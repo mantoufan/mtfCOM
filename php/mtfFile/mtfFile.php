@@ -4341,7 +4341,7 @@ class mtfFile{
 			}elseif($_t==='audio'){
 				
 			}else{
-				$_d+=array('down'=>$_i?array('key'=>$this->fileKey($_i),'e'=>$_ext,'href'=>$_ext==='ipa'?'itms-services://?action=download-manifest&url='.urlencode('https://a.os120.com/plist/?url=https:'.$conf['domain']['cdn'].$this->fileKey($_i).'/'.$_i.$_ext):''):1);
+				$_d+=array('down'=>$_i?array('key'=>$this->fileKey($_i),'e'=>$_ext,'href'=>$conf['domain']['cdn'].$this->fileKey($_i).'/'.$_i.$_ext):1);
 			}
 			
 		}
