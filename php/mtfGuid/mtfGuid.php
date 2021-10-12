@@ -19,9 +19,20 @@ class mtfGuid
 			return md5(@$_SERVER['HTTP_USER_AGENT'].substr($_SERVER['REQUEST_TIME'],0,7));	
 		}
 	}
+	private function _header2ip($_header) {
+		if (!empty($_SERVER[$_header])) {
+			$_list = explode(',', $_SERVER[$_header]);
+			return $_list[0];
+		}
+		return '';
+	}
 	public function ip(){
-		$list = explode(',',@$_SERVER['HTTP_X_FORWARDED_FOR']);
-		return $list[0]?$list[0]:$_SERVER["REMOTE_ADDR"];
+		$headers = array('HTTP_CF_CONNECTING_IP', 'HTTP_TRUE_CLIENT_IP', 'HTTP_X_REAL_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR');
+		foreach($headers as $header) {
+			$ip = $this->_header2ip($header);	
+			if (!empty($ip)) return $ip; 
+		}
+		return '';
 	}
 	private function ua2num(){
 		$_ua = '';
