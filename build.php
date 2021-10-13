@@ -185,23 +185,26 @@ if($j){
 		$zip->close();
 	}
 	// echo file_get_contents($f);
-	$url = @$DEPLOY[$ID2DEPLOY[$id]]['url'];
-	if (!$url) {
-		t($id . ' ' . 'url not found');
-		exit;
+	$servers = $ID2DEPLOY[$id];
+	foreach ($servers as $server) {
+		$url = @$DEPLOY[$server]['url'];
+		if (!$url) {
+			t($id . ' ' . 'url not found');
+			exit;
+		}
+		t($id . ' ' . $url);
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL , $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, array(
+			'id' => $id,
+			'upload' => new CURLFile($f)
+		));
+		$h = curl_exec($ch);
+		curl_close($ch);
+		t($h);
 	}
-	t($id . ' ' . $url);
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL , $url);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt($ch, CURLOPT_POST, 1);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, array(
-		'id' => $id,
-		'upload' => new CURLFile($f)
-	));
-	$h = curl_exec($ch);
-	curl_close($ch);
-	t($h);
 	if($tmp){
 		foreach($tmp as $k=>$v){
 			unlink($v);
