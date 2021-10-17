@@ -239,16 +239,16 @@ class mtfQueue{
 		curl_setopt($_ch, CURLOPT_TIMEOUT, 3);
 		
 		//加速Curl
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-		curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+		curl_setopt($_ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+		curl_setopt($_ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+		curl_setopt($_ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 		
 		//加速POST，减少1秒延迟 Expect: 请求gzip，并解压
-		curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1); //强制协议为1.1
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array("Expect: ","Accept-Encoding:gzip","SERVER: ".json_encode($_SERVER)));
+		curl_setopt($_ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1); //强制协议为1.1
+		curl_setopt($_ch, CURLOPT_HTTPHEADER, array("Expect: ","Accept-Encoding:gzip","SERVER: ".json_encode($_SERVER)));
 		
 		//开启GZIP解压，减少数据传输量
-		curl_setopt($ch, CURLOPT_ENCODING, 'gzip');
+		curl_setopt($_ch, CURLOPT_ENCODING, 'gzip');
 		
 		$_h=curl_exec($_ch);
 		curl_close($_ch);
