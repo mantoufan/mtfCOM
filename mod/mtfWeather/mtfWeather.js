@@ -97,13 +97,13 @@
     create: function (a) {
       switch (a) {
         case "雪":
-          this.size = (Math.random() * 40 + 10) | 0;
           this.el = cache.get(
             "./mtf/mtfWeatherPic/snow" + Math.floor(Math.random() * 5) + ".gif"
           );
+          this.el.size = (Math.random() * 40 + 10) | 0;
           this.common(this.el);
-          this.maxLeft = w(this.size);
-          this.maxTop = l(this.size);
+          this.maxLeft = w(this.el.size);
+          this.maxTop = l(this.el.size);
           this.left = Math.random() * this.maxLeft;
           this.top = h().top + 1;
           this.angle = 1.5;
@@ -113,15 +113,15 @@
           this.speed = 2 + Math.random();
           break;
         case "蝴蝶":
-          this.size = (Math.random() * 10 + 8) | 0;
           this.el = cache.get(
             "./mtf/mtfWeatherPic/butterfly" +
               Math.floor(Math.random() * 5) +
               ".gif"
           );
+          this.el.size = (Math.random() * 10 + 8) | 0;
           this.common(this.el);
-          this.maxLeft = w(this.size);
-          this.maxTop = l(this.size);
+          this.maxLeft = w(this.el.size);
+          this.maxTop = l(this.el.size);
           this.left = Math.random() * this.maxLeft;
           this.top = h().top + l() / Math.floor(1 + Math.random() * 3);
           this.angle = 0;
@@ -131,16 +131,16 @@
           this.speed = 2.5 + Math.random();
           break;
         case "光":
-          this.size = (parseInt(Math.random() * 20) + 20) | 0;
           this.el = document.createElement("div");
+          this.el.size = (parseInt(Math.random() * 20) + 20) | 0;
           this.common(this.el);
           this.el.innerHTML = "●";
           this.el.style.color = "#f9f7bd";
-          this.el.style.fontSize = this.size + "px";
-          this.maxLeft = w(this.size);
+          this.el.style.fontSize = this.el.size + "px";
+          this.maxLeft = w(this.el.size);
           this.maxTop = 99999999;
           this.left = Math.random() * this.maxLeft;
-          this.top = h().top + l(this.size * 1.25);
+          this.top = h().top + l(this.el.size * 1.25);
           this.angle = 0.5;
           this.minAngle = 0.35;
           this.maxAngle = 0.65;
@@ -148,14 +148,14 @@
           this.speed = 2 + Math.random();
           break;
         case "雨":
-          this.size = 12;
           this.el = document.createElement("div");
+          this.el.size = 12;
           this.common(this.el);
           this.el.innerHTML = "|";
           this.el.style.color = "#FFFFFF";
-          this.el.style.fontSize = this.size + "px";
-          this.maxLeft = w(this.size);
-          this.maxTop = l(this.size);
+          this.el.style.fontSize = this.el.size + "px";
+          this.maxLeft = w(this.el.size);
+          this.maxTop = l(this.el.size);
           this.left = Math.random() * this.maxLeft;
           this.top = h().top + 1;
           this.angle = 1.5;
@@ -167,15 +167,15 @@
         case "樱花":
         default:
           //默认樱花
-          this.size = (Math.random() * 7 + 8) | 0;
           this.el = cache.get(
             "./mtf/mtfWeatherPic/sakura" +
               Math.floor(Math.random() * 8) +
               ".gif"
           );
+          this.el.size = (Math.random() * 8 + 10) | 0;
           this.common(this.el);
-          this.maxLeft = w(this.size);
-          this.maxTop = l(this.size);
+          this.maxLeft = w(this.el.size);
+          this.maxTop = l(this.el.size);
           this.left = Math.random() * this.maxLeft;
           this.top = h().top + 1;
           this.angle = 1.5;
