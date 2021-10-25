@@ -991,7 +991,6 @@ class mtfFile{
 							if(@$_arv['preview']){
 								$_ar['sub'][$_d['id']]['preview']['url']=$__a;
 							}else{
-								$__a+=array('key'=>$this->fileKey($_d['id']));
 								$_ar['sub'][$_d['id']]['url']=$__a;
 							}
 						}elseif($_d['e']==='mtfdat'){
@@ -1128,14 +1127,13 @@ class mtfFile{
 					}
 					*/
 					if($_c){
-						
 						$_exts=implode('|',array_keys($this->conf['ext2type']));
 						preg_match_all("/(".$_arv['mtfdat']['pattern']."\.(".$_exts."))/", $_c, $_m);
 						$_gif=0;
 						foreach($_m[0] as $_k=>$_v){
 							$_d=$this->pathInfo($_v);
 							if($_d['e']==='url'){	
-								$_ar['url'][]=array('i'=>$_d['id'],'u'=>$this->getContent($this->fileOrTmp($_d['n']),'view'),'key'=>$this->fileKey($_d['id']));
+								$_ar['url'][]=array('i'=>$_d['id'],'u'=>$this->getContent($this->fileOrTmp($_d['n']),'view'));
 							}elseif($_d['e']==='mtfdat'){
 								if($_c===$_d['id'].'.'.$_d['e']){//直接引用文章（显示内容）
 									$_p=$this->dir['file'].$this->n2dir($_d['id']).$_d['id'].'.'.$_d['e'];
@@ -1143,12 +1141,12 @@ class mtfFile{
 								}
 							}elseif($_d['t']==='audio'){//语音直接显示
 								$_b=$this->conf['convert']['audio'][0];
-								$_ar['audio'][]=array('i'=>$_d['id'],'key'=>$this->fileKey($_d['id']),'source'=>array('b'=>$_b['b'],'w'=>$_b['w'],'ext'=>$_b['ext']));	
+								$_ar['audio'][]=array('i'=>$_d['id'],'source'=>array('b'=>$_b['b'],'w'=>$_b['w'],'ext'=>$_b['ext']));	
 							}else{
 								$_a=$this->_isDownGifExt($_d['e']);
 								if($_t==='sitemap'){
 									if(@$_a['video']===1){
-										$_ar['video'][]=array('content_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$this->fileKey($_d['id']).'/'.$_d['id'].'_c_b_360_w_480.'.$_d['e'],'thumbnail_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_w_250.gif');
+										$_ar['video'][]=array('content_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_b_360_w_480.'.$_d['e'],'thumbnail_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_w_250.gif');
 									}else{
 										$_ar['img'][]=array('loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_w_600.'.$_d['e']);
 									}
@@ -2184,7 +2182,7 @@ class mtfFile{
 									}
 								}
 							}
-							return array('u'=>$this->conf['domain']['cdn'].'/'.$this->fileKey($_i).'/'.$_i.'.'.$_r['e'],/*'waifu'=>$this->conf['domain']['cdn'].'/'.$_i.'_c_waifu_'.$this->_waifu2url($_i.'_2_2').'.'.$_r['e'],*/'status'=>TRUE);
+							return array('u'=>$this->conf['domain']['cdn'].'/'.$_i.'.'.$_r['e'],/*'waifu'=>$this->conf['domain']['cdn'].'/'.$_i.'_c_waifu_'.$this->_waifu2url($_i.'_2_2').'.'.$_r['e'],*/'status'=>TRUE);
 					}else{
 						return array('status'=>FALSE);
 					}
@@ -4323,7 +4321,7 @@ class mtfFile{
 				$_tag=$_key;
 			}
 		}
-		return array('poster'=>array('i'=>$_i, 'e'=>'gif'),'key'=>$this->fileKey($_i),'source'=>$_source,'sub'=>$_sub)+($_txt?array('txt'=>$_txt):array())+($_tag?array('k'=>$_tag):array());
+		return array('poster'=>array('i'=>$_i, 'e'=>'gif'),'source'=>$_source,'sub'=>$_sub)+($_txt?array('txt'=>$_txt):array())+($_tag?array('k'=>$_tag):array());
 	}
 	
 	private function _isDownGifExt($_e,$_t='',$_i=''){
@@ -4341,7 +4339,7 @@ class mtfFile{
 			}elseif($_t==='audio'){
 				
 			}else{
-				$_d+=array('down'=>$_i?array('key'=>$this->fileKey($_i),'e'=>$_ext,'href'=>$conf['domain']['cdn'].$this->fileKey($_i).'/'.$_i.$_ext):1);
+				$_d+=array('down'=>$_i?array('e'=>$_ext,'href'=>$conf['domain']['cdn'].$_i.$_ext):1);
 			}
 			
 		}
@@ -5381,23 +5379,19 @@ class mtfFile{
 							if($_tpl==='data'){
 								$_rr[$_v['i']]=$this->_get_data($_v,$_attr);
 							}elseif($_tpl==='list'){
-								$_rr[$_v['i']]['list']['url'][]=array('i'=>$_v['i'],'u'=>$this->getContent($this->dir['file'].$this->n2dir($_v['i']).$_v['i'].'.'.$_v['e'],'view'),'key'=>$this->fileKey($_v['i']));
+								$_rr[$_v['i']]['list']['url'][]=array('i'=>$_v['i'],'u'=>$this->getContent($this->dir['file'].$this->n2dir($_v['i']).$_v['i'].'.'.$_v['e'],'view'));
 								$_rr[$_v['i']]['list']['type']=$_t;
 								
 								//List强制排序
 								$_rrr=$this->_jsonOrder($_rrr,$_v['i'],$_rr[$_v['i']]);
 								unset($_rr[$_v['i']]);
 							}else{
-								if($this->fileKey($_v['i'],'verify',@$_dat[1]['key'])){
-									$_u=$this->getContent($this->dir['file'].$this->n2dir($_v['i']).$_v['i'].'.'.$_v['e'],'view');
-									$_video=false;
-									if (strrchr($_u, '.')==='.m3u8') {
-										$_video=true;
-									}
-									$_rr[$_v['i']]['url']=array('u'=>$_u,'jump'=>2,'key'=>$this->mtfCrypt->en($_u,substr(time(),0,7)),'video'=>$_video);//直接打开URL跳转
-								}else{
-									return array();//无Key返回404
+								$_u = $this->getContent($this->dir['file'].$this->n2dir($_v['i']).$_v['i'].'.'.$_v['e'], 'view');
+								$_video = false;
+								if (strrchr($_u, '.') === '.m3u8') {
+									$_video = true;
 								}
+								$_rr[$_v['i']]['url'] = array('u'=>$_u, 'jump'=>$this->mtfCrypt->en($_u,substr(time(),0,7)), 'video'=>$_video);//直接打开URL跳转
 							}
 						}elseif($_t==='mtfdat'){
 							$_p=$this->dir['file'].$this->n2dir($_v['i']).$_v['i'].'.'.$_v['e'];

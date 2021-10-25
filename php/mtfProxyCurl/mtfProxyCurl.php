@@ -10,7 +10,10 @@ class mtfProxyCurl{
 		$this->mtfHTTP=new mtfHTTP();
 	}
 	public function verify($_conf_key){
-		$_key=@$_POST['key']?$_POST['key']:@$_SERVER['HTTP_KEY'];
+		$_key = '';
+		if (!empty($_POST['key'])) $_key = $_POST['key'];
+		elseif (!empty($_SERVER['HTTP_KEY'])) $_key = $_SERVER['HTTP_KEY'];
+		elseif (!empty($_GET['key'])) $_key = $_GET['key'];
 		$_answer=@$_REQUEST['answer'];
 		$_j=$this->mtfHTTP->curl(array('u'=>$_conf_key['domain'].'?psd='.$_conf_key['psd'].'&key='.$_key.'&answer='.$_answer));
 		
