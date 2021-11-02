@@ -8,7 +8,6 @@ class mtfFile{
 	public $conf=array();
 	public $db=array();
 	/** 配置：结束 */
-	public $webdav=array();
 	private $mtfUnit;
 	private $mtfMysql;
 	private $mtfQueue;
@@ -1665,7 +1664,7 @@ class mtfFile{
 	
 	
 	//文件名固定为 年月日时分秒（微妙）（18+4=22）的情况
-	public function ext($_extConf=array('db'=>'','webdav'=>'','queue'=>'','mail'=>''))
+	public function ext($_extConf=array('db'=>'','queue'=>'','mail'=>''))
 	{	
 		$_root=$this->_root;
 		if(@$_extConf['db']){
@@ -1683,20 +1682,6 @@ class mtfFile{
 			$this->mtfQueue=new mtfQueue($_extConf['que']);
 			$this->mtfQueue->RESTful();
 		}
-		
-		/*
-		if(@$_extConf['webdav']){
-			$this->webdav=$_extConf['webdav'];
-			include_once($_root.'../sabre/autoload.php');
-			$settings = array(
-				'baseUri' => $this->webdav['url'],
-				'userName' => $this->webdav['usr'],
-				'password' => $this->webdav['psd']
-			);
-			
-			$this->sabre=new Sabre\DAV\Client($settings);
-		}
-		*/
 		
 		if(@$_extConf['mail']){
 			$this->conf['mail']=$_extConf['mail'];
@@ -5855,7 +5840,13 @@ class mtfFile{
 						@unlink($_f);
 					}
 					$this->mtfQueue->urlRemove($_i);
-					
+
+					if(!empty($this->conf['_extConf']['ftp']['on'])) {
+						$_ftp_con = ftp_connect($this->conf['_extConf']['ftp']['url']);
+						ftp_login($_ftp_con, $this->conf['_extConf']['ftp']['usr'], $this->conf['_extConf']['ftp']['psd']);
+						ftp_delete($_ftp_con, $this->conf['_extConf']['ftp']['defaultDir'] . $this->n2dir($_dat['n']) . $_dat['n']);
+					}
+
 					if(@$this->conf['_extConf']['webdav']['on']){
 						include_once($this->_root.'../sabre/autoload.php');
 						$settings = array(
