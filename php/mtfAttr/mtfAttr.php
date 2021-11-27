@@ -98,7 +98,7 @@ class mtfAttr{
 		}
 		elseif($action==='i1'||$action==='u0'||$action==='u1'||$action==='d1')
 		{
-			//u0 - 修改声明的护具，其余数据删除
+			//u0 - 修改声明的数据，其余数据删除
 			//u1 - 只修改声明的数据，其余数据不动
 			$_rr=array();
 			$_r=$this->sql('s1',$table,implode(',',array_keys($values)),$if,$debug,$_t);
