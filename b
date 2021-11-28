@@ -1,9 +1,9 @@
 <?php
-  $ROOT = '../mtfApp/';
-  $params = getopt('i:');
-  $DIR = isset($params['i']) ? $ROOT.$params['i'] : (isset($argv[1]) ? $ROOT.$argv[1] : __DIR__);
-  $id=basename($DIR);
-  $url='http://127.os120.com/build.php';
+  include('buildConfig.php');
+  $id=isset($params['i']) ? $params['i'] : (isset($argv[1]) ? $argv[1] : '');
+  if (empty($id)) exit('id can not be empty');
+  $DIR = isset($ID2DIR[$id]) ? '../' . $ID2DIR[$id] : '';
+  if (empty($DIR)) exit('dir can not be empty');
   $j=file_get_contents($DIR.'/USR/mtf.json');$usr=array(); 
   
   $usr['tpl']=getDir('USR/tpl');
@@ -19,15 +19,8 @@
   $usr['crossdomain']['']=getFile('USR/crossdomain.xml');
   $usr['crossdomain']['api']=getFile('USR/api-crossdomain.xml');
   
-  $post_data=array('id'=>$id,'j'=>base64_encode($j),'usr'=>base64_encode(json_encode($usr)));
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, $url);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-  curl_setopt($ch, CURLOPT_POST, 1);
-  curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
-  $h=curl_exec($ch);
-  curl_close($ch);
-  echo $h;
+  $_POST=array('id'=>$id,'j'=>base64_encode($j),'usr'=>base64_encode(json_encode($usr)));
+  include('build.php');
   function getDir($src){
     global $DIR;
     $fL=glob($DIR.'/'.$src.'/*');$l=count($fL);$a=array();

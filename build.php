@@ -47,7 +47,7 @@ if($j){
 							loadPHPJson($k,$v1,$zip);
 						}
 					}elseif($k==='js'||$k==='css'){
-						$c[$k].=($c[$k]?"\n":'').file_get_contents($k.'/'.$v1.'.'.$k);	
+						@$c[$k].=(@$c[$k]?"\n":'').file_get_contents($k.'/'.$v1.'.'.$k);	
 					}elseif($k==='tpl'){
 						$c[$k][$v1]=htmlMinify(file_get_contents($k.'/'.$v1.'.html'));
 					}elseif($k==='lang'||$k==='json'){
@@ -83,12 +83,12 @@ if($j){
 				foreach($usr as $k=>$v){
 					foreach($v as $k1=>$v1){
 						if($k==='js'||$k==='css'){
-							$c[$k].=($c[$k]?"\n":'').$v1;
+							@$c[$k].=(@$c[$k]?"\n":'').$v1;
 						}elseif($k==='tpl'){
 							$c[$k][stristr($k1,'.',true)]=htmlMinify($v1);
 						}elseif($k==='lang'||$k==='json'){
 							$k1=stristr($k1,'.',true);
-							if($c[$k][$k1]){
+							if(@$c[$k][$k1]){
 								$c[$k][$k1]=@array_merge($c[$k][$k1],json_decode($v1,true));
 							}else{
 								$c[$k][$k1]=json_decode($v1,true);
@@ -140,23 +140,24 @@ if($j){
 					}
 				}
 			}
-			if($c['tpl']){
+			if(@$c['tpl']){
 				$js='var TPL='.json_encode($c['tpl'],true).';';
 				$php='$TPL='.var_export($c['tpl'],true).';';	
 			}
-			if($c['lang']){
+			if(@$c['lang']){
 				$js.='var LANG='.json_encode($c['lang'],true).';';
 				$php.='$LANG='.var_export($c['lang'],true).';';	
 			}
-			if($c['json']){
+			if(@$c['json']){
 				$js.='var CONF='.json_encode($c['json'],true).';';
 				$php.='$CONF='.var_export($c['json'],true).';';	
 			}
-			$js=($js?$js."\n":'').@$c['js'];
+			$js=(@$js?$js."\n":'').@$c['js'];
 			$css=@$c['css'];
 			if($js){
 				file_put_contents($n.'.js',$js);
-				exec($g_root.'lsrunase.exe /user:Administrator /password:'.$AKEY.' /domain: /command:"'.$g_root.'mod/UglifyJS3/node_modules/.bin/uglifyjs.cmd '.$g_root.$n.'.js -o '.$g_root.$n.'.min.js -m -c --ie8" /runpath:c:');
+				// exec($g_root.'lsrunase.exe /user:Administrator /password:'.$AKEY.' /domain: /command:"'.$g_root.'mod/UglifyJS3/node_modules/.bin/uglifyjs.cmd '.$g_root.$n.'.js -o '.$g_root.$n.'.min.js -m -c --ie8" /runpath:c:');
+        exec($g_root.'mod/UglifyJS3/node_modules/.bin/uglifyjs '.$g_root.$n.'.js -o '.$g_root.$n.'.min.js -m -c --ie8');
 				while(1) {
 					if (file_exists($n.'.min.js')) break;
 					usleep(500);
@@ -167,7 +168,8 @@ if($j){
 			}
 			if($css){
 				file_put_contents($n.'.css',$css);
-				exec($g_root.'lsrunase.exe /user:Administrator /password:'.$AKEY.' /domain: /command:"'.$g_root.'mod/CleanCss/node_modules/.bin/cleancss.cmd '.$g_root.$n.'.css -o '.$g_root.$n.'.min.css" /runpath:c:');
+				// exec($g_root.'lsrunase.exe /user:Administrator /password:'.$AKEY.' /domain: /command:"'.$g_root.'mod/CleanCss/node_modules/.bin/cleancss.cmd '.$g_root.$n.'.css -o '.$g_root.$n.'.min.css" /runpath:c:');
+       	exec($g_root.'mod/CleanCss/node_modules/.bin/cleancss '.$g_root.$n.'.css -o '.$g_root.$n.'.min.css');
 				while(1) {
 					if (file_exists($n.'.min.css')) break;
 					usleep(500);
@@ -176,7 +178,7 @@ if($j){
 				$tmp[]=$n.'.css';	
 				$zip->addFile($n.'.css', 'UI/mtf/c.css');
 			}
-			if($php){
+			if(@$php){
 				file_put_contents($n.'.MTF.php','<?php '.$php.' ?>');
 				$tmp[]=$n.'.MTF.php';
 				$zip->addFile($n.'.MTF.php', 'API/mtf/php/MTF.php');		
@@ -229,7 +231,7 @@ function addFileToZip($path, $zip, $des='', $rep='') {
 			}
 		}
 	}
-	@closedir($path);
+	closedir($handler);
 }
 function t($t) {
 	echo $t."\r\n";
