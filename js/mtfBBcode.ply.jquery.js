@@ -46,6 +46,7 @@ var mtfBBcode = {
           q = p.parent(),
           r = [],
           b;
+        if (q.hasClass("mtfBB-Menu-Line")) q.find(".cur").removeClass("cur")
         if (t.hasClass("cur")) {
           t.removeClass("cur");
         } else {

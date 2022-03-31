@@ -5,6 +5,7 @@ class mtfBBcode{
 	public $classNameWeather='mtfBB-weather';
 	public $classNameVideo='mtfBB-Video';
 	public $classNameMenu='mtfBB-Menu';
+	public $classNameMenuLine='mtfBB-Menu-Line';
 	private $_lang='m-lang';
 	private $_root;
 	
@@ -225,12 +226,14 @@ class mtfBBcode{
 					}
 					break;
 				case 'menu':
+				case 'menuline':
 					switch (@$_arv['type'])
 					{
 						case 'add':
 							
 						break;
 						case 'tdk':
+							$v_type = $_v;
 						  $_d = str_replace($_a, '', $_d);
 							$_h = array();
 							$__ar=array_filter(explode("\n",str_replace("\r","\n",strip_tags($_c))));
@@ -246,7 +249,7 @@ class mtfBBcode{
 								}
 								$_h[]='<div>'.$__h.'</div>';
 							}
-							$_s = str_replace($_a,'<div class=\''.$this->classNameMenu.'\'>'.implode('',$_h).'</div>',$_s);
+							$_s = str_replace($_a,'<div class=\''.$this->classNameMenu.($v_type === 'menuline' ? ' '.$this->classNameMenuLine : '').'\'>'.implode('',$_h).'</div>',$_s);
 						break;
 					}
 					break;
@@ -264,7 +267,10 @@ class mtfBBcode{
 					switch (@$_arv['type'])
 					{
 						case 'add':
-							$_ss=str_replace($_a, '', $_s);
+							$_ss = str_replace($_a, '', $_s);
+						break;
+						case 'list':
+							$_s = str_replace($_a, '', $_s);
 						break;
 						default:
 							include_once($this->_root.'../Parsedown/Parsedown.php');
