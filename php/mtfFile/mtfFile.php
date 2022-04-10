@@ -3697,7 +3697,7 @@ class mtfFile{
 				}
 				
 			
-				preg_match_all("/#(\S+?)#/", $_data['data'], $_m);
+				preg_match_all("/#(\S+?)\s/", $_data['data'], $_m);
 				if(@$_m[0]){
 					foreach($_m[0] as $_k=>$_v){
 						$_tag=trim($_v,'#');
