@@ -30,7 +30,7 @@ class mtfUrl{
 			$_ar = explode(' ',$_u);
 			$_u = $_ar[0];
 			unset($_ar);
-			$_u = trim(preg_replace("~[[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/]~","\\0",$_u));
+			$_u = trim(preg_replace("~[[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/]~", "\\0", $_u));
 
 			//换行符
 			$_ar = explode("\r",$_u);

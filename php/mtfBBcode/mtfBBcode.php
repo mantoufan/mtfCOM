@@ -267,7 +267,7 @@ class mtfBBcode{
 					switch (@$_arv['type'])
 					{
 						case 'add':
-							$_ss = str_replace($_a, '', $_s);
+							$_ss = str_replace($_a, preg_replace('~(```[\s\S]*```)|([[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/])~', '', $_a), $_s);
 						break;
 						case 'list':
 							$_s = str_replace($_a, '', $_s);
