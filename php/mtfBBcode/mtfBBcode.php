@@ -276,7 +276,7 @@ class mtfBBcode{
 							include_once($this->_root.'../Parsedown/Parsedown.php');
 							$Parsedown = new Parsedown();
 							$_text = htmlspecialchars_decode(preg_replace('/<p.*?>|<\/p>/is','',preg_replace('/<p>(.*?)<\/p>/',"$1\n",str_replace('&nbsp;',' ', str_replace('<p><br></p>',"\n",$_c)))));
-							$_text = preg_replace('/((```\w+\s\[\]((?!```)[\s\S])*```[\r\n]*){2,})/', "[mtfCodeTab]\n$1\n[/mtfCodeTab]\n", $_text);
+							$_text = preg_replace('/((```[\w+]+\s\[\]((?!```)[\s\S])*```[\r\n]*){2,})/', "[mtfCodeTab]\n$1\n[/mtfCodeTab]\n", $_text);
 							$_s=str_replace($_a, strtr($Parsedown->text($_text), array('[mtfCodeTab]' => '<div class="mtf-code-tab">', '[/mtfCodeTab]' => '</div>')), $_s);
 						break;
 					}
