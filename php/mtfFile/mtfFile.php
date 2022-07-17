@@ -193,7 +193,8 @@ class mtfFile{
 				$_f['i']['height']=$_i[1];
 				$_f['i']['mime']=$_i['mime'];
 			}elseif($_f['t']==='video'||$_f['t']==='audio'){
-				$_l=shell_exec($_root.'bin/WIN32/FFmpeg/ffprobe "'.$_f['p'].'" 2>&1');
+				// $_l=shell_exec($_root.'bin/WIN32/FFmpeg/ffprobe "'.$_f['p'].'" 2>&1');
+				$_l=shell_exec('ffprobe "'.$_f['p'].'" 2>&1');
 				preg_match("/Duration: (\S+),/", $_l, $_ar);
 				$_f['i']['duration']=$this->mtfUnit->time2ms($_ar[1]);
 				preg_match("/bitrate: (\S+)/", $_l, $_ar);
@@ -445,9 +446,11 @@ class mtfFile{
 			set_time_limit($_outTime);//转码的进程比一般进程多5倍的运行时间
 			//-threads 2 使用双核心，该参数，PHP无法调用 scale=-2 确保视频高度始终为2的倍数。开启硬件加速
 			if($_f['t']==='video'){
-				$_h=popen($_root.'bin/WIN32/FFmpeg/ffmpeg -hwaccel qsv -i "'.$_f['p'].'" -threads 2 -preset ultrafast -crf 30 -y -vf "scale='.$_d['c']['w'].':-2" -b '.$_c_b.'k -bufsize '.$_c_b.'K "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');
+				// $_h=popen($_root.'bin/WIN32/FFmpeg/ffmpeg -hwaccel qsv -i "'.$_f['p'].'" -threads 2 -preset ultrafast -crf 30 -y -vf "scale='.$_d['c']['w'].':-2" -b '.$_c_b.'k -bufsize '.$_c_b.'K "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');
+				$_h=popen('ffmpeg -hwaccel qsv -i "'.$_f['p'].'" -threads 2 -preset ultrafast -crf 30 -y -vf "scale='.$_d['c']['w'].':-2" -b '.$_c_b.'k -bufsize '.$_c_b.'K "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');
 			}else{
-				$_h=popen($_root.'bin/WIN32/FFmpeg/ffmpeg -hwaccel qsv -i "'.$_f['p'].'" -threads 2 -preset ultrafast -y -b:a '.$_c_b.'k "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');	
+				// $_h=popen($_root.'bin/WIN32/FFmpeg/ffmpeg -hwaccel qsv -i "'.$_f['p'].'" -threads 2 -preset ultrafast -y -b:a '.$_c_b.'k "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');	
+				$_h=popen('ffmpeg -hwaccel qsv -i "'.$_f['p'].'" -threads 2 -preset ultrafast -y -b:a '.$_c_b.'k "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');	
 			}
 			$_i=0;
 			while($_i<$_outTime) {
@@ -764,9 +767,12 @@ class mtfFile{
 				}
 				$_t=7;
 				$_r=1;
-				exec($_root.'bin/WIN32/FFmpeg/ffmpeg -ss '.$_ss.' -t '.$_t.' -i "'.$_f['p'].'" -r '.$_r.' -vf "scale='.$_config['w'].':-1,format=yuv420p" -f image2 "'.$_f['d'].'/'.$_f['bn'].'-%03d.jpg"');
-				exec($_root.'bin/WIN32/FFmpeg/ffmpeg -i "'.$_f['d'].'/'.$_f['bn'].'-%03d.jpg" -filter_complex scale=120:-1,tile=3x3 "'.$_f['d'].'/'.$_f['bn'].'.jpg"');
-				exec($_root.'bin/WIN32/FFmpeg/ffmpeg -f image2 -framerate 5 -i "'.$_f['d'].'/'.$_f['bn'].'-%03d.jpg" "'.$_f['d'].'/'.$_f['bn'].'.'.$this->conf['preview'][$_f['t']]['ext'].'"');
+				// exec($_root.'bin/WIN32/FFmpeg/ffmpeg -ss '.$_ss.' -t '.$_t.' -i "'.$_f['p'].'" -r '.$_r.' -vf "scale='.$_config['w'].':-1,format=yuv420p" -f image2 "'.$_f['d'].'/'.$_f['bn'].'-%03d.jpg"');
+				// exec($_root.'bin/WIN32/FFmpeg/ffmpeg -i "'.$_f['d'].'/'.$_f['bn'].'-%03d.jpg" -filter_complex scale=120:-1,tile=3x3 "'.$_f['d'].'/'.$_f['bn'].'.jpg"');
+				// exec($_root.'bin/WIN32/FFmpeg/ffmpeg -f image2 -framerate 5 -i "'.$_f['d'].'/'.$_f['bn'].'-%03d.jpg" "'.$_f['d'].'/'.$_f['bn'].'.'.$this->conf['preview'][$_f['t']]['ext'].'"');
+				exec('ffmpeg -ss '.$_ss.' -t '.$_t.' -i "'.$_f['p'].'" -r '.$_r.' -vf "scale='.$_config['w'].':-1,format=yuv420p" -f image2 "'.$_f['d'].'/'.$_f['bn'].'-%03d.jpg"');
+				exec('ffmpeg -i "'.$_f['d'].'/'.$_f['bn'].'-%03d.jpg" -filter_complex scale=120:-1,tile=3x3 "'.$_f['d'].'/'.$_f['bn'].'.jpg"');
+				exec('ffmpeg -f image2 -framerate 5 -i "'.$_f['d'].'/'.$_f['bn'].'-%03d.jpg" "'.$_f['d'].'/'.$_f['bn'].'.'.$this->conf['preview'][$_f['t']]['ext'].'"');
 				for ($i=1; $i<=($_t+2); $i++) {
 					$j=($this->mtfUnit->strLen($i)===1?'00'.$i:'0'.$i);
 					@unlink($_f['d'].'/'.$_f['bn'].'-'.$j.'.jpg');
@@ -776,7 +782,8 @@ class mtfFile{
 			$_d['p'].=$this->conf['preview'][$_f['t']]['ext'];
 			
 			if(!file_exists($_d['p'])){
-				exec($_root.'bin/WIN32/FFmpeg/ffmpeg -i "'.$_f['p'].'" -filter_complex "compand,showwavespic=s=640x50:colors=#666666" -frames:v 1 "'.$_f['d'].'/'.$_f['bn'].'.'.$this->conf['preview'][$_f['t']]['ext'].'"');//compand，扩大音频高度，充满画布，让声音较小的音频也能获取指纹
+				// exec($_root.'bin/WIN32/FFmpeg/ffmpeg -i "'.$_f['p'].'" -filter_complex "compand,showwavespic=s=640x50:colors=#666666" -frames:v 1 "'.$_f['d'].'/'.$_f['bn'].'.'.$this->conf['preview'][$_f['t']]['ext'].'"');
+				exec('ffmpeg -i "'.$_f['p'].'" -filter_complex "compand,showwavespic=s=640x50:colors=#666666" -frames:v 1 "'.$_f['d'].'/'.$_f['bn'].'.'.$this->conf['preview'][$_f['t']]['ext'].'"');//compand，扩大音频高度，充满画布，让声音较小的音频也能获取指纹
 			}
 		}elseif($_f['t']==='people'){
 			$_attr=$this->mtfAttr->sql('s1',$this->db['table'],'a','WHERE i='.$_f['id'],0,'|');
@@ -1432,10 +1439,12 @@ class mtfFile{
 			 //kangle 虚拟主机，配置zoneUp 的别名，路径
 			 
 			 $_a=explode($this->root,$_f_p);
-			 //kangle
-			 header('X-Accel-Redirect: '.$this->conf['dir'].end(explode('/',$this->root)).$_a[1]);
-			//nginx APache
-			//header('X-Sendfile: '.$_a[1]);
+			 // kangle
+			 //header('X-Accel-Redirect: '.$this->conf['dir'].end(explode('/',$this->root)).$_a[1]);
+			 // nginx
+			 header('X-Accel-Redirect: ' . end(explode('/',$this->root)).$_a[1]);
+			 // apache
+			 //header('X-Sendfile: '.$_a[1]);
 			exit;
 		 }else{
 			if($_type==='force'){

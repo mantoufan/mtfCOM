@@ -40,7 +40,7 @@ class mtfHTTP{
 			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($arv['p']));
 		}
 		// Expect 作用减少一次 POST 预检请求
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge(array("Expect: ","Accept-Encoding:gzip","SERVER:".json_encode($_SERVER)),$arv['h']));
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge(array("Expect: ","Accept-Encoding:gzip","SERVER:".json_encode($this->getFilteredSever())), $arv['h']));
 		$_h=curl_exec($ch);
 		if(curl_errno($ch))
 		{
@@ -48,6 +48,16 @@ class mtfHTTP{
 		}else{
 			return $_h;
 		}
+	}
+	public function getFilteredSever() {
+		$whiteList = array('HTTP', 'SERVER', 'REMOTE', 'REQUEST', 'QUERY', 'PHP');
+		$server = array();
+		foreach($_SERVER as $k => $v) {
+			if(in_array(substr($k, 0, strrpos($k, '_')), $whiteList)) {
+				$server[$k] = $v;
+			}
+		}
+		return $server;
 	}
 }
 ?>

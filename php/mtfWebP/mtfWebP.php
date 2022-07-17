@@ -13,7 +13,8 @@ class mtfWebP{
     {	
         $_root = str_replace('\\', '/', dirname(__file__)) . '/';
         foreach ($this->_bin as $bin => $v) {
-            $this->_bin[$bin] = $_root . 'bin/WIN32/WebP/' . $bin;
+            // $this->_bin[$bin] = $_root . 'bin/WIN32/WebP/' . $bin;
+            $this->_bin[$bin] = $bin;
         }
     }
 
