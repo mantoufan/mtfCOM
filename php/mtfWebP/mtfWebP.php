@@ -24,7 +24,7 @@ class mtfWebP{
      * @param string $des File path where to save the image.
      * @param number $quality Quality of image. Accepts number 0 - 100 where 0 is lowest and 100 is the highest quality. Or 75 for default.
      */
-    public function convert($src, $des, $quality = 85) {
+    public function convert($src, $des, $quality = 75) {
         $code = 200; $msg = 'success';
         $res = getimagesize($src);
         $res = exec($this->_bin[isset($res['mime']) && $res['mime'] === 'image/gif' ? 'gif2webp' : 'cwebp'] . ' ' . $src . ' -o '. $des . ' -q '. $quality);
