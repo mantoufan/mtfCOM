@@ -1152,9 +1152,9 @@ class mtfFile{
 								$_a=$this->_isDownGifExt($_d['e']);
 								if($_t==='sitemap'){
 									if(@$_a['video']===1){
-										$_ar['video'][]=array('content_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_b_360_w_480.'.$_d['e'],'thumbnail_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_w_250.gif');
+										$_ar['video'][]=array('content_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_b_360_w_480.'.$_d['e'],'thumbnail_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_w_200.gif');
 									}else{
-										$_ar['img'][]=array('loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_w_600.'.$_d['e']);
+										$_ar['img'][]=array('loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_w_1200.'.$_d['e']);
 									}
 								}else{
 									if($_a['e']==='gif'){
@@ -1245,15 +1245,28 @@ class mtfFile{
 						$_a['img']=array_slice($_a['img'],0,$this->conf['list']['max_p_length']);
 						$_ar['list']['p']=$_a['img'];
 					}
-					if(@$_a['img'] && count($_a['img']) > 1){
-						$_ar['list']['ps']=count($_a['img']);
-						$_ar['list']['ps900']= floor(900 / $_ar['list']['ps']);
-						$_ar['list']['psn']=$this->conf['list']['max_p_length']-$_ar['list']['ps']+2;
+					if(@$_a['img']){
+						$img_count = count($_a['img']);
+						if ($img_count > 1) {
+							$_ar['list']['ps'] = $img_count;
+							$_ar['list']['ps900'] = floor(1200 / $_ar['list']['ps']);
+							$_ar['list']['psn'] = $this->conf['list']['max_p_length']-$_ar['list']['ps']+2;
+						} else {
+							$_r = $this->mtfAttr->sql('s1',$this->db['table'],'a','WHERE i=\''.$_a['img'][0]['i'].'\'',0,'|');
+							if ($_a['img'][0]['e'] === 'gif') {
+								$_h = 200;
+								$_ar['list']['p'][0]['g'] = 1; 
+							} else {
+								$_h = 400;
+							}
+							$_ar['list']['p'][0]['width'] = round($_r['a']['宽度'][0] / $_r['a']['高度'][0] * $_h);
+							$_ar['list']['p'][0]['height'] = $_h;
+						}
 					}
 					if(@$_arv['dm']){//弹幕中图片
 						$_ar['list']['dm']=1;
 						$_ar['list']['ps']=3;
-						$_ar['list']['ps900']= floor(900 / $_ar['list']['ps']);
+						$_ar['list']['ps900']= floor(1200 / $_ar['list']['ps']);
 					}elseif(@$_a['audio']){
 						$_ar['list']['audio']=$_a['audio'];
 					}

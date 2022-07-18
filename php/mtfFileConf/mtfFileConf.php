@@ -14,8 +14,8 @@ class mtfFileConf{
 					'dir'=>'../',
 					'convert'=>array(
 									'image'=>array(
-										'max_width'=>800,
-										'max_height'=>1500
+										'max_width'=>1200,
+										'max_height'=>2500
 									),
 									'video'=>array(
 												array('b'=>360,'w'=>480,'ext'=>'mp4','force'=>1),
