@@ -5683,7 +5683,7 @@ class mtfFile{
 		}
 	}
 		
-	public function idWaterMark($_d_p,$_w=800)
+	public function idWaterMark($_d_p,$_w=1200)
 	{
 		$_root=$this->_root;
 		include_once($_root.'../Grafika/autoload.php');
