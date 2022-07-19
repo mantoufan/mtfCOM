@@ -1446,7 +1446,7 @@ class mtfFile{
 			 if($_type==='force'){//图片下载不可用，其它类型文件可以
 				header('Content-Type: application/force-download');
 			 }else{ 
-				//header('Content-type: '.mime_content_type($_f_p));
+				header('Content-type: '.mime_content_type($_f_p));
 			 }
 			
 			 //kangle 虚拟主机，配置zoneUp 的别名，路径
