@@ -460,10 +460,16 @@ class mtfFile{
 					$_v['videoSize']=$_ar[1];
 					preg_match("/audio:(\d+)kB/", $_log, $_ar);
 					$_v['audioSize']=$_ar[1];
+					preg_match("/Input[\S\s]*?,\s(\d+)x(\d+)\s/", $_log, $_ar);
+					$_v['swidth'] = $_ar[1];
+					$_v['sheight'] = $_ar[2];
+					preg_match("/Output[\S\s]*?,\s(\d+)x(\d+)\s/", $_log, $_ar);
+					$_v['width'] = $_ar[1];
+					$_v['height'] = $_ar[2];
 					if(@$_v['videoSize']||@$_v['audioSize']){
 						$_f['i']['filesizekb']=(@$_v['videoSize']+@$_v['audioSize']).'KB';
 						//转码完成;
-						return array('原始比特率'=>$_f['i']['bitrate'],'比特率'=>$_d['c']['b'],'时长'=>$_f['i']['duration'],'大小'=>$_f['i']['filesizekb']);
+						return array('原始比特率'=>$_f['i']['bitrate'],'比特率'=>$_d['c']['b'],'时长'=>$_f['i']['duration'],'大小'=>$_f['i']['filesizekb'],'原始宽度'=>$_v['swidth'],'原始高度'=>$_v['sheight'],'宽度'=>$_v['width'],'高度'=>$_v['height']);
 					}else{
 						preg_match_all("/time=(\S+)/", $_log, $_ar);
 						$_v['time']=$this->mtfUnit->time2ms(end($_ar[1]));
@@ -1154,7 +1160,7 @@ class mtfFile{
 									if(@$_a['video']===1){
 										$_ar['video'][]=array('content_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_b_360_w_480.'.$_d['e'],'thumbnail_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_w_200.gif');
 									}else{
-										$_ar['img'][]=array('loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_w_1200.'.$_d['e']);
+										$_ar['img'][]=array('loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_w_1380.'.$_d['e']);
 									}
 								}else{
 									if($_a['e']==='gif'){
@@ -1249,7 +1255,7 @@ class mtfFile{
 						$img_count = count($_a['img']);
 						if ($img_count > 1) {
 							$_ar['list']['ps'] = $img_count;
-							$_ar['list']['ps900'] = floor(1200 / $_ar['list']['ps']);
+							$_ar['list']['ps900'] = floor(1380 / $_ar['list']['ps']);
 							$_ar['list']['psn'] = $this->conf['list']['max_p_length']-$_ar['list']['ps']+2;
 						} else {
 							$_r = $this->mtfAttr->sql('s1',$this->db['table'],'a','WHERE i=\''.$_a['img'][0]['i'].'\'',0,'|');
@@ -1257,16 +1263,18 @@ class mtfFile{
 								$_h = 200;
 								$_ar['list']['p'][0]['g'] = 1; 
 							} else {
-								$_h = 400;
+								$_h = 1380 / 3;
 							}
-							$_ar['list']['p'][0]['width'] = round($_r['a']['宽度'][0] / $_r['a']['高度'][0] * $_h);
+							if (isset($_r['a']['宽度']) && isset($_r['a']['高度'])) {
+							  $_ar['list']['p'][0]['width'] = round($_r['a']['宽度'][0] / $_r['a']['高度'][0] * $_h);
+							}
 							$_ar['list']['p'][0]['height'] = $_h;
 						}
 					}
 					if(@$_arv['dm']){//弹幕中图片
 						$_ar['list']['dm']=1;
 						$_ar['list']['ps']=3;
-						$_ar['list']['ps900']= floor(1200 / $_ar['list']['ps']);
+						$_ar['list']['ps900']= floor(1380 / $_ar['list']['ps']);
 					}elseif(@$_a['audio']){
 						$_ar['list']['audio']=$_a['audio'];
 					}
@@ -5683,7 +5691,7 @@ class mtfFile{
 		}
 	}
 		
-	public function idWaterMark($_d_p,$_w=1200)
+	public function idWaterMark($_d_p,$_w=1380)
 	{
 		$_root=$this->_root;
 		include_once($_root.'../Grafika/autoload.php');
