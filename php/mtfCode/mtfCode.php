@@ -63,7 +63,8 @@ class mtfCode{
 				copy($_f_p,$_d);
 				*/
 				
-				$_s=exec('"'.$_root.'bin/Win32/Zbar/zbarimg.exe" -D "'.$_f_p.'" -q');
+				$path = strtoupper(substr(PHP_OS,0,3)) === 'WIN' ? '"' . $_root . 'bin/Win32/Zbar/zbarimg.exe"' : 'zbarimg';
+				$_s = exec($path . ' -D "' . $_f_p . '" -q');
 				if($_s){
 					$this->_del($_ar);
 					return substr($_s,8);	
