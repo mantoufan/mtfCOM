@@ -417,7 +417,7 @@ class mtfFile{
 				$this->_get_ture_orientation_img($_d['p']);
 
 				if ($_d['e']==='webp') {
-					$this->mtfWebP->convert($_d['p'], $_d['p'], 75);
+					$this->mtfWebP->convert($_d['p'], $_d['p'], 85);
 				}
 				
 				//剪裁
