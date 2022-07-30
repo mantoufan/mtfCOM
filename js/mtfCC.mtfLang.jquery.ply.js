@@ -55,12 +55,14 @@ var mtfCC={
 			mtfCC.c=mtfCC.f($('#'+id).html().replace(/<P(.*?)>/gi,''));
 			mtfCC.c=mtfCC.c.split(/<\/P>/i);
 			if(window[id+'JS']){
-				mtfCC.cj=JSON.parse(mtfCC.utf8to16($.base64.decode(window[id+'JS'])));
+				//mtfCC.cj=JSON.parse(mtfCC.utf8to16($.base64.decode(window[id+'JS'])));
+				mtfCC.cj=JSON.parse(mtfCC.utf8to16(window.atob(window[id+'JS'])));
 				window[id+'JS']='';
 			}
 			var l=mtfCC.c.length,last_n=0,last_nn=0;	
 			for (var i = 0; i < l; i++) {
-				var c=$.trim(mtfCC.c[i]+(mtfCC.cj[i]?mtfCC.f(mtfCC.utf8to16($.base64.decode(mtfCC.cj[i]))):''));
+				//var c=$.trim(mtfCC.c[i]+(mtfCC.cj[i]?mtfCC.f(mtfCC.utf8to16($.base64.decode(mtfCC.cj[i]))):''));
+				var c=$.trim(mtfCC.c[i]+(mtfCC.cj[i]?mtfCC.f(mtfCC.utf8to16(window.atob(mtfCC.cj[i]))):''));
 				if(!c)continue;
 				var ar=$.trim(c).split(' '),n=ar[0];
 				if(!isNaN(n)){
