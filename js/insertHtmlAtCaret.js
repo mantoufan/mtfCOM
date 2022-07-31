@@ -32,7 +32,7 @@ function insertHtmlAtCaret(html, selectPastedContent) {
                 sel.addRange(range);
             }
         }
-    } else if ( (sel = document.selection) && sel.type != "Control") {
+    }/* else if ( (sel = document.selection) && sel.type != "Control") {
         // IE < 9
         var originalRange = sel.createRange();
         originalRange.collapse(true);
@@ -42,5 +42,5 @@ function insertHtmlAtCaret(html, selectPastedContent) {
             range.setEndPoint("StartToStart", originalRange);
             range.select();
         }
-    }
+    }*/
 }
