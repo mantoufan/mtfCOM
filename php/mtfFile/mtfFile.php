@@ -1087,8 +1087,8 @@ class mtfFile{
 								if($_v['url']){
 									$__a['u']=$_v['url'];
 								}
-								if($_k<3){//移动端：前3张图片全部显示，标记为已加载
-									$__a['l']=1;
+								if($_k < 2){// 懒加载
+									$__a['l'] = 1;
 								}
 								if($_v['e']==='gif'){//动画
 									$__a['g']=1;
@@ -1160,7 +1160,7 @@ class mtfFile{
 									if(@$_a['video']===1){
 										$_ar['video'][]=array('content_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_b_360_w_480.'.$_d['e'],'thumbnail_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_w_200.gif');
 									}else{
-										$_ar['img'][]=array('loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_w_1380.'.$_d['e']);
+										$_ar['img'][]=array('loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_w_1290.'.$_d['e']);
 									}
 								}else{
 									if($_a['e']==='gif'){
@@ -1255,7 +1255,7 @@ class mtfFile{
 						$img_count = count($_a['img']);
 						if ($img_count > 1) {
 							$_ar['list']['ps'] = $img_count;
-							$_ar['list']['ps900'] = floor(1380 / $_ar['list']['ps']);
+							$_ar['list']['ps900'] = floor(1290 / $_ar['list']['ps']);
 							$_ar['list']['psn'] = $this->conf['list']['max_p_length']-$_ar['list']['ps']+2;
 						} else {
 							$_r = $this->mtfAttr->sql('s1',$this->db['table'],'a','WHERE i=\''.$_a['img'][0]['i'].'\'',0,'|');
@@ -1263,7 +1263,7 @@ class mtfFile{
 								$_h = 200;
 								$_ar['list']['p'][0]['g'] = 1; 
 							} else {
-								$_h = 1380 / 3;
+								$_h = 1290 / 3;
 							}
 							if (isset($_r['a']['宽度']) && isset($_r['a']['高度'])) {
 							  $_ar['list']['p'][0]['width'] = round($_r['a']['宽度'][0] / $_r['a']['高度'][0] * $_h);
@@ -1274,7 +1274,7 @@ class mtfFile{
 					if(@$_arv['dm']){//弹幕中图片
 						$_ar['list']['dm']=1;
 						$_ar['list']['ps']=3;
-						$_ar['list']['ps900']= floor(1380 / $_ar['list']['ps']);
+						$_ar['list']['ps900']= floor(1290 / $_ar['list']['ps']);
 					}elseif(@$_a['audio']){
 						$_ar['list']['audio']=$_a['audio'];
 					}
@@ -1455,6 +1455,7 @@ class mtfFile{
 				header('Content-Type: application/force-download');
 			 }else{ 
 				header('Content-type: '.mime_content_type($_f_p));
+				header('cache-control: max-age=31536000');
 			 }
 			
 			 //kangle 虚拟主机，配置zoneUp 的别名，路径
@@ -5463,6 +5464,11 @@ class mtfFile{
 									}
 									$_rr[$_v['i']]['list']['pn']=array('p'=>@$__r[$__i-1],'n'=>@$__r[$__i+1]);
 								}
+
+								// 懒加载
+								if ($_k < 2) {
+									$_rr[$_v['i']]['list']['l'] = 1;
+								}
 								
 								//List强制排序
 								if(@$_rr[$_v['i']]){
@@ -5691,7 +5697,7 @@ class mtfFile{
 		}
 	}
 		
-	public function idWaterMark($_d_p,$_w=1380)
+	public function idWaterMark($_d_p,$_w=1290)
 	{
 		$_root=$this->_root;
 		include_once($_root.'../Grafika/autoload.php');
