@@ -1,10 +1,7 @@
 var mtfProgress={
 	off: 0,
 	start: function(){
-		if (this.off) {
-			this.off=0;
-			return false;
-		}
+		if (this.off) return this.off = 0
 		$('<div>').addClass('mtf-progress').css({'width':'0%','position':'fixed','height':'2px','top':0,'background':'#000','opacity':.2,'z-index':7})
 		.appendTo($('body')).animate({'width':'90%'}, {
 			duration: 1500,
