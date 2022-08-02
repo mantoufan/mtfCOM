@@ -3728,17 +3728,15 @@ class mtfFile{
 				}
 				
 			
-				preg_match_all("/#([^#\s]+)\s/", $_data['data'], $_m);
-				if(@$_m[0]){
+				preg_match_all("/#([^#\s]+)#/", $_data['data'], $_m); // 话题改为与微博一致：需输入两个 # # 号 
+				if(isset($_m[0])){
 					foreach($_m[0] as $_k=>$_v){
-						$_tag=trim($_v,'#');
-						if(!in_array($_tag,$_tags)){
-							$_tags[]=$_tag;
-							$_data['data']=str_replace($_v,'',str_replace($_v.' ','',$_data['data']));
-						}
+						$_tag = trim($_v, '#');
+						if (!in_array($_tag, $_tags)) $_tags[] = $_tag;
+						$_data['data'] = str_replace($_v, '', $_data['data']);
 					}	
 				}
-				$_f['parent']=$_i;//获取文章父级
+				$_f['parent'] = $_i;//获取文章父级
 				
 				if($_tags){
 					$_f['k']=$_tags;
