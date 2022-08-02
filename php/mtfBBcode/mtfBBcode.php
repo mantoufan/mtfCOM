@@ -10,15 +10,21 @@ class mtfBBcode{
 	private $_root;
 	
 	public function __construct()
-    {	
+  {	
 		$this->_root = str_replace('\\','/',dirname(__file__)).'/';
 	}
 	private function _code2div($_s){
 		return '<span class="'.$this->className.' '.$this->_lang.'">'.$_s.'</span>';
 	}
+	private function _int_set() {
+		ini_set('pcre.backtrack_limit', 200000); // 更改 PRCE 的回溯限制为原来的 2 倍
+		ini_set('pcre.recursion_limit', 200000); // 更改 PRCE 的递归限制为原来的 2 倍
+		ini_set('pcre.jit', 0); // 关闭 patterns 的 JIT 编译，避免 PREG_JIT_STACKLIMIT_ERROR
+	}
 	public function parse($_s,$_arv=array()){
+		$this->_int_set();
+		preg_match_all("/\[(\w+?)\]([\s\S]*?)\[\/\\1\]/", $_s, $_ar);
 		$_d=$_s;
-		preg_match_all("/\[(.*?)\](.*?)\[\/\\1\]/s",$_s,$_ar);// /s.号匹配换行符
 		$_bb=array();
 		$_bb_html=array();
 		
@@ -152,7 +158,7 @@ class mtfBBcode{
 						default:
 							$c_c=$_c;
 							$c_c=str_replace('&nbsp;',' ',$c_c);
-							preg_match_all("/\<p\>(.*?)\<\/p\>/is",$c_c,$c_arr);
+							preg_match_all("/\<p\>([\s\S]*?)\<\/p\>/i", $c_c, $c_arr);
 							$c_arr=$c_arr[0];
 							@$c_c='';$c_ar=array();
 							foreach($c_arr as $k1=>$v1){
@@ -193,7 +199,7 @@ class mtfBBcode{
 					switch (@$_arv['type'])
 					{
 						case 'add':
-							$_s=str_replace($_c,preg_replace("/(http|https)\:\/\//",'',$_c),$_s);
+							$_s=str_replace($_c, preg_replace("/(http|https)\:\/\//", '', $_c), $_s);
 						break;
 						default:
 							$_url='';
@@ -275,7 +281,7 @@ class mtfBBcode{
 						default:
 							include_once($this->_root.'../Parsedown/Parsedown.php');
 							$Parsedown = new Parsedown();
-							$_text = htmlspecialchars_decode(preg_replace('/<p.*?>|<\/p>/is','',preg_replace('/<p>(.*?)<\/p>/',"$1\n",str_replace('&nbsp;',' ', str_replace('<p><br></p>',"\n",$_c)))));
+							$_text = htmlspecialchars_decode(preg_replace('/<p[\s\S]*?>|<\/p>/i','',preg_replace('/<p>(.*?)<\/p>/',"$1\n",str_replace('&nbsp;',' ', str_replace('<p><br></p>',"\n",$_c)))));
 							$_text = preg_replace('/((```[\w#+]+\s\[\]((?!```)[\s\S])*```[\r\n]*){2,})/', "[mtfCodeTab]\n$1\n[/mtfCodeTab]\n", $_text);
 							$_s=str_replace($_a, strtr($Parsedown->text($_text), array('[mtfCodeTab]' => '<div class="mtf-code-tab">', '[/mtfCodeTab]' => '</div>', 'language-c#' => 'language-csharp', 'language-c++' => 'language-cpp')), $_s);
 						break;
@@ -314,7 +320,8 @@ class mtfBBcode{
 		}
 	}
 	public function add($_s,$_arv=array()){
-		preg_match_all("/\[(.*?)\](.*?)\[\/\\1\]/s",$_s,$_ar);// /s.号匹配换行符
+		$this->_int_set();
+		preg_match_all("/\[(\w+?)\]([\s\S]*?)\[\/\\1\]/", $_s, $_ar);// /s.号匹配换行符
 		foreach($_ar[1] as $_k=>$_tag){
 			$_a=$_ar[0][$_k];
 			$_c=$_ar[2][$_k];
@@ -430,7 +437,7 @@ class mtfBBcode{
 	private function _addParam($_c,$_arv=array(),$_tag){
 		$_j=array();$__c=array();
 		//获取参数
-		preg_match_all("/\[(.*?)\](.*?)\[\/\\1\]/",$_c,$_ar);
+		preg_match_all("/\[(\w+?)\]([\s\S]*?)\[\/\\1\]/", $_c, $_ar);
 		foreach($_ar[1] as $_k=>$_v){
 			$__c[$_v]=$_ar[2][$_k];
 		}
@@ -456,7 +463,7 @@ class mtfBBcode{
 	private function _loadParam($_s){
 		$_j=array();
 		//获取参数
-		preg_match_all("/\[(.*?)\](.*?)\[\/\\1\]/",$_s,$_ar);
+		preg_match_all("/\[(\w+?)\]([\s\S]*?)\[\/\\1\]/", $_s, $_ar);
 		foreach($_ar[1] as $_k=>$_v){
 			switch ($_v)
 			{
