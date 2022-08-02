@@ -93,19 +93,19 @@ var mtfDM={
 				
 				for(var _i=0;_i<_max;_i++){//两个箭头
 					d=$(ds[_i]);d.show();
-					d.css({width:0,height:0,position:'absolute','opacity':0.85});
+					d.css({width:0,height:0,position:'absolute','opacity':.5});
 					var l=-parseInt($(o[i].o).css('margin-left'));
 					if(_i<2){
-						_c='black';
-					}else{
 						_c='white';
+					}else{
+						_c='black';
 					}
 					if(_i===0||_i===2){
-						d.css({left:po.x+l-13,'border-left':'15px solid '+_c});
+						d.css({left:po.x+l-4,'border-left':'15px solid '+_c});
 					}else{
-						d.css({left:po.x+po.w-l-3,'border-right':'15px solid '+_c});
+						d.css({left:po.x+po.w-l-11,'border-right':'15px solid '+_c});
 					}
-					d.css({top:po.y-15+t0,'border-top':'10px solid transparent','border-bottom':'10px solid transparent'});
+					d.css({top:po.y-11+t0,'border-top':'10px solid transparent','border-bottom':'10px solid transparent'});
 				}
 			}
 		}else if(!mtfDM.full){
