@@ -1144,7 +1144,7 @@ class mtfFile{
 								$_a=$this->_isDownGifExt($_d['e']);
 								if($_t==='sitemap'){
 									if(@$_a['video']===1){
-										$_ar['video'][]=array('content_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_b_360_w_480.'.$_d['e'],'thumbnail_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_h_100.gif');
+										$_ar['video'][]=array('content_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_b_360_w_480.'.$_d['e'],'thumbnail_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_h_150.gif');
 									}else{
 										$_ar['img'][]=array('loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_w_1290.'.$_d['e']);
 									}
@@ -1246,7 +1246,7 @@ class mtfFile{
 						} else {
 							$_r = $this->mtfAttr->sql('s1',$this->db['table'],'a','WHERE i=\''.$_a['img'][0]['i'].'\'',0,'|');
 							if ($_a['img'][0]['e'] === 'gif') {
-								$_h = 100;
+								$_h = 150;
 								$_ar['list']['p'][0]['g'] = 1; 
 							} else {
 								$_h = 1290 / 3;
@@ -2308,7 +2308,7 @@ class mtfFile{
 					
 					$_a=$this->_av2url(@$_attr['头像'][0]);
 					
-					$_q['a']='//'.$this->conf['domain']['cdn'].'/'.(@$_a['avi']?$_a['avi'].'_c_'.(@$_a['ace']?'ace_'.$_a['ace'].'_':'').'c_f_w_100_h_100.'.$_a['ave']:'201207010000000002_c_w_100_h_100_p_pokemongif,'.$this->_uname($_q['t']?$_q['t']:$_o).'.gif');
+					$_q['a']='//'.$this->conf['domain']['cdn'].'/'.(@$_a['avi']?$_a['avi'].'_c_'.(@$_a['ace']?'ace_'.$_a['ace'].'_':'').'c_f_w_50_h_50.'.$_a['ave']:'201207010000000002_c_w_50_h_50_p_pokemongif,'.$this->_uname($_q['t']?$_q['t']:$_o).'.gif');
 					
 					if($_uid){//会员分享，可以给自己获得♥
 						$_q['uid']=$_uid;
