@@ -23,7 +23,6 @@ var mtfDM={
 		for (var i in tmp_ar) {
 			if (tmp_ar[i] == ar_min) {
 				return ar[i];
-				break
 			}
 		}
 	},
