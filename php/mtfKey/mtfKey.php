@@ -159,14 +159,12 @@ class mtfKey
 	public function getJS($fid='')
 	{
 		$_root=str_replace('\\','/',dirname(__file__)).'/';
-		
 		$k=$this->get($fid);
 		$k=$this->_enc($k);
-		$k=json_encode(str_split($k));
-		$js='function in_array(search,array){for(var i in array){if(array[i]==search){return true;}}return false;}if(in_array(location.hostname,'.json_encode($this->domain['allow']).')){mtfKey.key='.$k.',mtfKey.key=_dec(mtfKey.key.join(\'\'));function _dec(s) {var a='.json_encode($this->alpha).',l=s.length,ss=\'\';for(var x=0;x<l;x++) {var b=s.charAt(x);ss+=((x>0&&!isNaN(b))?a[b]:b);}return ss;}}';//不要跳转，避免其他地方使用失效
+		$js='function h(p, a){for(var i = 0;i<a.length;i++){if(a[i]==p){return true;}}return false;}if(h(location.hostname,'.json_encode($this->domain['allow']).')){mtfKey.key=d(\''.$k.'\');function d(s){var a='.json_encode($this->alpha).',r=\'\';for(var i=0;i<s.length;i++){r+=i>0&&!isNaN(s[i])?a[s[i]]:s[i];}return r;}}';//不要跳转，避免其他地方使用失效
 		include_once($_root.'../JavaScriptPacker/JavaScriptPacker.php');
 		for ($i=0; $i<=$this->jsEncodeTimes; $i++) {
-			$myPacker = new JavaScriptPacker($js,62, false, false);
+			$myPacker = new JavaScriptPacker($js,36, false, false);
 			$js=$myPacker->pack();
 		}
 		return $js;
