@@ -250,9 +250,8 @@ class mtfFile{
 		return FALSE;
 	}
 	
-	private function _403(){
-		header("HTTP/1.1 403 Forbidden");
-		header("Status: 403 Forbidden"); 
+	private function _404(){
+		http_response_code(404);
 		exit;
 	}
 	
@@ -362,25 +361,12 @@ class mtfFile{
 					unset($_font,$_l,$_lh,$_s,$_co);
 				}
 				
-				if($this->conf['convert']['image']['max_width'] || $this->conf['convert']['image']['max_height']){
-					
-					//限制最大宽度和高度
-					if(@$_c['w']){
-						if(!is_numeric($_c['w'])){
-							$this->_403();
-						}
-						if($_c['w']>$this->conf['convert']['image']['max_width']){
-							$_c['w']=$this->conf['convert']['image']['max_width'];
-						}
-					}
-					if(@$_c['h']){
-						if(!is_numeric($_c['h'])){
-							$this->_403();
-						}
-						if($_c['h']>$this->conf['convert']['image']['max_height']){
-							$_c['h']=$this->conf['convert']['image']['max_height'];
-						}
-					}
+				//限制可选宽度和高度
+				if(isset($_c['w']) && in_array($_c['w'], $this->conf['convert']['image']['widths']) === false){
+					$this->_404();
+				}
+				if(isset($_c['h']) && in_array($_c['h'], $this->conf['convert']['image']['heights']) === false){
+					$this->_404();
 				}
 				//w 宽度 h 高度 nl 不要放大 c裁剪
 				if(@$_c['c']){
@@ -1158,7 +1144,7 @@ class mtfFile{
 								$_a=$this->_isDownGifExt($_d['e']);
 								if($_t==='sitemap'){
 									if(@$_a['video']===1){
-										$_ar['video'][]=array('content_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_b_360_w_480.'.$_d['e'],'thumbnail_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_w_200.gif');
+										$_ar['video'][]=array('content_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_b_360_w_480.'.$_d['e'],'thumbnail_loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_h_100.gif');
 									}else{
 										$_ar['img'][]=array('loc'=>'https://'.$this->conf['domain']['cdn'].'/'.$_d['id'].'_c_w_1290.'.$_d['e']);
 									}
@@ -1260,7 +1246,7 @@ class mtfFile{
 						} else {
 							$_r = $this->mtfAttr->sql('s1',$this->db['table'],'a','WHERE i=\''.$_a['img'][0]['i'].'\'',0,'|');
 							if ($_a['img'][0]['e'] === 'gif') {
-								$_h = 200;
+								$_h = 100;
 								$_ar['list']['p'][0]['g'] = 1; 
 							} else {
 								$_h = 1290 / 3;
@@ -4358,6 +4344,7 @@ class mtfFile{
 			
 		}
 		$_d+=array('e'=>$_e);
+		if ($_e === 'gif') $_d['g'] = 1;
 		return $_d;
 	}
 	

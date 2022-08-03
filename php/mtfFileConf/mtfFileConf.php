@@ -14,8 +14,8 @@ class mtfFileConf{
 					'dir'=>'../',
 					'convert'=>array(
 									'image'=>array(
-										'max_width'=>1290,
-										'max_height'=>2500
+										'widths'=>array(50, 430, 1290, 600), // csw = 600 头像已存到数据库
+										'heights'=>array(50, 430, 100, 400)
 									),
 									'video'=>array(
 												array('b'=>360,'w'=>480,'ext'=>'mp4','force'=>1),
