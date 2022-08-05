@@ -162,6 +162,7 @@ if($j){
 					if (file_exists($n.'.min.js')) break;
 					usleep(500);
 				}
+				// copy($n.'.js', $n.'.min.js');
 				$tmp[]=$n.'.js';
 				$tmp[]=$n.'.min.js';
 				$zip->addFile($n.'.min.js', 'UI/mtf/j.js');
