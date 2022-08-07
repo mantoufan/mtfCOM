@@ -41,7 +41,6 @@ var mtfCC={
 		for(var i=0;i<l;i++){
 			if(mtfCC.j[id][i]==jj){
 				return i;
-				break;	
 			}
 		}
 		return 0;
@@ -216,7 +215,7 @@ var mtfCC={
 		var _s=mtfCC.aC('div',id);_s.innerHTML='<div>'+mtfLang.get('最多')+'<b>'+mtfCC.t[id]+'</b>'+mtfLang.get(['次','选择'])+'，'+(s.j&&s.j==='|'?'<b>'+mtfCC.h[id].length+'</b>'+mtfLang.get(['次','完成'])+'<br>':mtfLang.get(['已经','完成'])+'<b>'+mtfCC.h[id].length+'</b>'+mtfLang.get('次'))+'</div>';
 		if(mtfCC.T){M.alert(mtfCC.T);mtfCC.T='';}
 		_s.innerHTML='<button class="m-button" onclick="mtfCC.save(\''+id+'\',\''+ii+'\')">'+mtfLang.get('存档')+'</button><button class="m-button" onclick="mtfCC.load(\''+id+'\')">'+mtfLang.get('读档')+'</button>'+(mtfCC.S?mtfCC.S:'')+_s.innerHTML;mtfCC.S='';
-		mtfCC.aC('div',id).id=id+'s';mtfCC.I(id+'s').className='m-u-1 m-g-r tSave';
+		// mtfCC.aC('div',id).id=id+'s';mtfCC.I(id+'s').className='m-u-1 m-g-r tSave';
 		$('#'+id).delay(100).fadeIn();
 	},
 	r:function(i,id,f){
