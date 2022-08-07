@@ -17,8 +17,8 @@ class mtfBBcode{
 		return '<span class="'.$this->className.' '.$this->_lang.'">'.$_s.'</span>';
 	}
 	private function _int_set() {
-		ini_set('pcre.backtrack_limit', 200000); // 更改 PRCE 的回溯限制为原来的 2 倍
-		ini_set('pcre.recursion_limit', 200000); // 更改 PRCE 的递归限制为原来的 2 倍
+		ini_set('pcre.backtrack_limit', 1000000); // 更改 PRCE 的回溯限制为原来的 10 倍
+		ini_set('pcre.recursion_limit', 1000000); // 更改 PRCE 的递归限制为原来的 10 倍
 		ini_set('pcre.jit', 0); // 关闭 patterns 的 JIT 编译，避免 PREG_JIT_STACKLIMIT_ERROR
 	}
 	public function parse($_s,$_arv=array()){
