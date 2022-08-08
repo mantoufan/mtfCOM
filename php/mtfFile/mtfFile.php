@@ -1241,7 +1241,7 @@ class mtfFile{
 						$img_count = count($_a['img']);
 						if ($img_count > 1) {
 							$_ar['list']['ps'] = $img_count;
-							$_ar['list']['ps900'] = floor(1290 / $_ar['list']['ps']);
+							$_ar['list']['ps900'] = (1290 - 90) / $_ar['list']['ps']; // 400
 							$_ar['list']['psn'] = $this->conf['list']['max_p_length']-$_ar['list']['ps']+2;
 						} else {
 							$_r = $this->mtfAttr->sql('s1',$this->db['table'],'a','WHERE i=\''.$_a['img'][0]['i'].'\'',0,'|');
@@ -1249,7 +1249,7 @@ class mtfFile{
 								$_h = 150;
 								$_ar['list']['p'][0]['g'] = 1; 
 							} else {
-								$_h = 1290 / 3;
+								$_h = 400; // 400
 							}
 							if (isset($_r['a']['宽度']) && isset($_r['a']['高度'])) {
 							  $_ar['list']['p'][0]['width'] = round($_r['a']['宽度'][0] / $_r['a']['高度'][0] * $_h);
@@ -1260,7 +1260,7 @@ class mtfFile{
 					if(@$_arv['dm']){//弹幕中图片
 						$_ar['list']['dm']=1;
 						$_ar['list']['ps']=3;
-						$_ar['list']['ps900']= floor(1290 / $_ar['list']['ps']);
+						$_ar['list']['ps900']= (1290 - 90) / $_ar['list']['ps'];
 					}elseif(@$_a['audio']){
 						$_ar['list']['audio']=$_a['audio'];
 					}
@@ -3404,7 +3404,7 @@ class mtfFile{
 				$_mode='add';
 			}
 			
-			$_data['data']=strip_tags(str_replace('&nbsp;','',$_data['data']), "<p> <b> <br> <img> <div>");//先strip_tags再html_entity_decode
+			$_data['data']=strip_tags(str_replace('&nbsp;','',$_data['data']), "<p> <b> <img> <div>");//先strip_tags再html_entity_decode
 			$_data['data']=html_entity_decode($_data['data']);//&amp;->& &quot;->" '->' &lt;-> <  &gt;-> >
 			$_bb=$this->mtfBBcode->parse($_data['data'],array('type'=>'add'));//先转BBcode，再转图片视频等
 			$_data['data']=@$_bb['s'];
