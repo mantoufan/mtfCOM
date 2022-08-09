@@ -3404,7 +3404,7 @@ class mtfFile{
 				$_mode='add';
 			}
 			
-			$_data['data']=strip_tags(str_replace('&nbsp;','',$_data['data']), "<p> <b> <img> <div>");//先strip_tags再html_entity_decode
+			$_data['data']=strip_tags(str_replace('&nbsp;','',$_data['data']), "<p> <b> <br> <img> <div>");//先strip_tags再html_entity_decode
 			$_data['data']=html_entity_decode($_data['data']);//&amp;->& &quot;->" '->' &lt;-> <  &gt;-> >
 			$_bb=$this->mtfBBcode->parse($_data['data'],array('type'=>'add'));//先转BBcode，再转图片视频等
 			$_data['data']=@$_bb['s'];
