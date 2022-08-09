@@ -30,13 +30,13 @@ var mtfBBcode = {
         });
       });
     });
-    o.find(".mtfBB-weather").each(function (a, b) {
-      setTimeout(function () {
-        mtfWeather("stop");
-        mtfWeather($(b).text(), 30);
-        mtfWeather("play");
-      });
-    });
+    // o.find(".mtfBB-weather").each(function (a, b) {
+    //   setTimeout(function () {
+    //     mtfWeather("stop");
+    //     mtfWeather($(b).text(), 30);
+    //     mtfWeather("play");
+    //   });
+    // });
     var a = o.find(".mtfBB-Menu a");
     if (a.length > 0) {
       a.unbind("click");
