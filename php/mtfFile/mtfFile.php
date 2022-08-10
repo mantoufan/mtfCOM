@@ -1241,7 +1241,7 @@ class mtfFile{
 						$img_count = count($_a['img']);
 						if ($img_count > 1) {
 							$_ar['list']['ps'] = $img_count;
-							$_ar['list']['ps900'] = (1290 - 90) / $_ar['list']['ps']; // 400
+							$_ar['list']['ps900'] = 1080 / $_ar['list']['ps']; // 360
 							$_ar['list']['psn'] = $this->conf['list']['max_p_length']-$_ar['list']['ps']+2;
 						} else {
 							$_r = $this->mtfAttr->sql('s1',$this->db['table'],'a','WHERE i=\''.$_a['img'][0]['i'].'\'',0,'|');
@@ -1249,7 +1249,7 @@ class mtfFile{
 								$_h = 150;
 								$_ar['list']['p'][0]['g'] = 1; 
 							} else {
-								$_h = 400; // 400
+								$_h = 360; // 360
 							}
 							if (isset($_r['a']['宽度']) && isset($_r['a']['高度'])) {
 							  $_ar['list']['p'][0]['width'] = round($_r['a']['宽度'][0] / $_r['a']['高度'][0] * $_h);
