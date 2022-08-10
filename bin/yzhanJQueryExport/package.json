@@ -1,7 +1,0 @@
-{
-  "name": "yzhanjquerylist",
-  "bin": {
-    "yzjqls": "index.js",
-    "yzhanjquerylist": "index.js"
-  }
-}
