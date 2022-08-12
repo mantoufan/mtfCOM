@@ -1,58 +1,9 @@
 html {
-  line-height: 1.15;
   -webkit-text-size-adjust: 100%
 }
 
 body {
   margin: 0
-}
-
-main {
-  display: block
-}
-
-h1 {
-  font-size: 2em;
-  margin: .67em 0
-}
-
-hr {
-  -webkit-box-sizing: content-box;
-  box-sizing: content-box;
-  height: 0;
-  overflow: visible
-}
-
-pre {
-  font-family: monospace, monospace;
-  font-size: 1em
-}
-
-a {
-  background-color: transparent
-}
-
-abbr[title] {
-  border-bottom: none;
-  text-decoration: underline;
-  -webkit-text-decoration: underline dotted;
-  text-decoration: underline dotted
-}
-
-b,
-strong {
-  font-weight: bolder
-}
-
-code,
-kbd,
-samp {
-  font-family: monospace, monospace;
-  font-size: 1em
-}
-
-small {
-  font-size: 80%
 }
 
 sub,
@@ -118,24 +69,6 @@ button:-moz-focusring {
   outline: 1px dotted ButtonText
 }
 
-fieldset {
-  padding: .35em .75em .625em
-}
-
-legend {
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  color: inherit;
-  display: table;
-  max-width: 100%;
-  padding: 0;
-  white-space: normal
-}
-
-progress {
-  vertical-align: baseline
-}
-
 textarea {
   overflow: auto
 }
@@ -166,68 +99,9 @@ textarea {
   font: inherit
 }
 
-details {
-  display: block
-}
-
-summary {
-  display: list-item
-}
-
-template {
-  display: none
-}
-
-[hidden] {
-  display: none
-}
-
-html {
-  font-family: sans-serif
-}
-
 .hidden,
 [hidden] {
   display: none !important
-}
-
-.m-g {
-  letter-spacing: -.31em;
-  text-rendering: optimizespeed;
-  font-family: FreeSans, Arimo, "Droid Sans", Helvetica, Arial, sans-serif;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-  -ms-flex-flow: row wrap;
-  flex-flow: row wrap;
-  -ms-flex-line-pack: start;
-  align-content: flex-start
-}
-
-@media all and (-ms-high-contrast:none),
-(-ms-high-contrast:active) {
-  table .m-g {
-    display: block
-  }
-}
-
-.opera-only :-o-prefocus,
-.m-g {
-  word-spacing: -0.43em
-}
-
-.m-u {
-  display: inline-block;
-  letter-spacing: normal;
-  word-spacing: normal;
-  vertical-align: top;
-  text-rendering: auto
-}
-
-.m-g [class*=m-u] {
-  font-family: sans-serif
 }
 
 .m-u-1,
