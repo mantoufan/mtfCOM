@@ -90,7 +90,7 @@ var mtfHistory={
 			a.attr('t',t);
 			if(b[2]){
 				img=$('<img>');
-				img.attr('src',b[2]);
+				img.attr('src',b[2].replace(/h_(\d+)/, 'h_50'));
 				a.append(img);
 			}
 			//a.append('<div>'+t+'</div>');

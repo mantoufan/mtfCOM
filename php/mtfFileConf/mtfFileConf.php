@@ -1,6 +1,6 @@
 <?php 
 class mtfFileConf{
-    public $maxTime=300;//与kangle中的配置中 超时 时间对应：转码时间是这个时间的 5 倍，不超过25分钟
+    public $maxTime=600;//与kangle中的配置中 超时 时间对应：转码时间是这个时间的 5 倍，不超过10分钟
 	//相对于root的路径
 	public $root='ZONE';
 	public $dir=array(
