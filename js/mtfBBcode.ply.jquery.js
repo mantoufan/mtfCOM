@@ -39,7 +39,7 @@ var mtfBBcode = {
     // });
     var a = o.find(".mtfBB-Menu a");
     if (a.length > 0) {
-      a.unbind("click");
+      a.off("click");
       a.click(function () {
         var t = $(this),
           p = t.parent(),
@@ -191,7 +191,7 @@ var mtfBBcode = {
     o.find("." + cq).click(function () {
       var t = $(this);
       t.html("");
-      t.unbind("click");
+      t.off("click");
     });
   },
   p: function (o, obj) {

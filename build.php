@@ -157,7 +157,7 @@ if($j){
 			if($js){
 				file_put_contents($n.'.js',$js);
 				// exec($g_root.'lsrunase.exe /user:Administrator /password:'.$AKEY.' /domain: /command:"'.$g_root.'mod/UglifyJS3/node_modules/.bin/uglifyjs.cmd '.$g_root.$n.'.js -o '.$g_root.$n.'.min.js -m -c --ie8" /runpath:c:');
-        exec($g_root.'mod/UglifyJS3/node_modules/.bin/uglifyjs '.$g_root.$n.'.js -o '.$g_root.$n.'.min.js -m -c --ie8');
+        exec($g_root.'mod/UglifyJS3/node_modules/.bin/uglifyjs '.$g_root.$n.'.js -o '.$g_root.$n.'.min.js -m -c --ie8 --no-annotations');
 				while(1) {
 					if (file_exists($n.'.min.js')) break;
 					usleep(500);
