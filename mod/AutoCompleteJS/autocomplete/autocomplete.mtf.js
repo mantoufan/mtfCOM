@@ -386,34 +386,5 @@ var AutoCompleteConfig = {
       ]
     },
     allowFreeform: true
-  },
-  onChange: function (n, o) {
-    //new old 草稿
-    var d = {}
-    for (var _i in n) {
-      var m = n[_i],
-        k,
-        v
-      if (m.length > 2) {
-        m.splice(0, 1)
-      }
-      for (var _j in m) {
-        var a = m[_j]
-        if (_j === '0') {
-          k = a.value
-        } else {
-          v = a.value
-          if (!BE(d, k)) {
-            d[k] = []
-          }
-          d[k].push(v)
-        }
-      }
-    }
-
-    DRAFT[i]['key'] = d
-    setTimeout(function () {
-      BT.bt.tag_edi(A_TAG, $('#mtf-tag-key'))
-    }, 1000)
   }
 }
