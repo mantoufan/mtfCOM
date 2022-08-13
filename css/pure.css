@@ -81,15 +81,6 @@ textarea {
   height: auto
 }
 
-[type=search] {
-  -webkit-appearance: textfield;
-  outline-offset: -2px
-}
-
-[type=search]::-webkit-search-decoration {
-  -webkit-appearance: none
-}
-
 ::-webkit-file-upload-button {
   -webkit-appearance: button;
   font: inherit
@@ -128,7 +119,6 @@ textarea {
 .m-u-21-24,
 .m-u-22-24,
 .m-u-23-24,
-.m-u-24-24,
 .m-u-3-24,
 .m-u-3-4,
 .m-u-3-5,
@@ -137,7 +127,6 @@ textarea {
 .m-u-4-5,
 .m-u-5-12,
 .m-u-5-24,
-.m-u-5-5,
 .m-u-5-6,
 .m-u-5-8,
 .m-u-6-24,
@@ -276,10 +265,7 @@ textarea {
   width: 95.8333%
 }
 
-.m-u-1,
-.m-u-1-1,
-.m-u-24-24,
-.m-u-5-5 {
+.m-u-1 {
   width: 100%
 }
 
@@ -319,7 +305,7 @@ textarea {
   border-color: #000
 }
 
-.m-button[disabled] {
+/* .m-button[disabled] {
   border: none;
   background-image: none;
   opacity: .4;
@@ -327,7 +313,7 @@ textarea {
   -webkit-box-shadow: none;
   box-shadow: none;
   pointer-events: none
-}
+} */
 
 .m-f-r {
   float: right
