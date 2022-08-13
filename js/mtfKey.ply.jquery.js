@@ -1,5 +1,5 @@
 var mtfKey = {
-	key: "undefinedundefined",
+	key: "",
 	cha: function(ask, f) {
 		Ply.dialog("prompt", {
 		  title: ask,
