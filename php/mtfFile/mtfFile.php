@@ -515,11 +515,11 @@ class mtfFile{
 			unset($_v['i']);unset($_v['a']);unset($_v['k']);
 			
 			if($_uid===$_i){
-				$_v['self']=1;
+				// $_v['self']=1;
+				$this->_cache['list'][$_i]['count']=array_filter($_v);//过滤为0的数字
 			}else{
 				unset($_v['nz1']);unset($_v['nfol1']);unset($_v['nmsg1']);
 			}
-			$this->_cache['list'][$_i]['count']=array_filter($_v);//过滤为0的数字
 		}
 	}
 	
