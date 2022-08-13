@@ -4339,7 +4339,7 @@ class mtfFile{
 			}elseif($_t==='audio'){
 				
 			}else{
-				$_d+=array('down'=>$_i?array('e'=>$_ext,'href'=>$conf['domain']['cdn'].$_i.$_ext):1);
+				$_d+=array('down'=> $_i ? array('e'=>$_ext) : 1);
 			}
 			
 		}
