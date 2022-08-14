@@ -54,6 +54,8 @@ var mtfLang={
 		for(var _i=0;_i<_l;_i++){
 			_p=document.createElement('img');
 			_p.src=icon+'/'+_ar[_i]+'.png';
+			_p.width=23;
+			_p.height=17;
 			_p.onclick=function(){
 				var _a=this.src.split('/'),_e=_a[_a.length-1].split('.')[0];
 				store.set('lang',_e);
