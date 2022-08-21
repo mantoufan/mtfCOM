@@ -24,7 +24,7 @@ class mtfKey
 	public $answer;
 	public $default='dm126';//默认密钥
 	public $app=array('XMLHttpRequest','qiuqiu.dm126.madfan','com.tencent.mobileqq');//APP白名单
-	public $ips=array('183.253.142.173','183.253.130.34');//IP黑名单
+	public $ips=array();//IP黑名单
 	public $urlLib=array(
 		'safe'=>array(
 					'mtf.im'
@@ -180,10 +180,8 @@ class mtfKey
 		$k=implode('',$al);
 		return $key=$this->_xor($key,$k);
 	}
-	public function check($_domain)
-    {
-        if($this->key){
-			
+	public function check($_domain) {
+    if($this->key){
 			$_ip=$this->mtfGuid->ip();
 			
 			$key=$this->deKey();
@@ -235,9 +233,7 @@ class mtfKey
 					$this->_error('check-wrong-via',$_SERVER['REMOTE_ADDR'].'|'.$_SERVER['HTTP_VIA'].'|'.$_SERVER['HTTP_X_FORWARDED_FOR']);
 					@session_write_close();
 				}else{
-
 					$this->fid=$_SESSION['FID'];
-
 					@session_write_close();
 					return TRUE;	
 				}
