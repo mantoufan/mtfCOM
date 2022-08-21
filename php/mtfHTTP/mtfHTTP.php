@@ -53,7 +53,7 @@ class mtfHTTP{
 		$whiteList = array('HTTP', 'SERVER', 'REMOTE', 'REQUEST', 'QUERY', 'PHP');
 		$server = array();
 		foreach($_SERVER as $k => $v) {
-			if(in_array(substr($k, 0, strrpos($k, '_')), $whiteList)) {
+			if(in_array(substr($k, 0, stripos($k, '_')), $whiteList)) {
 				$server[$k] = $v;
 			}
 		}
