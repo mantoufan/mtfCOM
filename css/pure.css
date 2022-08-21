@@ -276,12 +276,7 @@ textarea {
   vertical-align: middle;
   text-align: center;
   cursor: pointer;
-  -webkit-user-drag: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
-  -webkit-box-sizing: border-box;
   box-sizing: border-box;
   text-decoration: none;
 }
@@ -305,16 +300,6 @@ textarea {
   border-color: #000
 }
 
-/* .m-button[disabled] {
-  border: none;
-  background-image: none;
-  opacity: .4;
-  cursor: not-allowed;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-  pointer-events: none
-} */
-
 .m-f-r {
   float: right
 }
@@ -325,6 +310,4 @@ textarea {
 
 .m-g-r {
   letter-spacing: -.51em;
-  *letter-spacing: normal;
-  *word-spacing: -.43em;
 }
