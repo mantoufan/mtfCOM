@@ -1,0 +1,19 @@
+.mtfCC-sel,
+.mtfCC-sel-a {
+  cursor: pointer;
+  border: 1px solid #333;
+  border-width: 1px 3px 3px 1px;
+  border-radius: 0.3em;
+  margin: 0.6em 0;
+  padding: 0.5em 1.5em;
+}
+
+.mtfCC-sel:hover,
+.mtfCC-sel-a {
+  background: #666;
+  color: #fff;
+}
+
+.mtfCC .m-button {
+  margin-right: 5px;
+}
