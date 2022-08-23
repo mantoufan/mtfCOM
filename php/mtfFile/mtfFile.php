@@ -1177,7 +1177,6 @@ class mtfFile{
 					if($_arv['load']){
 						$_r=$this->mtfMysql->sql('s1',$this->db['table'],'k,o,nm','WHERE i='.$_arv['load']);
 						$_arv['o']=$_r['o'];
-						$_arv['o']=$_r['o'];
 						if($_r['k']){
 							$__r=$this->mtfAttr->parseA($_r['k'],'|');
 							$_arv['title']=@$__r['标题'][0];
