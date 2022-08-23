@@ -2471,7 +2471,7 @@ class mtfFile{
 							}
 						}
 						if($_tag){
-							$_ar+=$_tag;
+							$_ar += empty($_data['list']) ? $_tag : array('标签' => $this->_getTAG($_tag));
 						}
 						if($_ar){
 							$this->mtfAttr->sql('u0',$this->db['table'],array('k'=>$_ar),'WHERE i='.$_i);	
@@ -4358,6 +4358,18 @@ class mtfFile{
 		}
 		return array(1290, null);
 	}
+
+	private function _getTAG($_key) {
+		if (empty($_key)) return array();
+		$_tag = array();
+		unset($_key['标题']);
+		unset($_key['描述']);
+		$_tag_1=reset(reset($_key));
+		if ($_tag_1) $_tag[] = $_tag_1;
+		$_tag_2 = isset($_key['作者'][0]) ? $_key['作者'][0] : (isset($_key2['模特'][0]) ? $_key2['模特'][0] : (isset($_key2['摄影师'][0]) ? $_key2['摄影师'][0] : null));
+		if ($_tag_2) $_tag[] = $_tag_2;
+		return array_unique($_tag);
+	}	
 	
 	private function _readMsg($_is=array(),$_uid){
 		if($_uid){
@@ -5404,25 +5416,8 @@ class mtfFile{
 								if(@$_var['reply_author']){
 									$_rr[$_k]=array('tpl'=>$this->_mtflang2span('作者 可见'));//加密内容链接
 									unset($_rr[$_v['i']]);
-								}else{
-									
-									$_tag=array();
-									if(@$_key){
-										$_key2=$_key;
-										unset($_key2['标题']);
-										unset($_key2['描述']);
-										
-										$_tag_1=reset(reset($_key2));
-										if($_tag_1){
-											$_tag[]=$_tag_1;
-										}
-										$_tag_2=@$_key2['作者'][0]?$_key2['作者'][0]:(@$_key2['模特'][0]?$_key2['模特'][0]:@$_key2['摄影师'][0]);
-										if($_tag_2){
-											$_tag[]=$_tag_2;
-										}
-										$_tag=array_unique($_tag);
-									}
-									
+								}else{		
+									$_tag=$this->_getTAG($_key);
 									
 									$_rr[$_v['i']]=array_merge_recursive($_rr[$_v['i']],$this->getContent($_p,'list',array('pi'=>@$_data['pi'],'o'=>$_v['o'],'nm'=>$_v['nm'],'title'=>@$_key['标题'][0],'des'=>@$_key['描述'][0],'tag'=>@$_tag,'domain'=>@$_attr['域名'][0])));
 									
