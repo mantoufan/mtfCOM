@@ -287,6 +287,14 @@ class mtfFile{
 					$image=Grafika\Grafika::createBlankImage($_w,$_h);
 				}
 				
+				//限制可选宽度和高度
+				if(isset($_c['w']) && $_c['w'] !== $_w && in_array($_c['w'], $this->conf['convert']['image']['widths']) === false){
+					$this->_404();
+				}
+				if(isset($_c['h']) && $_c['h'] !== $_h && in_array($_c['h'], $this->conf['convert']['image']['heights']) === false){
+					$this->_404();
+				}
+				
 				//剪裁
 				if(@$_c['ace']){
 					$_a=$this->_av2url($_c['ace'],$_f['id']);
@@ -361,13 +369,6 @@ class mtfFile{
 					unset($_font,$_l,$_lh,$_s,$_co);
 				}
 				
-				//限制可选宽度和高度
-				if(isset($_c['w']) && in_array($_c['w'], $this->conf['convert']['image']['widths']) === false){
-					$this->_404();
-				}
-				if(isset($_c['h']) && in_array($_c['h'], $this->conf['convert']['image']['heights']) === false){
-					$this->_404();
-				}
 				//w 宽度 h 高度 nl 不要放大 c裁剪
 				if(@$_c['c']){
 					if($_c['c']==='s'){
@@ -403,17 +404,17 @@ class mtfFile{
 				$this->_get_ture_orientation_img($_d['p']);
 
 				if ($_d['e']==='webp') {
-					$this->mtfWebP->convert($_d['p'], $_d['p'], 85);
+					$this->mtfWebP->convert($_d['p'], $_d['p'], 75);
 				}
 				
 				//剪裁
-				if(@$_c['waifu']){
-					$_a=$this->_waifu2url($_c['waifu'],$_f['id']);
-					if(@$_a['s'] && @$_a['n']){
+				// if(@$_c['waifu']){
+				// 	$_a=$this->_waifu2url($_c['waifu'],$_f['id']);
+				// 	if(@$_a['s'] && @$_a['n']){
 						//服务器不支持
 						//exec($_root.'bin/Win32/Waifu2x/waifu2x-caffe-cui.exe  -i '.$_d['p'].' -o '.$_d['p'].' -m noise_scale --scale_ratio '.$_a['s'].' --noise_level '.$_a['n']);
-					}
-				}
+				// 	}
+				// }
 			}
 			return true;
 		}elseif($_f['t']==='video'||$_f['t']==='audio'){
@@ -1081,8 +1082,7 @@ class mtfFile{
 								if($_v['e']==='gif'){//动画
 									$__a['g']=1;
 								}
-								$__a['width']=$_attr['宽度'][0];
-								$__a['height']=$_attr['高度'][0];
+								list($__a['width'], $__a['height']) = $this->_getWH($_attr['宽度'][0], $_attr['高度'][0]);
 								if (is_numeric($_v['ch']) && is_numeric($_v['cs']) && is_numeric($_v['cv'])) {
 									$_color = $this->mtfColor->hsv2rgb(array('h'=>$_v['ch'],'s'=>$_v['cs'],'v'=>$_v['cv']));
 									$__a['cr'] = $_color['r'];
@@ -1242,7 +1242,7 @@ class mtfFile{
 						$img_count = count($_a['img']);
 						if ($img_count > 1) {
 							$_ar['list']['ps'] = $img_count;
-							$_ar['list']['ps900'] = 1080 / $_ar['list']['ps']; // 360
+							$_ar['list']['wh'] = 1080 / $_ar['list']['ps']; // 360
 							$_ar['list']['psn'] = $this->conf['list']['max_p_length']-$_ar['list']['ps']+2;
 						} else {
 							$_r = $this->mtfAttr->sql('s1',$this->db['table'],'a','WHERE i=\''.$_a['img'][0]['i'].'\'',0,'|');
@@ -1261,7 +1261,7 @@ class mtfFile{
 					if(@$_arv['dm']){//弹幕中图片
 						$_ar['list']['dm']=1;
 						$_ar['list']['ps']=3;
-						$_ar['list']['ps900']= (1290 - 90) / $_ar['list']['ps'];
+						$_ar['list']['wh']= 1080 / $_ar['list']['ps'];
 					}elseif(@$_a['audio']){
 						$_ar['list']['audio']=$_a['audio'];
 					}
@@ -4348,6 +4348,16 @@ class mtfFile{
 		if ($_e === 'gif') $_d['g'] = 1;
 		return $_d;
 	}
+
+	private function _getWH($sw, $sh) {
+		if (empty($sw) === false && empty($sh) === false) {
+			$sr = $sw / $sh;
+			$sw = $sw < 600 ? $sw : 1290;
+			$sh = $sw / $sr;
+			return array($sw, $sh | 0);
+		}
+		return array(1290, null);
+	}
 	
 	private function _readMsg($_is=array(),$_uid){
 		if($_uid){
@@ -5336,8 +5346,7 @@ class mtfFile{
 									if($_v['url']){
 										$_h['img']['u']=$_v['url'];
 									}
-									$_h['img']['width']=$_attr['宽度'][0];
-									$_h['img']['height']=$_attr['高度'][0];
+									list($_h['img']['width'], $_h['img']['height']) = $this->_getWH($_attr['宽度'][0], $_attr['高度'][0]);
 									if (is_numeric($_v['ch']) && is_numeric($_v['cs']) && is_numeric($_v['cv'])) {
 										$_color = $this->mtfColor->hsv2rgb(array('h'=>$_v['ch'],'s'=>$_v['cs'],'v'=>$_v['cv']));
 										$_h['img']['cr'] = $_color['r'];
