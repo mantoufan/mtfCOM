@@ -33,49 +33,16 @@ textarea {
 }
 
 .m-u-1,
-.m-u-1-1,
 .m-u-1-12,
 .m-u-1-2,
-.m-u-1-24,
 .m-u-1-3,
-.m-u-1-4,
 .m-u-1-5,
 .m-u-1-6,
 .m-u-1-8,
-.m-u-10-24,
-.m-u-11-12,
-.m-u-11-24,
-.m-u-12-24,
-.m-u-13-24,
-.m-u-14-24,
-.m-u-15-24,
-.m-u-16-24,
 .m-u-17-24,
-.m-u-18-24,
-.m-u-19-24,
-.m-u-2-24,
-.m-u-2-3,
 .m-u-2-5,
-.m-u-20-24,
-.m-u-21-24,
-.m-u-22-24,
-.m-u-23-24,
-.m-u-3-24,
-.m-u-3-4,
-.m-u-3-5,
-.m-u-3-8,
-.m-u-4-24,
 .m-u-4-5,
-.m-u-5-12,
-.m-u-5-24,
-.m-u-5-6,
-.m-u-5-8,
-.m-u-6-24,
-.m-u-7-12,
-.m-u-7-24,
-.m-u-7-8,
-.m-u-8-24,
-.m-u-9-24 {
+.m-u-5-24 {
   display: inline-block;
   letter-spacing: normal;
   word-spacing: normal;
@@ -83,22 +50,15 @@ textarea {
   text-rendering: auto
 }
 
-.m-u-1-24 {
-  width: 4.1667%
-}
-
-.m-u-1-12,
-.m-u-2-24 {
+.m-u-1-12 {
   width: 8.3333%
 }
 
-.m-u-1-8,
-.m-u-3-24 {
+.m-u-1-8 {
   width: 12.5%
 }
 
-.m-u-1-6,
-.m-u-4-24 {
+.m-u-1-6 {
   width: 16.6667%
 }
 
@@ -110,104 +70,24 @@ textarea {
   width: 20.8333%
 }
 
-.m-u-1-4,
-.m-u-6-24 {
-  width: 25%
-}
-
-.m-u-7-24 {
-  width: 29.1667%
-}
-
-.m-u-1-3,
-.m-u-8-24 {
+.m-u-1-3 {
   width: 33.3333%
-}
-
-.m-u-3-8,
-.m-u-9-24 {
-  width: 37.5%
 }
 
 .m-u-2-5 {
   width: 40%
 }
 
-.m-u-10-24,
-.m-u-5-12 {
-  width: 41.6667%
-}
-
-.m-u-11-24 {
-  width: 45.8333%
-}
-
-.m-u-1-2,
-.m-u-12-24 {
+.m-u-1-2 {
   width: 50%
-}
-
-.m-u-13-24 {
-  width: 54.1667%
-}
-
-.m-u-14-24,
-.m-u-7-12 {
-  width: 58.3333%
-}
-
-.m-u-3-5 {
-  width: 60%
-}
-
-.m-u-15-24,
-.m-u-5-8 {
-  width: 62.5%
-}
-
-.m-u-16-24,
-.m-u-2-3 {
-  width: 66.6667%
 }
 
 .m-u-17-24 {
   width: 70.8333%
 }
 
-.m-u-18-24,
-.m-u-3-4 {
-  width: 75%
-}
-
-.m-u-19-24 {
-  width: 79.1667%
-}
-
 .m-u-4-5 {
   width: 80%
-}
-
-.m-u-20-24,
-.m-u-5-6 {
-  width: 83.3333%
-}
-
-.m-u-21-24,
-.m-u-7-8 {
-  width: 87.5%
-}
-
-.m-u-11-12,
-.m-u-22-24 {
-  width: 91.6667%
-}
-
-.m-u-23-24 {
-  width: 95.8333%
-}
-
-.m-u-1 {
-  width: 100%
 }
 
 .m-button {
@@ -220,11 +100,6 @@ textarea {
   user-select: none;
   box-sizing: border-box;
   text-decoration: none;
-}
-
-.m-button::-moz-focus-inner {
-  padding: 0;
-  border: 0
 }
 
 .m-button:focus,
@@ -244,8 +119,4 @@ textarea {
 
 .m-none {
   display: none
-}
-
-.m-g-r {
-  letter-spacing: -.51em;
 }

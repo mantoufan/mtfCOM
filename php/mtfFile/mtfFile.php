@@ -2470,12 +2470,9 @@ class mtfFile{
 								}
 							}
 						}
-						if($_tag){
-							$_ar += empty($_data['list']) ? $_tag : array('标签' => $this->_getTAG($_tag));
-						}
-						if($_ar){
-							$this->mtfAttr->sql('u0',$this->db['table'],array('k'=>$_ar),'WHERE i='.$_i);	
-						}
+						if ($_tag) $_ar += $_tag;
+						
+						$this->mtfAttr->sql('u0', $this->db['table'], array('k'=>$_ar), 'WHERE i=' . $_i);	
 						
 						$_new=$_data['av'];
 						//头像
@@ -2517,7 +2514,7 @@ class mtfFile{
 						if(@$_data['des']){
 							$_ar['描述'][0]=$_data['des'];
 						}
-						return array('status'=>TRUE,'tag'=>$_ar,'t1'=>@$_data['t1'])+$__a;
+						return array('status'=>TRUE,'tag'=>empty($_data['list']) ? $_ar : array('标签' => $this->_getTAG($_ar)),'t1'=>@$_data['t1'])+$__a;
 					}
 					
 				}
