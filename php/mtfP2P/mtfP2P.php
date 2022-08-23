@@ -11,7 +11,7 @@ class mtfP2P{
 		'table'=>'mtfp2p',
 		'install'=>"CREATE TABLE IF NOT EXISTS `mtfp2p` (
 					  `i` mediumint(8) NOT NULL AUTO_INCREMENT COMMENT 'ID',
-					  `u` varchar(250) NOT NULL COMMENT '网址',
+					  `u` varchar(3500) NOT NULL COMMENT '网址',
 					  `t` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '时间',
 					  `n` tinyint(3) NOT NULL COMMENT '次数',
   					  `ip` varchar(250) NOT NULL DEFAULT '' COMMENT 'IP',
