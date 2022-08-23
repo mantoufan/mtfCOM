@@ -37,7 +37,8 @@ class mtfFileConf{
 									'sub'=>array('ext'=>'jpg'),
 									'doc'=>array('ext'=>'jpg'),
 									'bt'=>array('ext'=>'jpg'),
-									'txt'=>array('ext'=>'jpg')
+									'txt'=>array('ext'=>'jpg'),
+									'rom'=>array('ext'=>'jpg')
 									),
 					'domain'=>array(
 									'web'=>'',

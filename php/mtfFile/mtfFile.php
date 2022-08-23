@@ -805,8 +805,8 @@ class mtfFile{
 					$_fs=$_f['i']['filesizekb'];
 				}
 				$editor->text($image, $_fs, 24, 530-$this->mtfUnit->strLen($_fs)*8.5, 16, new Grafika\Color('#FFFFFF'));
-				$_arv['n']=$this->mtfUnit->subStr($_arv['n'],14,'..');
-				$editor->text($image, $_arv['n'], 24, 300-$this->mtfUnit->strLen($_arv['n'])*8.5, 16, new Grafika\Color('#333333'));
+				$_arv['n']=$this->mtfUnit->subStr($_arv['n'], 18,'..');
+				$editor->text($image, $_arv['n'], 24, 300-$this->mtfUnit->strLen($_arv['n'])*8.5, 16, new Grafika\Color('#333333'), $_root.'../Grafika/fonts/wenquanyidengkuanzhenghei.ttf');
 				$editor->save($image, $_f['d'].'/'.$_f['bn'].'.jpg');
 			}
 		}
@@ -1022,6 +1022,8 @@ class mtfFile{
 									
 									$_ar['sub'][$_d['id']][$_t]=$this->_getMedia($_d['id'],$_t,$_attr,$_key);
 									
+								} elseif ($_t === 'rom') {
+									$_ar['sub'][$_d['id']][$_t] = array('e' => $_d['e']);
 								}else{
 									//建立文章中图片（含文件）缓存
 									$_img[]=$_d['id'];
@@ -5065,14 +5067,6 @@ class mtfFile{
 									}
 								break;
 							}
-							break;
-						case 'mod':
-							$a=array();
-							if($_v==='SSO'){
-								$a=array('js'=>$_v);
-							}
-							$_ar=array(array(1=>array($_k=>$a)));
-							exit($this->mtfUnit->JsonEncodeCN($_ar));
 					}
 				}
 				
@@ -5323,7 +5317,7 @@ class mtfFile{
 							$_rr[$_v['i']]['list']['c']=$_class;
 							unset($_class);
 						}
-						if($_t==='image'||$_t==='video'||$_t==='audio'||$_t==='zip'||$_t==='sub'||$_t==='doc'||$_t==='bt'||$_t==='txt'){
+						if($_t==='image'||$_t==='video'||$_t==='audio'||$_t==='zip'||$_t==='sub'||$_t==='doc'||$_t==='bt'||$_t==='txt'||$_t==='rom'){
 							if($_tpl==='data'){
 								$_rr[$_v['i']]=$this->_get_data($_v,$_attr);
 							}elseif($_tpl==='list'){
