@@ -2508,15 +2508,12 @@ class mtfFile{
 						
 						unset($_ar['标题']);
 						unset($_ar['描述']);
-						if(@$_data['title']){
-							$_ar['标题'][0]=$_data['title'];
-						}
-						if(@$_data['des']){
-							$_ar['描述'][0]=$_data['des'];
-						}
-						return array('status'=>TRUE,'tag'=>empty($_data['list']) ? $_ar : array('标签' => $this->_getTAG($_ar)),'t1'=>@$_data['t1'])+$__a;
+						if (empty($_data['title']) === false) $_ar['标题'] = array($_data['title']);
+						if (empty($_data['des']) === false) $_ar['描述'] = array($_data['des']);
+						if (empty($_data['list']) === false) $_ar['标签'] = $this->_getTAG($_ar);
+						if (empty($_data['t1']) === false) $__a['t1'] = $_data['t1'];
+						return array('status' => TRUE, 'tag' => $_ar) + $__a;
 					}
-					
 				}
 			}
 			elseif($_action==='fl')
