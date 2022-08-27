@@ -2506,11 +2506,15 @@ class mtfFile{
 							
 						$this->mtfMysql->sql('u',$this->db['table'],array('t1'=>(@$_data['t1']?$_data['t1']:'NULL')),'WHERE i='.$_i);
 						
-						unset($_ar['标题']);
-						unset($_ar['描述']);
-						if (empty($_data['title']) === false) $_ar['标题'] = array($_data['title']);
-						if (empty($_data['des']) === false) $_ar['描述'] = array($_data['des']);
-						if (empty($_data['list']) === false) $_ar['标签'] = $this->_getTAG($_ar);
+						$_tag = array();
+						if (empty($_data['title']) === false) $_tag['标题'] = array($_data['title']);
+						if (empty($_data['des']) === false) $_tag['描述'] = array($_data['des']);
+						if (empty($_data['list']) === false) {
+							$_tag['标签'] = $this->_getTAG($_ar);
+							$_ar = $_tag;
+						} else {
+							$_ar = array_merge($_ar, $_tag);
+						}
 						if (empty($_data['t1']) === false) $__a['t1'] = $_data['t1'];
 						return array('status' => TRUE, 'tag' => $_ar) + $__a;
 					}
