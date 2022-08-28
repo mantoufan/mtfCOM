@@ -1246,16 +1246,9 @@ class mtfFile{
 							$_ar['list']['psn'] = $this->conf['list']['max_p_length']-$_ar['list']['ps']+2;
 						} else {
 							$_r = $this->mtfAttr->sql('s1',$this->db['table'],'a','WHERE i=\''.$_a['img'][0]['i'].'\'',0,'|');
-							if ($_a['img'][0]['e'] === 'gif') {
-								$_h = 150;
-								$_ar['list']['p'][0]['g'] = 1; 
-							} else {
-								$_h = 360; // 360
-							}
-							if (isset($_r['a']['宽度']) && isset($_r['a']['高度'])) {
-							  $_ar['list']['p'][0]['width'] = round($_r['a']['宽度'][0] / $_r['a']['高度'][0] * $_h);
-							}
-							$_ar['list']['p'][0]['height'] = $_h;
+							if ($_a['img'][0]['e'] === 'gif') $_ar['list']['p'][0]['g'] = 1;
+							list($_ar['list']['p'][0]['width'], $_ar['list']['p'][0]['height']) = $this->_getWH(isset($_r['a']['宽度']) ? $_r['a']['宽度'][0] : null, isset($_r['a']['高度']) ? $_r['a']['高度'][0] : null);
+							list($_ar['list']['p'][0]['width'], $_ar['list']['p'][0]['height']) = $this->_getWHfromE($_ar['list']['p'][0]['width'], $_ar['list']['p'][0]['height'], $_a['img'][0]['e']);
 						}
 					}
 					if(@$_arv['dm']){//弹幕中图片
@@ -4347,6 +4340,17 @@ class mtfFile{
 		return $_d;
 	}
 
+	private function _getWHfromE($sw, $sh, $e) {
+		if (empty($sw) === false && empty($sh) === false) {
+		  $sr = $sw / $sh;
+		} else {
+			$sr = null;
+		}
+		if ($e === 'gif') $sh = 150;
+		else $sh = 360;
+		return array($sr ? $sh * $sr | 0 : null, $sh);
+	}
+
 	private function _getWH($sw, $sh) {
 		if (empty($sw) === false && empty($sh) === false) {
 			$sr = $sw / $sh;
@@ -5338,13 +5342,17 @@ class mtfFile{
 						}
 						if($_t==='image'||$_t==='video'||$_t==='audio'||$_t==='zip'||$_t==='sub'||$_t==='doc'||$_t==='bt'||$_t==='txt'||$_t==='rom'){
 							if($_tpl==='data'){
-								$_rr[$_v['i']]=$this->_get_data($_v,$_attr);
+								$_rr[$_v['i']]=$this->_get_data($_v, $_attr);
 							}elseif($_tpl==='list'){
-								$_rr[$_v['i']]['list']['p'][]=array('i'=>$_v['i'])+$this->_isDownGifExt($_v['e'],$_t)+($_v['url']?array('u'=>$_v['url']):array());
-								$_rr[$_v['i']]['list']['type']=$_t;
+								$_p = array('i'=>$_v['i']) + $this->_isDownGifExt($_v['e'], $_t);
+								if (empty($_v['url']) === false) $_p['u'] = $_v['url'];
+								list($_p['width'], $_p['height']) = $this->_getWH(isset($_attr['宽度']) ? $_attr['宽度'][0] : null, isset($_attr['高度']) ? $_attr['高度'][0] : null);
+								list($_p['width'], $_p['height']) = $this->_getWHfromE($_p['width'], $_p['height'], $_v['e']);
+								$_rr[$_v['i']]['list']['p'] []= $_p;
+								$_rr[$_v['i']]['list']['type'] = $_t;
 								
 								//List强制排序
-								$_rrr=$this->_jsonOrder($_rrr,$_v['i'],$_rr[$_v['i']]);
+								$_rrr=$this->_jsonOrder($_rrr, $_v['i'], $_rr[$_v['i']]);
 								unset($_rr[$_v['i']]);
 							}else{
 								$_h=array();
