@@ -1,16 +1,12 @@
 /* Layer */
 .ply-layer {
-	color: #333;
-	min-width: 280px;
 	box-shadow: 0 0 3px rgba(0, 0, 0, .3);
 	background-color: #fff;
 	border-radius: 2px;
-	font-size: 16px;
 }
 
 .ply-layer.alert .ply-content,
 .ply-layer.confirm .ply-content {
-	padding: 20px 0 15px;
 	text-align: center;
 }
 
@@ -31,7 +27,6 @@
 	padding: 10px 20px;
 	font-size: 18px;
 	background-color: #f1f1f1;
-	border-radius: 2px 2px 0 0;
 }
 
 .ply-footer .ply-ctrl {
@@ -63,31 +58,14 @@
 	outline: 0;
 	padding: 5px 20px;
 	box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
-	background-color: #39C082;
+	background-color: #fb4a6f;
 	border-radius: 3px;
 	font-size: 18px;
-}
-
-.ply-ok {
-	width: 100px;
 }
 
 .ply-cancel {
 	background-color: #b2b2b2;
 }
-
-.ply-ok:focus,
-.ply-cancel:focus {
-	box-shadow: 0 0 1px 2px rgba(255, 180, 0, .6);
-	border: 2px solid rgb(255, 210, 102)\9;
-}
-
-.ply-ok::-moz-focus-inner,
-.ply-cancel::-moz-focus-inner {
-	border: 0;
-}
-
-
 
 /* Forms */
 .ply-input {
@@ -96,7 +74,6 @@
 	outline: 0;
 	padding: 5px 10px;
 	margin-top: 15px;
-	font-size: 16px;
 	box-sizing: border-box;
 }
 
@@ -105,10 +82,8 @@
 }
 
 .ply-input:focus {
-	border-color: #39C082;
+	border-color: #fb4a6f;
 }
-
-
 
 /* Global modifiers */
 .ply-invalid .ply-input {
