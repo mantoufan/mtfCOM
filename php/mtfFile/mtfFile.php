@@ -1253,8 +1253,6 @@ class mtfFile{
 					}
 					if(@$_arv['dm']){//弹幕中图片
 						$_ar['list']['dm']=1;
-						$_ar['list']['ps']=3;
-						$_ar['list']['wh']= 1080 / $_ar['list']['ps'];
 					}elseif(@$_a['audio']){
 						$_ar['list']['audio']=$_a['audio'];
 					}
