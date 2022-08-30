@@ -288,10 +288,10 @@ class mtfFile{
 				}
 				
 				//限制可选宽度和高度
-				if(isset($_c['w']) && $_c['w'] !== $_w && in_array($_c['w'], $this->conf['convert']['image']['widths']) === false){
+				if(isset($_c['w']) && intval($_c['w']) !== $_w && in_array($_c['w'], $this->conf['convert']['image']['widths']) === false){
 					$this->_404();
 				}
-				if(isset($_c['h']) && $_c['h'] !== $_h && in_array($_c['h'], $this->conf['convert']['image']['heights']) === false){
+				if(isset($_c['h']) && intval($_c['h']) !== $_h && in_array($_c['h'], $this->conf['convert']['image']['heights']) === false){
 					$this->_404();
 				}
 				
