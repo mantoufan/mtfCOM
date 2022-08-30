@@ -44,10 +44,7 @@ textarea {
 .m-u-4-5,
 .m-u-5-24 {
   display: inline-block;
-  letter-spacing: normal;
-  word-spacing: normal;
   vertical-align: top;
-  text-rendering: auto
 }
 
 .m-u-1-12 {
@@ -92,7 +89,6 @@ textarea {
 
 .m-button {
   display: inline-block;
-  line-height: normal;
   white-space: nowrap;
   vertical-align: middle;
   text-align: center;
