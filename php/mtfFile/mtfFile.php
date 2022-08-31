@@ -5320,7 +5320,7 @@ class mtfFile{
 								if(@$_v['istop']){
 									$_class='top';
 								}elseif(@$_v['isbox']){
-									$_class='box';
+									// $_class='box'; // mtf-box 已移除，默认没有样式
 									if(!isset($_data['pi'])||@$_var['pi_isset']===1){//如果未定义，再定义，优先考虑自定义
 										if(@$_data['id']===$_v['o']){//自己的文章，不显示pifno
 											$_data['pi']=0;
