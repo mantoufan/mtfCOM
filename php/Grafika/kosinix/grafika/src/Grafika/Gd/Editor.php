@@ -747,6 +747,10 @@ final class Editor implements EditorInterface
                 // PNG is lossless and does not need compression. Although GD allow values 0-9 (0 = no compression), we leave it alone.
                 imagepng($image->getCore(), $file);
                 break;
+            
+            case ImageType::WEBP:
+                imagewebp($image->getCore(), $file, $quality === null ? 75 : $quality);
+                break;
 
             default: // Defaults to jpeg
                 $quality = ($quality === null) ? 75 : $quality; // Default to 75 (GDs default) if null.
@@ -1056,6 +1060,8 @@ final class Editor implements EditorInterface
             return ImageType::GIF;
         } else if ('png' === $ext) {
             return ImageType::PNG;
+        } else if ('webp' === $ext) {
+            return ImageType::WEBP;
         } else if ('wbm' === $ext or 'wbmp' === $ext) {
             return ImageType::WBMP;
         } else {

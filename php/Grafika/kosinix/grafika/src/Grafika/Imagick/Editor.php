@@ -630,6 +630,13 @@ final class Editor implements EditorInterface
                 $image->getCore()->writeImage($file);
                 break;
 
+            case ImageType::WEBP:
+                $image->getCore()->setImageFormat($type);
+                $image->getCore()->setImageCompression(\Imagick::COMPRESSION_WEBP);
+                $image->getCore()->setImageCompressionQuality($quality === null ? 75 : $quality);
+                $image->getCore()->writeImage($file);
+                break;
+
             default: // Defaults to jpeg
                 $quality = ($quality === null) ? 75 : $quality; // Default to 75 (GDs default) if null.
                 $quality = ($quality > 100) ? 100 : $quality;
@@ -821,6 +828,8 @@ final class Editor implements EditorInterface
             return ImageType::GIF;
         } else if ('png' == $ext) {
             return ImageType::PNG;
+        } else if ('webp' == $ext) {
+            return ImageType::WEBP;
         } else {
             return ImageType::UNKNOWN;
         }
