@@ -1,5 +1,5 @@
 {
-	"php":[
+	"php": [
 		"mtfUnit",
 		"mtfQueue",
 		"mtfGuid",
@@ -22,10 +22,9 @@
 		"mtfZH",
 		"sabre",
 		"mtfKeyword",
-		"mtfFileConf",
-		"mtfWebP"
+		"mtfFileConf"
 	],
-	"zip":[
+	"zip": [
 		"php/mtfFile/bin/Win32-FFmpeg.zip",
 		"php/mtfFile/bin/Win32-LibreOffice.zip",
 		"php/mtfFile/bin/Win32-Detect.zip",
