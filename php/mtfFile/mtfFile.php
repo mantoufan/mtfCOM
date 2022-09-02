@@ -236,14 +236,14 @@ class mtfFile{
 			$_mimetype=$_i->file($_p);
 			if($_mimetype){
 				$_e=$this->conf['minetype2ext'][$_mimetype];
-				if($_e==='*'||(strpos($_e,$_ext)) !== FALSE){
+				if($_e==='*'||(strpos($_e,$_ext)) !== false){
 					
 				}else{
 					return reset(explode(',',$_e));
 				}
 			}
 		}
-		return FALSE;
+		return false;
 	}
 	
 	private function _404(){
@@ -253,6 +253,9 @@ class mtfFile{
 	
 	public function convert($_f_p,$_d_p,$queue=0,$_force='0')
 	{ 
+		if(file_exists($_d_p) === true && filesize($_d_p) > 0){
+			return true;
+		}
 		$_root=$this->_root;
 		
 		$_f=$this->_info($_f_p);
@@ -261,153 +264,151 @@ class mtfFile{
 		$_d['c']=$this->config($_d['p']);
 		
 		if($_f['t']==='image'){
-			if(!file_exists($_d['p'])){
-				$_c=@$_d['c'];
-				include_once($_root.'../Grafika/autoload.php');
-				$editor = Grafika\Grafika::createEditor();
-				
-				if(@$_c['p']){
-					$_p=explode(',',$_c['p']);
-					$_f['p']=$this->mtfRand->get('img',$_p[0],$_p[1]);
-					$_f=$this->_info($_f['p']);
-					unset($_p);
-				}
-				
-				if(file_exists($_f['p'])){
-					$editor->open($image, $_f['p']);
-					$_w=$image->getWidth();
-					$_h=$image->getHeight();
-				}else{
-					$_w=300;
-					$_h=300;
-					$image=Grafika\Grafika::createBlankImage($_w,$_h);
-				}
-				
-				//限制可选宽度和高度
-				if(isset($_c['w']) && intval($_c['w']) !== $_w && in_array($_c['w'], $this->conf['convert']['image']['widths']) === false){
-					$this->_404();
-				}
-				if(isset($_c['h']) && intval($_c['h']) !== $_h && in_array($_c['h'], $this->conf['convert']['image']['heights']) === false){
-					$this->_404();
-				}
-				
-				//剪裁
-				if(@$_c['ace']){
-					$_a=$this->_av2url($_c['ace'],$_f['id']);
-					if(@$_a['csw']){
-						$editor->resizeExactWidth($image, $_a['csw']);
-						$editor->crop($image, $_a['cw'], $_a['ch'], 'top-left', $_a['cx'], $_a['cy']);
-						
-						//非GD处理模式BUG修复：强制改变裁剪后图片的宽和高，为后续处理铺垫
-						$editor->resizeExact($image, $_a['cw'], $_a['ch']);
-						$_c['c']='';//让裁剪模式失效
-					}
-				}
-				//文本
-				if(@$_c['txt']){//第一位为文本，第二位为位置，第三位为字号，第四位为颜色
-					$_font=explode(',',$_c['txt']);
-					if(!@$_font[0]){
-						$_s='';
-					}else{
-						$_s=$_font[0];
-					}
-					if(!@$_font[1]){
-						$_font[1]='center';
-					}
-					if(!@$_font[2]){
-						$_font[2]=12;
-					}
-					if(!@$_font[3]){
-						$_font[3]='FFFFFF';
-					}
-					$_lh=$_font[2];//字高
-					$_l=$this->mtfUnit->strLen($_s)*8.5/12*$_lh;//字长
-					$_co='#'.$_font[3];//颜色
-					switch($_font[1]){
-						case 'top-left':
-							$_x=0;
-							$_y=0;
-						break;
-						case 'top-center':
-							$_x=($_w-$_l)/2;
-							$_y=0;
-						break;
-						case 'top-right':
-							$_x=$_w-$_l;
-							$_y=0;
-						break;
-						case 'center-left':
-							$_x=0;
-							$_y=($_h-$_lh)/2;
-						break;
-						case 'center':
-							$_x=($_w-$_l)/2;
-							$_y=($_h-$_lh)/2;
-						break;
-						case 'center-right':
-							$_x=$_w-$_l;
-							$_y=($_h-$_lh)/2;
-						break;
-						case 'bottom-left':
-							$_x=0;
-							$_y=$_h-$_lh;
-						break;
-						case 'bottom-center':
-							$_x=($_w-$_l)/2;
-							$_y=$_h-$_lh;
-						break;
-						case 'bottom-right':
-							$_x=$_w-$_l;
-							$_y=$_h-$_lh;
-						break;
-					}
-					$editor->text($image, $_s, $_lh, $_x, $_y, new Grafika\Color($_co));
-					unset($_font,$_l,$_lh,$_s,$_co);
-				}
-				
-				//w 宽度 h 高度 nl 不要放大 c裁剪
-				if(@$_c['c']){
-					if($_c['c']==='s'){
-						$editor->crop($image, $_c['w'], $_c['h'], 'smart');	
-					}elseif($_c['c']==='f'){
-						if($_f['e']==='gif'){
-							$editor->resizeExact( $image, floor($_c['h']/$_f['i']['height']*$_f['i']['width']), $_c['h']);
-						}else{
-							$editor->resizeFill($image, $_c['w'], $_c['h']);
-						}
-					}
-				}else{
-					if(@$_c['w']){
-						if(@$_c['nl']&&$_f['i']['width']<$_c['w']){
-						}else{
-							if($_f['e']==='gif'){
-								$editor->resizeExact( $image, $_c['w'], floor($_c['w']/$_f['i']['width']*$_f['i']['height']) );
-							}else{
-								$editor->resizeExactWidth($image, $_c['w']);
-							}
-						}
-					}elseif(@$_c['h']){
-						if(@$_c['nl']&&$_f['i']['height']<$_c['h']){
-						}else{
-							$editor->resizeExactHeight($image, $_c['h']);
-						}
-					}
-				}
-
-				$editor->save($image, $_d['p']);
-
-				//首次预览时，对预览图进行校正
-				$this->_get_ture_orientation_img($_d['p']);
-				
-				//剪裁
-				// if(@$_c['waifu']){
-				// 	$_a=$this->_waifu2url($_c['waifu'],$_f['id']);
-				// 	if(@$_a['s'] && @$_a['n']){
-						//服务器不支持
-						//exec($_root.'bin/Win32/Waifu2x/waifu2x-caffe-cui.exe  -i '.$_d['p'].' -o '.$_d['p'].' -m noise_scale --scale_ratio '.$_a['s'].' --noise_level '.$_a['n']);
-				// 	}
-				// }
+			$_c=@$_d['c'];
+			include_once($_root.'../Grafika/autoload.php');
+			$editor = Grafika\Grafika::createEditor();
+			
+			if(@$_c['p']){
+				$_p=explode(',',$_c['p']);
+				$_f['p']=$this->mtfRand->get('img',$_p[0],$_p[1]);
+				$_f=$this->_info($_f['p']);
+				unset($_p);
 			}
+			
+			if(file_exists($_f['p'])){
+				$editor->open($image, $_f['p']);
+				$_w=$image->getWidth();
+				$_h=$image->getHeight();
+			}else{
+				$_w=300;
+				$_h=300;
+				$image=Grafika\Grafika::createBlankImage($_w,$_h);
+			}
+			
+			//限制可选宽度和高度
+			if(isset($_c['w']) && intval($_c['w']) !== $_w && in_array($_c['w'], $this->conf['convert']['image']['widths']) === false){
+				$this->_404();
+			}
+			if(isset($_c['h']) && intval($_c['h']) !== $_h && in_array($_c['h'], $this->conf['convert']['image']['heights']) === false){
+				$this->_404();
+			}
+			
+			//剪裁
+			if(@$_c['ace']){
+				$_a=$this->_av2url($_c['ace'],$_f['id']);
+				if(@$_a['csw']){
+					$editor->resizeExactWidth($image, $_a['csw']);
+					$editor->crop($image, $_a['cw'], $_a['ch'], 'top-left', $_a['cx'], $_a['cy']);
+					
+					//非GD处理模式BUG修复：强制改变裁剪后图片的宽和高，为后续处理铺垫
+					$editor->resizeExact($image, $_a['cw'], $_a['ch']);
+					$_c['c']='';//让裁剪模式失效
+				}
+			}
+			//文本
+			if(@$_c['txt']){//第一位为文本，第二位为位置，第三位为字号，第四位为颜色
+				$_font=explode(',',$_c['txt']);
+				if(!@$_font[0]){
+					$_s='';
+				}else{
+					$_s=$_font[0];
+				}
+				if(!@$_font[1]){
+					$_font[1]='center';
+				}
+				if(!@$_font[2]){
+					$_font[2]=12;
+				}
+				if(!@$_font[3]){
+					$_font[3]='FFFFFF';
+				}
+				$_lh=$_font[2];//字高
+				$_l=$this->mtfUnit->strLen($_s)*8.5/12*$_lh;//字长
+				$_co='#'.$_font[3];//颜色
+				switch($_font[1]){
+					case 'top-left':
+						$_x=0;
+						$_y=0;
+					break;
+					case 'top-center':
+						$_x=($_w-$_l)/2;
+						$_y=0;
+					break;
+					case 'top-right':
+						$_x=$_w-$_l;
+						$_y=0;
+					break;
+					case 'center-left':
+						$_x=0;
+						$_y=($_h-$_lh)/2;
+					break;
+					case 'center':
+						$_x=($_w-$_l)/2;
+						$_y=($_h-$_lh)/2;
+					break;
+					case 'center-right':
+						$_x=$_w-$_l;
+						$_y=($_h-$_lh)/2;
+					break;
+					case 'bottom-left':
+						$_x=0;
+						$_y=$_h-$_lh;
+					break;
+					case 'bottom-center':
+						$_x=($_w-$_l)/2;
+						$_y=$_h-$_lh;
+					break;
+					case 'bottom-right':
+						$_x=$_w-$_l;
+						$_y=$_h-$_lh;
+					break;
+				}
+				$editor->text($image, $_s, $_lh, $_x, $_y, new Grafika\Color($_co));
+				unset($_font,$_l,$_lh,$_s,$_co);
+			}
+			
+			//w 宽度 h 高度 nl 不要放大 c裁剪
+			if(@$_c['c']){
+				if($_c['c']==='s'){
+					$editor->crop($image, $_c['w'], $_c['h'], 'smart');	
+				}elseif($_c['c']==='f'){
+					if($_f['e']==='gif'){
+						$editor->resizeExact($image, floor($_c['h']/$_f['i']['height']*$_f['i']['width']), $_c['h']);
+					}else{
+						$editor->resizeFill($image, $_c['w'], $_c['h']);
+					}
+				}
+			}else{
+				if(@$_c['w']){
+					if(@$_c['nl']&&$_f['i']['width']<$_c['w']){
+					}else{
+						if($_f['e']==='gif'){
+							$editor->resizeExact( $image, $_c['w'], floor($_c['w']/$_f['i']['width']*$_f['i']['height']) );
+						}else{
+							$editor->resizeExactWidth($image, $_c['w']);
+						}
+					}
+				}elseif(@$_c['h']){
+					if(@$_c['nl']&&$_f['i']['height']<$_c['h']){
+					}else{
+						$editor->resizeExactHeight($image, $_c['h']);
+					}
+				}
+			}
+
+			$editor->save($image, $_d['p']);
+
+			//首次预览时，对预览图进行校正
+			$this->_get_ture_orientation_img($_d['p']);
+			
+			//剪裁
+			// if(@$_c['waifu']){
+			// 	$_a=$this->_waifu2url($_c['waifu'],$_f['id']);
+			// 	if(@$_a['s'] && @$_a['n']){
+					//服务器不支持
+					//exec($_root.'bin/Win32/Waifu2x/waifu2x-caffe-cui.exe  -i '.$_d['p'].' -o '.$_d['p'].' -m noise_scale --scale_ratio '.$_a['s'].' --noise_level '.$_a['n']);
+			// 	}
+			// }
 			return true;
 		}elseif($_f['t']==='video'||$_f['t']==='audio'){
 			$_l=$this->_log($_d['n'],'p');
@@ -1276,10 +1277,8 @@ class mtfFile{
 				$this->mtfKey->clean($this->dir['cache'].$this->n2dir($_d['n']),$this->conf['cache']['out'],$this->conf['cache']['max']);
 				$this->mtfKey->clean($this->dir['tmp'].$this->n2dir($_d['n']),$this->conf['cache']['out'],$this->conf['cache']['max']);
 			}
-			if(!file_exists($_d['p'])){
-				if(!$this->convert($_f['p'],$_d['p'])){
-					return FALSE;	
-				}
+			if(!$this->convert($_f['p'], $_d['p'])){
+				return false;	
 			}
 			switch($_t){
 				case 'view':
@@ -1623,12 +1622,12 @@ class mtfFile{
 	private function _get_ture_orientation_img($_f_p)
 	{
 		$_i = getimagesize($_f_p);
-		if(in_array($_i['mime'], array('image/png', 'image/jpeg', 'image/pjpeg')) === FALSE){
-			return FALSE;	
+		if(in_array($_i['mime'], array('image/png', 'image/jpeg', 'image/pjpeg')) === false){
+			return false;	
 		}
 		$_img = imagecreatefromstring(file_get_contents($_f_p));
 		$_exif = @exif_read_data($_f_p);
-		if(empty($_exif['Orientation']) === FALSE) {//只旋转照片，不旋转透明png，png经过处理，会变为半透明（黑色背景）
+		if(empty($_exif['Orientation']) === false) {//只旋转照片，不旋转透明png，png经过处理，会变为半透明（黑色背景）
 			switch($_exif['Orientation']) {
 				case 8:
 					$_img=imagerotate($_img,90,0);
@@ -1692,8 +1691,8 @@ class mtfFile{
 		$ch=curl_init();
 		curl_setopt($ch, CURLOPT_URL, $_u);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch,CURLOPT_SSL_VERIFYPEER,FALSE);
-		curl_setopt($ch,CURLOPT_SSL_VERIFYHOST,FALSE);
+		curl_setopt($ch,CURLOPT_SSL_VERIFYPEER,false);
+		curl_setopt($ch,CURLOPT_SSL_VERIFYHOST,false);
 		curl_setopt($ch, CURLOPT_COOKIE, $_cookie);
 		$output=curl_exec($ch);
 		curl_close($ch);
@@ -1753,7 +1752,7 @@ class mtfFile{
 				$this->error('uid','login-out');
 			}
 		}else{
-			return FALSE;
+			return false;
 		}
 		
 	}
@@ -1883,11 +1882,11 @@ class mtfFile{
 			}
 			$_r=$this->mtfMysql->sql('s1',$this->db['table_msg'],'i','WHERE h=\''.$_md5.'\''.$_sql.$_sql_or);
 			if(@$_r['i']){
-				return FALSE;
+				return false;
 			}
 		}
 		$this->mtfMysql->sql('i',$this->db['table_msg'],array('g'=>$_g,'s'=>$_s,'f'=>$_f,'tt'=>$_tt,'v'=>$_v,'n'=>$_n,'ip'=>$_ip,'fid'=>$_fid,'h'=>$_md5,'vv'=>$_vv));
-		return TRUE;
+		return true;
 	}
 	
 	private function _uname($_t){
@@ -1897,7 +1896,7 @@ class mtfFile{
 	//积分转账
 	public function fen($_t,$_s,$_f,$_tt,$_v,$_n,$_ip,$_fid,$_once='',$_vv='',$_ignore=array()){//忽略参数，作为判断是否唯一标准
 		if(!$_n){
-			return FALSE;
+			return false;
 		}
 		switch($_t){
 			case 'zan':
@@ -1922,9 +1921,9 @@ class mtfFile{
 								$this->_sql_i_msg(0,$_s,$_tt,$_f,$_v,$_n,$_ip,$_fid,'',$_vv);//反作用时，不再重复验证 $_once
 							}
 						}
-						return TRUE;
+						return true;
 					}else{
-						return FALSE;
+						return false;
 					}
 				}else{
 					$this->error('uid','lack-nz0');
@@ -1935,7 +1934,7 @@ class mtfFile{
 				break;
 		}
 		
-		return TRUE;
+		return true;
 	}
 	
 	private function _get_raw($_i,$_raw){
@@ -1981,10 +1980,10 @@ class mtfFile{
 					if(@$_r['i']){
 						return array($_hm=>$_r['i'].'.'.$_r['e']);
 					}else{
-						return array($_hm=>FALSE);
+						return array($_hm=>false);
 					}
 				}else{
-					return array($_hm=>FALSE);
+					return array($_hm=>false);
 				}
 			}
 		}
@@ -2066,7 +2065,7 @@ class mtfFile{
 				if($_action!=='zan' && $_action!=='zan2' && $_action!=='p2p')
 				{
 					if($this->isAdmin($_uid)){
-						return FALSE;
+						return false;
 					}
 				}
 			}
@@ -2123,20 +2122,20 @@ class mtfFile{
 					//30天内
 					$__r=$this->mtfMysql->sql('s1',$this->db['table_msg'],'i',$_sql);
 					if($__r['i']){
-						return array('status'=>FALSE);
+						return array('status'=>false);
 					}else{
-						return array('status'=>TRUE)+$this->_get_raw($_i,$_raw);
+						return array('status'=>true)+$this->_get_raw($_i,$_raw);
 					}
 				}else if($_step==='3'){//获取赞
-					return array('status'=>TRUE)+$this->_get_raw($_i,$_raw);
+					return array('status'=>true)+$this->_get_raw($_i,$_raw);
 				}else if($_step==='4'){//作者设置赞
 					if($this->hasRight($_uid,$_i,'自己','',1)){
 						if(is_numeric(@$_data['p'])){
 							$this->mtfAttr->sql('u1',$this->db['table'],array('a'=>array('原图价'=>array($_data['p']))),'WHERE i='.$_i);
 						}
-						return array('status'=>TRUE);
+						return array('status'=>true);
 					}else{
-						return array('status'=>FALSE);
+						return array('status'=>false);
 					}
 				}else{
 					$_r=$this->mtfMysql->sql('s1',$this->db['table'],'e,o,a','WHERE i='.$_i);
@@ -2158,9 +2157,9 @@ class mtfFile{
 									}
 								}
 							}
-							return array('u'=>$this->conf['domain']['cdn'].'/'.$_i.'.'.$_r['e'],/*'waifu'=>$this->conf['domain']['cdn'].'/'.$_i.'_c_waifu_'.$this->_waifu2url($_i.'_2_2').'.'.$_r['e'],*/'status'=>TRUE);
+							return array('u'=>$this->conf['domain']['cdn'].'/'.$_i.'.'.$_r['e'],/*'waifu'=>$this->conf['domain']['cdn'].'/'.$_i.'_c_waifu_'.$this->_waifu2url($_i.'_2_2').'.'.$_r['e'],*/'status'=>true);
 					}else{
-						return array('status'=>FALSE);
+						return array('status'=>false);
 					}
 				}
 			}
@@ -2183,7 +2182,7 @@ class mtfFile{
 						$__r=$this->mtfMysql->sql('s1',$this->db['table_msg'],'t','WHERE f='.$_r['o'].' AND s=\'逃跑 ♥\' ORDER BY i DESC LIMIT 1');
 						if($__r['t']){
 							if((time()-strtotime($__r['t']))/86400<$_pok['t']){
-								return array('status'=>FALSE,'no'=>date('Y-m-d H:i:s',strtotime($__r['t'].'+'.$_pok['t'].' day')));
+								return array('status'=>false,'no'=>date('Y-m-d H:i:s',strtotime($__r['t'].'+'.$_pok['t'].' day')));
 							}
 						}
 					}
@@ -2212,7 +2211,7 @@ class mtfFile{
 						
 						if($_step==='2'){//捕捉
 							if($_uid===$_p){
-								return array('status'=>FALSE);
+								return array('status'=>false);
 							}else{
 								if($this->fen('zan','捕捉 ♥',$_p,$_uid,$_i,-$_zan,$_ip,$_fid)){
 									$this->mtfAttr->sql('u1',$this->db['table'],array('a'=>array('主人'=>array($_uid))),'WHERE i='.$_i);
@@ -2226,23 +2225,23 @@ class mtfFile{
 						}elseif($_step==='3'){//释放·逃跑
 							if($_s==='主人'){
 								$this->mtfAttr->sql('d1',$this->db['table'],array('a'=>array('主人'=>array($_p))),'WHERE i='.$_i,0,'|');
-								return array('status'=>TRUE,'p'=>'');
+								return array('status'=>true,'p'=>'');
 							}elseif($_s==='作者'){
 								if($this->fen('zan','逃跑 ♥',$_uid,$_p,$_i,$_pzan,$_ip,$_fid)){
 									$this->mtfAttr->sql('d1',$this->db['table'],array('a'=>array('主人'=>array($_p))),'WHERE i='.$_i,0,'|');
-									return array('status'=>TRUE,'p'=>'');
+									return array('status'=>true,'p'=>'');
 								}else{
-									return array('status'=>FALSE);
+									return array('status'=>false);
 								}
 							}else{
-								return array('status'=>FALSE);
+								return array('status'=>false);
 							}
 						}
 						
-						return array('status'=>TRUE,'p'=>$__p,'zan'=>$_zan);
+						return array('status'=>true,'p'=>$__p,'zan'=>$_zan);
 					}
 				}else{
-					return array('status'=>FALSE);
+					return array('status'=>false);
 				}
 			}
 			elseif($_action==='p2p')//分享
@@ -2313,7 +2312,7 @@ class mtfFile{
 			elseif($_action==='zan2')
 			{
 				
-				$_status=FALSE;
+				$_status=false;
 				$_zan=$_data['num'];
 				$_reason=$_data['reason'];
 				if($_zan>0){
@@ -2330,7 +2329,7 @@ class mtfFile{
 						}else{
 							$this->mtfMysql->sql('u',$this->db['table'],array('nz'=>'///nz+'.$_zan),'WHERE i='.$_i);
 						}
-						$_status=TRUE;
+						$_status=true;
 					}
 				}else{
 					if($this->isAdmin($_uid)){
@@ -2341,14 +2340,14 @@ class mtfFile{
 							$_o=$_r['o'];
 						}
 						$this->fen('zan','扣除 ♥','',$_o,$_id,$_zan,$_ip,$_fid,'',$_reason);
-						$_status=TRUE;
+						$_status=true;
 					}
 				}
 				return array('status'=>$_status);
 			}
 			elseif($_action==='rel')
 			{
-				$_status=FALSE;
+				$_status=false;
 				if($this->hasRight($_uid,$_i,'会员',array('自己'))){
 					$_r=$this->mtfMysql->sql('s1',$this->db['table'],'p,r,nrel','WHERE i='.$_uid);
 					if(@$_r['r']){
@@ -2363,13 +2362,13 @@ class mtfFile{
 						$this->mtfRelate->sql('d1',$this->db['table'],array('r'=>$_i),'WHERE i='.$_uid);
 						
 						$this->mtfMysql->sql('u',$this->db['table'],array('nrel'=>'///nrel-1'),'WHERE i='.$_i);
-						$_status=FALSE;
+						$_status=false;
 						$_r2['nrel']--;
 					}else{
 						$this->mtfRelate->sql('i1',$this->db['table'],array('r'=>$_i),'WHERE i='.$_uid);
 						
 						$this->mtfMysql->sql('u',$this->db['table'],array('nrel'=>'///nrel+1'),'WHERE i='.$_i);
-						$_status=TRUE;
+						$_status=true;
 						$_r2['nrel']++;
 					}
 				}
@@ -2394,7 +2393,7 @@ class mtfFile{
 					$_a=$this->_av2url($_attr['头像'][0]);
 					
 					if($_step==='1'){
-						return array('status'=>TRUE,'tag'=>$_key,'t1'=>$_r['t1'])+$_a;
+						return array('status'=>true,'tag'=>$_key,'t1'=>$_r['t1'])+$_a;
 					}else{
 						$__a=array();//头像
 						
@@ -2489,7 +2488,7 @@ class mtfFile{
 							$_ar = array_merge($_ar, $_tag);
 						}
 						if (empty($_data['t1']) === false) $__a['t1'] = $_data['t1'];
-						return array('status' => TRUE, 'tag' => $_ar) + $__a;
+						return array('status' => true, 'tag' => $_ar) + $__a;
 					}
 				}
 			}
@@ -2513,7 +2512,7 @@ class mtfFile{
 						}
 					}
 					
-					$_status=FALSE;
+					$_status=false;
 					
 					if($_t==='top'){
 						if($this->hasRight($_uid,$_id,'自己')){
@@ -2527,7 +2526,7 @@ class mtfFile{
 								$this->mtfRelate->sql('d1',$this->db['table'],array('top'=>$_i),'WHERE i='.$_id);
 							}elseif(@$_r['i']){
 								$this->mtfRelate->sql('i1',$this->db['table'],array('top'=>$_i),'WHERE i='.$_id);
-								$_status=TRUE;
+								$_status=true;
 							}
 						}
 						return array('status'=>$_status);
@@ -2536,7 +2535,7 @@ class mtfFile{
 							$_a=array();
 							$_r=$this->mtfMysql->sql('s1',$this->db['table'],'r','WHERE i='.$_id);
 							if(@$_r['r']){
-								if(strpos($_r['r'],$_i) !== FALSE){
+								if(strpos($_r['r'],$_i) !== false){
 									$_r['r']=str_replace($_i,'',str_replace($_i.',','',str_replace(','.$_i,'',$_r['r'])));
 									$_a=explode(',',$_r['r']);
 									if($_t==='up'){
@@ -2545,7 +2544,7 @@ class mtfFile{
 										array_unshift($_a,$_i);
 									}
 									$this->mtfMysql->sql('u',$this->db['table'],array('r'=>implode(',',$_a)),'WHERE i='.$_id);
-									$_status=TRUE;
+									$_status=true;
 								}
 							}
 						}
@@ -2588,7 +2587,7 @@ class mtfFile{
 							$this->mtfMysql->sql('u',$this->db['table'],array('w'=>json_encode($_w),'worder'=>$_worder),'WHERE i='.$_o);
 						}
 						
-						return array('status'=>TRUE);
+						return array('status'=>true);
 					}
 				}
 			}
@@ -2618,10 +2617,10 @@ class mtfFile{
 								$_xf=0;
 							}
 							$this->mtfAttr->sql('d1',$this->db['table'],array('a'=>array($_s=>'1')),'WHERE i='.$_i,0,'|');	
-							$_status=FALSE;
+							$_status=false;
 						}else{
 							$this->mtfAttr->sql('u1',$this->db['table'],array('a'=>array($_s=>'1')),'WHERE i='.$_i,0,'|');
-							$_status=TRUE;
+							$_status=true;
 						}
 						if($_t==='1'){
 							$_ar=array('xf'=>@$_xf);
@@ -2647,7 +2646,7 @@ class mtfFile{
 							$this->mtfAttr->sql('u1',$this->db['table'],array('a'=>array('头 像'=>$_i.'.'.$_e)),'WHERE i='.$_uid);
 						}
 					}
-					return array('status'=>TRUE,'id'=>$_uid,'av'=>$_i.'.'.$_e);
+					return array('status'=>true,'id'=>$_uid,'av'=>$_i.'.'.$_e);
 				}
 				*/
 			}
@@ -2670,7 +2669,7 @@ class mtfFile{
 					}else{
 						$__r=$this->mtfMysql->sql('s1',$this->db['table_msg'],'i','WHERE g=1 AND f='.$_uid.' AND tt='.$_o);
 						if(@$__r['i']){
-							$_status=FALSE;
+							$_status=false;
 							$_r=$this->mtfMysql->sql('d',$this->db['table_msg'],'','WHERE i='.$__r['i']);
 							
 							$this->mtfMysql->sql('u',$this->db['table'],array('nto'=>'///nto-1'),'WHERE i='.$_uid);
@@ -2690,7 +2689,7 @@ class mtfFile{
 								}
 							}
 						}else{
-							$_status=TRUE;
+							$_status=true;
 							$this->_sql_i_msg(1,'关注',$_uid,$_o,$_i,'',$_ip,$_fid);
 							$this->mtfMysql->sql('u',$this->db['table'],array('nto'=>'///nto+1'),'WHERE i='.$_uid);
 							$this->mtfMysql->sql('u',$this->db['table'],array('nfol'=>'///nfol+1','nfol1'=>'///nfol1+1'),'WHERE i='.$_o);
@@ -2712,7 +2711,7 @@ class mtfFile{
 			{
 				if($this->hasRight($_uid,$_i,'会员')){
 					$_cap=$_data['cap'];
-					$_status=TRUE;
+					$_status=true;
 					$_r=$this->mtfAttr->sql('s1',$this->db['table'],'a','WHERE i='.$_i,0,'|');
 					$_a=array();
 					
@@ -2775,13 +2774,13 @@ class mtfFile{
 			{
 				if($this->hasRight($_uid,$_i,'授权')){
 					$this->mtfQueueDel(array('i'=>$_i,'id'=>@$_data['i'],'a'=>@$_data['a']));
-					return array('status'=>TRUE);
+					return array('status'=>true);
 				}
 			}
 			elseif($_action==='set')
 			{
 				if(!$this->hasRight($_uid,$_i,'自己')){
-					return array('status'=>FALSE);
+					return array('status'=>false);
 				}
 				
 				$_a=$_POST['a'];
@@ -2876,9 +2875,9 @@ class mtfFile{
 				}
 				if($_i){
 					$_u=(((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')) ? 'https://' : 'http://'). $_SERVER['SERVER_NAME'] .'/'. $_i;
-					return array('status'=>TRUE,'u'=>$_u);
+					return array('status'=>true,'u'=>$_u);
 				}
-				return array('status'=>FALSE);
+				return array('status'=>false);
 			}
 			elseif($_action==='admin')
 			{
@@ -2900,31 +2899,31 @@ class mtfFile{
 						if($_v==='1'||$_v==='2'){//锁定账户 强制实名
 							
 							if(!$_i){
-								return array('status'=>FALSE);
+								return array('status'=>false);
 							}else{
 								if(@$_r['l']===$_v){
 									$this->mtfMysql->sql('u',$this->db['table'],array('l'=>0),'WHERE i='.$_o);
-									return array('status'=>FALSE);
+									return array('status'=>false);
 								}else{
 									$this->mtfMysql->sql('u',$this->db['table'],array('l'=>$_v),'WHERE i='.$_o);
-									return array('status'=>TRUE);
+									return array('status'=>true);
 								}
 							}
 						}elseif($_v==='3'){//锁定来源
 							if($this->mtfProxyCurl->ban($this->conf['key'],$_fid)){
-								return array('status'=>TRUE);
+								return array('status'=>true);
 							}else{
-								return array('status'=>FALSE);
+								return array('status'=>false);
 							}
 						}elseif($_v==='4'){//删除账户
 							$this->mtfQueueDel(array('i'=>$_o));
-							return array('status'=>TRUE);
+							return array('status'=>true);
 						}
 						
 					}elseif($_a==='real'){
 						
 						if(!$_i){
-							return array('status'=>FALSE);
+							return array('status'=>false);
 						}else{
 							if($_v==='0'){
 								$_r=$this->mtfAttr->sql('s1',$this->db['table'],'a','WHERE i='.$_o);
@@ -2940,10 +2939,10 @@ class mtfFile{
 								
 								$this->mtfAttr->sql('u1',$this->db['table'],array('a'=>array('实名'=>'通过','名称'=>$_name)),'WHERE i='.$_o);
 								$this->mtfMysql->sql('u',$this->db['table'],array('l'=>0),'WHERE l=2');//如果是需实名状态，则恢复账户的正常状态
-								return array('status'=>TRUE);
+								return array('status'=>true);
 							}elseif($_v==='2'){
 								$this->mtfAttr->sql('u1',$this->db['table'],array('a'=>array('实名'=>'不通过')),'WHERE i='.$_o);
-								return array('status'=>TRUE);
+								return array('status'=>true);
 							}
 						}
 						
@@ -2958,7 +2957,7 @@ class mtfFile{
 							$_b[]=$_v['i'];
 						}
 						$this->mtfQueueDel(array('i'=>$_b));
-						return array('status'=>TRUE);
+						return array('status'=>true);
 					}
 				}
 			}
@@ -2976,10 +2975,10 @@ class mtfFile{
 					}
 					if($this->_weal('任务 红包',$_r['w'],$_r['o'],$_id,$_o,$_ip,$_fid,$_i)){
 						$_r=$this->mtfMysql->sql('s1',$this->db['table'],'nz','WHERE i='.$_i);
-						return array('zan'=>$_r['nz'],'status'=>TRUE);
+						return array('zan'=>$_r['nz'],'status'=>true);
 					}
 				}
-				return array('status'=>FALSE);
+				return array('status'=>false);
 			}
 			elseif($_action==='mtfBBcode')
 			{
@@ -2987,10 +2986,10 @@ class mtfFile{
 				
 				$_f_p=$this->dir['file'].$this->n2dir($_id).$_id.'.mtfdat';
 				if(!file_exists($_f_p)){
-					return array('status'=>FALSE);
+					return array('status'=>false);
 				}
 				if(!$this->hasRight($_uid,$_id,'会员')){
-					return array('status'=>FALSE);
+					return array('status'=>false);
 				}
 				if($_t==='buy'||$_t==='key'){
 					$_ip=$this->mtfGuid->ip();
@@ -3042,7 +3041,7 @@ class mtfFile{
 					$_bb=$this->mtfBBcode->parse($_c_new,array('type'=>'add'));
 					$this->mtfMysql->sql('u',$this->db['table'],array('bz'=>@$_bb['av']['zan'],'bn'=>@$_bb['av']['num']),'WHERE i='.$_id);
 					
-					return array('status'=>TRUE);
+					return array('status'=>true);
 				}
 			}
 			elseif($_action==='mtfCC')
@@ -3052,7 +3051,7 @@ class mtfFile{
 				
 				if($_t==='list'){
 					if(!$this->hasRight($_uid,'','会员')){
-						return array('status'=>FALSE);
+						return array('status'=>false);
 					}
 					$_r=$this->mtfMysql->sql('s1',$this->db['table'],'j','WHERE i='.$_uid);
 					if(@$_r['j']){
@@ -3060,7 +3059,7 @@ class mtfFile{
 					}
 				}elseif($_t==='save'){
 					if(!$this->hasRight($_uid,'','会员')){
-						return array('status'=>FALSE);
+						return array('status'=>false);
 					}
 					
 					//$_si=$_POST['si'];
@@ -3076,7 +3075,7 @@ class mtfFile{
 						$_POST['time']=date("Y-m-d H:i:s");
 						$_j[$_si]=$_POST;
 						$this->mtfMysql->sql('u',$this->db['table'],array('j'=>json_encode($_j)),'WHERE i='.$_uid);
-						return array('status'=>TRUE);
+						return array('status'=>true);
 					}
 				}elseif($_t==='result'){
 					$_id=$_POST['id'];
@@ -3838,7 +3837,7 @@ class mtfFile{
 		if(file_exists($_d_dir.$_bn)){
 			return $_d_dir.($_q?$_q:$_bn);
 		}else{
-			return FALSE;
+			return false;
 		}
 	}
 	
@@ -4126,8 +4125,7 @@ class mtfFile{
 							$_rec=1;//记录uid
 						break;
 						default:
-							return FALSE;
-						break;
+							return false;
 					}
 					
 					if(@$_w[$_t]){
@@ -4379,7 +4377,7 @@ class mtfFile{
 	private function _dn($_i,$_t=''){//t=1,强制返回绑定域名
 		$_h=$this->conf['dn'][$_i];
 		if($_SERVER['SERVER_NAME']===$_h){
-			return $_t?$_h:FALSE;
+			return $_t?$_h:false;
 		}elseif($_h||$_SERVER['SERVER_NAME']===$this->conf['domain']['web']){
 			return $_h;
 		}else{
@@ -4422,7 +4420,7 @@ class mtfFile{
 		if($_dn && $_dn!==$_SERVER['SERVER_NAME'] && $_dn!==$_SERVER['SERVER_NAME'].'/'.$_i){
 			return $_dn;
 		}
-		return FALSE;
+		return false;
 	}
 	
 	public function mtfQueueList($_dat=array()){
@@ -4851,7 +4849,7 @@ class mtfFile{
 							break;
 						case 'f':
 							if($_v){
-								$_v=json_decode($_v,TRUE);
+								$_v=json_decode($_v,true);
 								$_v=array_slice($_v,0,6);//只存前6个元素
 								if($_v&&is_array($_v)){
 									foreach($_v as $__k=>$__v){
@@ -5661,7 +5659,7 @@ class mtfFile{
 		if(@$_s){
 			return $_s['g'].' '.$_s['s'];
 		}else{
-			return FALSE;
+			return false;
 		}
 	}
 		
@@ -5895,9 +5893,9 @@ class mtfFile{
 			return $_k;
 		}else{
 			if($_k===$_key){
-				return TRUE;
+				return true;
 			}else{
-				return FALSE;
+				return false;
 			}
 		}
 	}
