@@ -715,7 +715,6 @@ final class Editor implements EditorInterface
     {
 
         if (null === $type) {
-
             $type = $this->_getImageTypeFromFileName($file); // Null given, guess type from file extension
             if (ImageType::UNKNOWN === $type) {
                 $type = $image->getType(); // 0 result, use original image type
@@ -748,7 +747,7 @@ final class Editor implements EditorInterface
                 if ($quality === null) $quality = 75;
                 if ($image->isAnimated()) {
                     file_put_contents($file, pack('H*', (new GifHelper())->encode($image->getBlocks())));
-                    exec('gif2webp ' . $file . ' -o ' . $file . ' -q ' . $quality);
+                    exec('gif2webp ' . $file . ' -o ' . $file . ' -q ' . $quality . ' -mixed -mt');
                 } else imagewebp($image->getCore(), $file, $quality);
                 break;
 
