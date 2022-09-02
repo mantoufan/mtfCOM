@@ -733,14 +733,10 @@ final class Editor implements EditorInterface
         switch (strtoupper($type)) {
             case ImageType::GIF :
                 if($image->isAnimated()){
-                    $blocks = $image->getBlocks();
-                    $gift = new GifHelper();
-                    $hex = $gift->encode($blocks);
-                    file_put_contents($file, pack('H*', $hex));
+                    file_put_contents($file, pack('H*', (new GifHelper())->encode($image->getBlocks())));
                 } else {
                     imagegif($image->getCore(), $file);
                 }
-
                 break;
 
             case ImageType::PNG :
@@ -749,13 +745,15 @@ final class Editor implements EditorInterface
                 break;
             
             case ImageType::WEBP:
-                imagewebp($image->getCore(), $file, $quality === null ? 75 : $quality);
+                if ($quality === null) $quality = 75;
+                if ($image->isAnimated()) {
+                    file_put_contents($file, pack('H*', (new GifHelper())->encode($image->getBlocks())));
+                    exec('gif2webp ' . $file . ' -o ' . $file . ' -q ' . $quality);
+                } else imagewebp($image->getCore(), $file, $quality);
                 break;
 
             default: // Defaults to jpeg
-                $quality = ($quality === null) ? 75 : $quality; // Default to 75 (GDs default) if null.
-                $quality = ($quality > 100) ? 100 : $quality;
-                $quality = ($quality < 0) ? 0 : $quality;
+                if ($quality === null) $quality = 75; // Default to 75 (GDs default) if null.
                 imageinterlace($image->getCore(), $interlace);
                 imagejpeg($image->getCore(), $file, $quality);
         }

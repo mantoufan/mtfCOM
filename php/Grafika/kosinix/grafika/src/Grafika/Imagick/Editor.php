@@ -632,7 +632,6 @@ final class Editor implements EditorInterface
 
             case ImageType::WEBP:
                 $image->getCore()->setImageFormat($type);
-                $image->getCore()->setImageCompression(\Imagick::COMPRESSION_WEBP);
                 $image->getCore()->setImageCompressionQuality($quality === null ? 75 : $quality);
                 $image->getCore()->writeImage($file);
                 break;

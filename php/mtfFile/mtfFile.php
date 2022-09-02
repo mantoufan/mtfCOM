@@ -1516,12 +1516,7 @@ class mtfFile{
 		$_f=$this->pathInfo($_f_p);
 		
 		include_once($_root.'../Grafika/autoload.php');
-		if($_f['e']==='png'){
-			$el=array('Gd');
-		}else{
-			$el=null;
-		}
-		$_editor=Grafika\Grafika::createEditor($el);
+		$_editor=Grafika\Grafika::createEditor();
 		if($_f['t']==='image'){
 			$_editor->open($_image, $_f['p']);  
 		}elseif($_f['t']==='video'){
@@ -1544,7 +1539,7 @@ class mtfFile{
 			}
 		}
 		if(@$_image){
-			if(!$el && extension_loaded('imagick')){
+			if(extension_loaded('imagick')){
 				$_hash=new Grafika\Imagick\ImageHash\DifferenceHash();
 			}else{
 				$_hash=new Grafika\Gd\ImageHash\DifferenceHash();
@@ -1627,15 +1622,13 @@ class mtfFile{
 	
 	private function _get_ture_orientation_img($_f_p)
 	{
-		$_i=getimagesize($_f_p);
-		$_img_type=$_i['mime'];
-		if($_img_type==='image/gif'){
+		$_i = getimagesize($_f_p);
+		if(in_array($_i['mime'], array('image/png', 'image/jpeg', 'image/pjpeg')) === FALSE){
 			return FALSE;	
 		}
-		
-		$_img=imagecreatefromstring(file_get_contents($_f_p));
-		$_exif=@exif_read_data($_f_p);
-		if(!empty($_exif['Orientation'])) {//只旋转照片，不旋转透明png，png经过处理，会变为半透明（黑色背景）
+		$_img = imagecreatefromstring(file_get_contents($_f_p));
+		$_exif = @exif_read_data($_f_p);
+		if(empty($_exif['Orientation']) === FALSE) {//只旋转照片，不旋转透明png，png经过处理，会变为半透明（黑色背景）
 			switch($_exif['Orientation']) {
 				case 8:
 					$_img=imagerotate($_img,90,0);
@@ -1647,15 +1640,12 @@ class mtfFile{
 					$_img=imagerotate($_img,-90,0);
 					break;
 			}
-			
-			switch($_img_type){
+			switch($_i['mime']){
 				case 'image/png':
 					imagepng($_img,$_f_p);
-					break;
-				case 'image/gif':
-					imagegif($_img,$_f_p);
-					break;           
-				case 'image/jpeg': case 'image/pjpeg':
+					break;          
+				case 'image/jpeg':
+				case 'image/pjpeg':
 					imagejpeg($_img,$_f_p);
 					break;
 				default:;
