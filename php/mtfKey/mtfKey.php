@@ -142,14 +142,11 @@ class mtfKey
 		
 		$_ip=$this->mtfGuid->ip();
 		//IP黑名单拦截
-		if(in_array($_ip,$this->ips)){
-			exit;
-		}
+		if(in_array($_ip, $this->ips)) exit;
 		
 		$_SESSION['IP']=$_ip;
 		$_SESSION['UA']=$_SERVER['HTTP_USER_AGENT'];
 		$_SESSION['FID']=$fid;
-		
 		$_SESSION['LIVE']=1;
 		@session_write_close();
 		
@@ -200,9 +197,7 @@ class mtfKey
 				@$_SESSION['T']++;
 
 				//IP黑名单拦截
-				if(in_array($_ip,$this->ips)||in_array(@$_SESSION['IP'],$this->ips)){
-					exit;
-				}
+				if(in_array($_ip, $this->ips)) exit;
 
 				$banList=array();
 				$_f=dirname(__FILE__).'/'.$this->dir.'/banList.'.$_domain.'.php';
