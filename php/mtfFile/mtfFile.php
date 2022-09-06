@@ -4287,7 +4287,7 @@ class mtfFile{
 		unset($_key['描述']);
 		$_tag_1 = $_key[0][0];
 		if ($_tag_1) $_tag[] = $_tag_1;
-		$_tag_2 = isset($_key['作者'][0]) ? $_key['作者'][0] : (isset($_key2['模特'][0]) ? $_key2['模特'][0] : (isset($_key2['摄影师'][0]) ? $_key2['摄影师'][0] : null));
+		$_tag_2 = isset($_key['作者']) ? $_key['作者'][0] : (isset($_key['模特']) ? $_key['模特'][0] : (isset($_key['摄影师']) ? $_key['摄影师'][0] : null));
 		if ($_tag_2) $_tag[] = $_tag_2;
 		return array_unique($_tag);
 	}	
