@@ -873,11 +873,11 @@ class mtfFile{
 							$_h .= '<video:thumbnail_loc>' . $_v2['thumbnail_loc'] . '</video:thumbnail_loc>';
 							$_h .= '<video:title><![CDATA[' . (
 								$_v2['title'] ? $_v2['title'] : (
-									isset($_key['标题']) ? $_key['标题'][0] : ''
+									empty($_key['标题']) ? '' : $_key['标题'][0]
 								)) . ']]></video:title>';
 							$_h .= '<video:description><![CDATA[' . (
 								$_v2['description'] ? $_v2['description'] : (
-									isset($_key['描述']) ? $_key['描述'][0] : $_v2['loc_description']
+									empty($_key['描述']) ? $_v2['loc_description'] : $_key['描述'][0]
 								)) . ']]></video:description>';
 							$_h .= '<video:content_loc>' . $_v2['content_loc'] . '</video:content_loc>';
 							if ($_v2['duration']) $_h.='<video:duration>' . $_v2['duration'] . '</video:duration>';
@@ -1127,9 +1127,9 @@ class mtfFile{
 							$_ar['video'][] = array(
 								'content_loc' => 'https://' . $this->conf['domain']['cdn'] . '/' . $_v['i'] . '_c_b_' . $_b . '_w_' . $_w . '.' . $_v['e'],
 								'thumbnail_loc' => 'https://' . $this->conf['domain']['cdn'] . '/' . $_d['id'] . '_c_h_150_ext_gif.webp',
-								'duration' => isset($_attr['时长']) ? end($_attr['时长']) : null,
-								'title' => isset($_key['标题']) ? $_key['标题'][0] : null,
-								'description' => isset($_key['描述']) ? $_key['描述'][0] : null,
+								'duration' => empty($_attr['时长']) ? null : end($_attr['时长']),
+								'title' => empty($_key['标题']) ? null : $_key['标题'][0],
+								'description' => empty($_key['描述']) ? null : $_key['描述'][0],
 								'loc_description' => $_ar['des'],
 								'publication_date' => (new DateTime($_v['t']))->format('c'),
 								'bitrate' => $_b
@@ -1143,11 +1143,11 @@ class mtfFile{
 						$_arv['o'] = $_r['o'];
 						if(empty($_r['k']) === false){
 							$_key = $this->mtfAttr->parseA($_r['k'], '|');
-							if (isset($_key['标题'])) {
+							if (empty($_key['标题']) === false) {
 								$_arv['title'] = $_key['标题'][0];
 								unset($_key['标题']);
 							}
-							if (isset($_key['描述'])) {
+							if (empty($_key['描述']) === false) {
 								$_arv['des'] = $_key['描述'][0];
 								unset($_key['描述']);
 							}
@@ -4287,7 +4287,7 @@ class mtfFile{
 		unset($_key['描述']);
 		$_tag_1 = $_key[0][0];
 		if ($_tag_1) $_tag[] = $_tag_1;
-		$_tag_2 = isset($_key['作者']) ? $_key['作者'][0] : (isset($_key['模特']) ? $_key['模特'][0] : (isset($_key['摄影师']) ? $_key['摄影师'][0] : null));
+		$_tag_2 = empty($_key['作者']) === false ? $_key['作者'][0] : (empty($_key['模特']) === false ? $_key['模特'][0] : (empty($_key['摄影师']) === false ? $_key['摄影师'][0] : null));
 		if ($_tag_2) $_tag[] = $_tag_2;
 		return array_unique($_tag);
 	}	
@@ -4964,7 +4964,7 @@ class mtfFile{
 							$_tdk['people'] = $_data['id'];
 							$_dn = $this->_dn($_tdk['people'], 1);//绑定域名
 							if ($_dn) $_tdk['dn'] = $_dn;
-							if (isset($_key['标题'])) {
+							if (empty($_key['标题']) === false) {
 							 $_dn_t = $_key['标题'][0];
 							 unset($_key['标题'][0]);
 							}
@@ -4973,11 +4973,11 @@ class mtfFile{
 						}else{
 							$_tdk['t'] = $this->_k2ch($_data['k'], $_ch);
 							if ($_tdk['t'] !== $_data['k']) {
-								$_tdk['t'] = $_data['k']==='index' ? $_tdk['t'] : $this->_mtflang2span($_tdk['t']);
+								$_tdk['t'] = $_data['k'] === 'index' ? $_tdk['t'] : $this->_mtflang2span($_tdk['t']);
 							}
 							$_i = $_tag_i = $this->_ui($_data['k']);
 						}
-						$_tdk['tag']=1;
+						$_tdk['tag'] = 1;
 					} elseif (empty($_data['i']) === false) {
 						$_tdk['t'] = $_i = $_data['i'];
 						if(strlen($_data['i']) < 18){ //如果是会员首页
@@ -4990,7 +4990,7 @@ class mtfFile{
 						$__r = $this->mtfMysql->sql('s1', $this->db['table'], 'k', 'WHERE i=' . $_tag_i);
 						if($__r){
 							if(empty($_key)) $_key = array();
-							elseif (isset($_key['描述'])) $_des = $_key['描述'][0];
+							elseif (empty($_key['描述']) === false) $_des = $_key['描述'][0];
 							$_key = array_merge($_key, $this->mtfAttr->parseA($__r['k'], '|'));
 							if (isset($_des)) $_key['描述'][0] = preg_replace('/.+/', $_key['描述'][0], $_des, 1);
 						}
@@ -5000,11 +5000,11 @@ class mtfFile{
 						if (empty($_r[0]['k']) === false) $_key = $this->mtfAttr->parseA($_r[0]['k'],'|');
 					}
 					if(empty($_key) === false){
-						if(isset($_key['标题'])){
+						if(empty($_key['标题']) === false){
 							$_tdk['t'] = $_key['标题'][0];
 							if (empty($_dn_t) === false) $_tdk['t'] .= '_' . $_dn_t;
 						}
-						if(isset($_key['描述'])){
+						if(empty($_key['描述']) === false){
 							$_a = $this->mtfBBcode->parse(strtr($_key['描述'][0], array('：//'=>'://')), array('type'=>'tdk'));
 							$_tdk['des'] = preg_replace('/^\n|\n$/', '', $_a['d']);
 							if ($_a['d'] !== $_a['s']) $_tdk['d'] = str_replace($_a['d'], '', $_a['s']);
@@ -5241,10 +5241,10 @@ class mtfFile{
 								$_rr[$_v['i']] = array_merge_recursive($_rr[$_v['i']],
 								  $this->getContent($_p, 'list', array(
 										'pi' => $_data['pi'], 'o' => $_v['o'], 'nm' => $_v['nm'], 
-										'title' => isset($_key['标题']) ? $_key['标题'][0] : null,
-										'des' => isset($_key['描述']) ? $_key['描述'][0]: null,
+										'title' => empty($_key['标题']) ? null: $_key['标题'][0],
+										'des' => empty($_key['描述']) ? null: $_key['描述'][0],
 										'tag' => $this->_getTAG($_key), 
-										'domain' => isset($_attr['域名']) ? $_attr['域名'][0] : null
+										'domain' => empty($_attr['域名']) ? null : $_attr['域名'][0]
 									)
 								));
 								if(empty($_data['mom']) === false && empty($_v['p']) === false && strlen($_v['p']) === 18){ // 读取父级文章
@@ -5286,8 +5286,8 @@ class mtfFile{
 											'd' => array(
 												$_v['i'] => $this->getContent($_p,'list', array(
 														'o' => $_v['o'], 'dm' => 1, 
-														'title' => isset($_key['标题']) ? $_key['标题'][0] : null,
-														'des'=> isset($_key['描述']) ? $_key['描述'][0] : null
+														'title' => empty($_key['标题']) ? null : $_key['标题'][0],
+														'des'=> empty($_key['描述']) ? null : $_key['描述'][0]
 													)
 												)
 											)
@@ -5307,7 +5307,7 @@ class mtfFile{
 								$_c = $this->getContent($_p, 'mustache');
 								$_rrr = $this->_jsonOrder($_rrr, $_v['i'], $_c);
 								if (empty($_rrr[0][$_i]['tdk']['des'])) {
-									$_rrr[0][$_i]['tdk']['des'] = $this->_get_des($_c['tpl']);
+									$_rrr[0][$_i]['tdk']['des'] = $this->_get_des(explode("\n", $_c['tpl'])[0]);
 								}
 								if (empty($_v['p']) === false && strlen($_v['p']) === 18) {
 									$_l = $this->mtfQueueList(array('mom' => $_v['i'], 'i' => $_v['p'], 'e' => '!people'));
