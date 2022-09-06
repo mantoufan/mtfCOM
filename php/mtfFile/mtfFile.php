@@ -1094,7 +1094,7 @@ class mtfFile{
 									$_video_ids []= $_d['id'];
 								}else{
 									$_ar['img'] []= array(
-										'loc' => 'https://'.$this->conf['domain']['cdn'] . '/' . $_d['id'] . '_c_w_1290.' . $_d['e']
+										'loc' => 'https://'.$this->conf['domain']['cdn'] . '/' . $_d['id'] . '_c_w_1280.' . $_d['e']
 									);
 								}
 							}else{
@@ -1185,7 +1185,7 @@ class mtfFile{
 						$img_count = count($_a['img']);
 						if ($img_count > 1) {
 							$_ar['list']['ps'] = $img_count;
-							$_ar['list']['wh'] = 1080 / $_ar['list']['ps']; // 360
+							$_ar['list']['wh'] = 900 / $_ar['list']['ps']; // 300
 							$_ar['list']['psn'] = $this->conf['list']['max_p_length'] - $_ar['list']['ps'] + 2;
 						} else {
 							$_r = $this->mtfAttr->sql('s1',$this->db['table'],'a','WHERE i=\''.$_a['img'][0]['i'].'\'',0,'|');
@@ -4266,18 +4266,18 @@ class mtfFile{
 			$sr = null;
 		}
 		if ($e === 'gif') $sh = 150;
-		else $sh = 360;
+		else $sh = 300;
 		return array($sr ? $sh * $sr | 0 : null, $sh);
 	}
 
 	private function _getWH($sw, $sh) {
 		if (empty($sw) === false && empty($sh) === false) {
 			$sr = $sw / $sh;
-			$sw = $sw < 600 ? $sw : 1290;
+			$sw = $sw < 600 ? $sw : 1280;
 			$sh = $sw / $sr;
 			return array($sw, $sh | 0);
 		}
-		return array(1290, null);
+		return array(1280, null);
 	}
 
 	private function _getTAG($_key) {
@@ -5455,7 +5455,7 @@ class mtfFile{
 		}
 	}
 		
-	public function idWaterMark($_d_p,$_w=1290)
+	public function idWaterMark($_d_p,$_w=1280)
 	{
 		$_root=$this->_root;
 		include_once($_root.'../Grafika/autoload.php');

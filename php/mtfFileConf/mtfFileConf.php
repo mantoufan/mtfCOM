@@ -14,8 +14,8 @@ class mtfFileConf{
 					'dir'=>'../',
 					'convert'=>array(
 									'image'=>array(
-										'widths'=>array(50, 360, 540, 1290, 600), // csw = 600 张图片 头像已存到数据库
-										'heights'=>array(50, 360, 540, 150, 600)
+										'widths'=>array(50, 300, 450, 600, 1280), // csw = 600 张图片 头像已存到数据库
+										'heights'=>array(50, 300, 450, 600, 150)
 									),
 									'video'=>array(
 												array('b'=>360,'w'=>480,'ext'=>'mp4','force'=>1),
