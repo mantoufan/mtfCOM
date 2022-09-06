@@ -19,7 +19,7 @@ class mtfFileConf{
 									),
 									'video'=>array(
 												array('b'=>360,'w'=>480,'ext'=>'mp4','force'=>1),
-												array('b'=>720,'w'=>640,'ext'=>'mp4','skip'=>1),
+												// array('b'=>720,'w'=>640,'ext'=>'mp4','skip'=>1),
 												array('b'=>1080,'w'=>1280,'ext'=>'mp4')
 											),
 									'audio'=>array(
