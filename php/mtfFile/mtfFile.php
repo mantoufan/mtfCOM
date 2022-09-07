@@ -157,8 +157,6 @@ class mtfFile{
 	
 	private function _info($_f_p)
 	{
-		$_root=$this->_root;
-		
 		$_f=$this->pathInfo($_f_p);
 		
 		$_f['i']=array('mimetype'=>@$_f['i']['mimetype'],'duration'=>'','bitrate'=>'','filesize'=>'','filesizekb'=>'','filesizemb'=>'');
@@ -169,7 +167,6 @@ class mtfFile{
 				$_f['i']['height']=$_i[1];
 				$_f['i']['mime']=$_i['mime'];
 			}elseif($_f['t']==='video'||$_f['t']==='audio'){
-				// $_l=shell_exec($_root.'bin/WIN32/FFmpeg/ffprobe "'.$_f['p'].'" 2>&1');
 				$_l=shell_exec('ffprobe "'.$_f['p'].'" 2>&1');
 				preg_match("/Duration: (\S+),/", $_l, $_ar);
 				$_f['i']['duration']=$this->mtfUnit->time2ms($_ar[1]);
@@ -380,77 +377,58 @@ class mtfFile{
 
 			//首次预览时，对预览图进行校正
 			$this->_get_ture_orientation_img($_d['p']);
-			
-			//剪裁
-			// if(@$_c['waifu']){
-			// 	$_a=$this->_waifu2url($_c['waifu'],$_f['id']);
-			// 	if(@$_a['s'] && @$_a['n']){
-					//服务器不支持
-					//exec($_root.'bin/Win32/Waifu2x/waifu2x-caffe-cui.exe  -i '.$_d['p'].' -o '.$_d['p'].' -m noise_scale --scale_ratio '.$_a['s'].' --noise_level '.$_a['n']);
-			// 	}
-			// }
 			return true;
-		}elseif($_f['t']==='video'||$_f['t']==='audio'){
-			$_l=$this->_log($_d['n'],'p');
-			if($_f['i']['bitrate']>$_d['c']['b']){
-				$_c_b=$_d['c']['b'];
+		} elseif ($_f['t'] === 'video' || $_f['t'] === 'audio') {
+			$_l = $this->_log($_d['n'], 'p');
+			if($_f['i']['bitrate'] > $_d['c']['b']){
+				$_c_b = $_d['c']['b'];
+			} else {
+				if ($_force !== '1') return false;
+				$_c_b = $_f['i']['bitrate'];
+			}
+			if ($_f['t'] === 'video') {
+				$_h = popen('ffmpeg -hwaccel qsv -i "' . $_f['p'] . '" -y -threads 2 -preset faster -ac 2 -b:a 384k -vf "scale=' . $_d['c']['w'] . ':-2" -b ' . $_c_b . 'k -bufsize ' . $_c_b . 'k -crf 28 -bf 2 -r 24 -g 12 -coder 1 -movflags +faststart -tune zerolatency -x264opts opencl "' . $_d['p'] . '" 1>"' . $_l . '" 2>&1', 'r');
 			}else{
-				$_c_b=$_f['i']['bitrate'];
-				if($_force==='1'){
-					//
+				$_h = popen('ffmpeg -hwaccel qsv -i "' . $_f['p'] . '" -y -threads 2 -preset faster -ac 2 -b:a ' . $_c_b . 'k "' . $_d['p'] . '" 1>"' . $_l . '" 2>&1', 'r');	
+			}
+			while (true) {
+				sleep(2);
+				$_log = $this->_log($_d['n'], 'r');
+				if (!$_log) continue;
+				preg_match("/video:(\d+)kB/", $_log, $_ar);
+				$_v['videoSize'] = $_ar[1];
+				preg_match("/audio:(\d+)kB/", $_log, $_ar);
+				$_v['audioSize'] = $_ar[1];
+				preg_match("/Input[\S\s]*?,\s(\d+)x(\d+)\s/", $_log, $_ar);
+				$_v['swidth'] = $_ar[1];
+				$_v['sheight'] = $_ar[2];
+				preg_match("/Output[\S\s]*?,\s(\d+)x(\d+)\s/", $_log, $_ar);
+				$_v['width'] = $_ar[1];
+				$_v['height'] = $_ar[2];
+				if(empty($_v['videoSize']) === false || empty($_v['audioSize']) === false){
+					$_filesizekb = 0;
+					if (empty($_v['videoSize']) === false) $_filesizekb += $_v['videoSize'];
+					if (empty($_v['audioSize']) === false) $_filesizekb += $_v['audioSize'];
+					$_f['i']['filesizekb'] = $_filesizekb . 'KB';
+					return array(
+						'原始比特率' => $_f['i']['bitrate'],
+						'比特率' => $_d['c']['b'],
+						'时长' => $_f['i']['duration'],
+						'大小' => $_f['i']['filesizekb'],
+						'原始宽度' => $_v['swidth'],
+						'原始高度' => $_v['sheight'],
+						'宽度' => $_v['width'],
+						'高度' => $_v['height']
+					);
 				}else{
-					return false;	
-				}
-			}
-			$_outTime=$this->maxTime*10;
-			set_time_limit($_outTime);//转码的进程比一般进程多5倍的运行时间
-			//-threads 2 使用双核心，该参数，PHP无法调用 scale=-2 确保视频高度始终为2的倍数。开启硬件加速
-			if($_f['t']==='video'){
-				// $_h=popen($_root.'bin/WIN32/FFmpeg/ffmpeg -hwaccel qsv -i "'.$_f['p'].'" -threads 1 -preset ultrafast -crf 30 -y -vf "scale='.$_d['c']['w'].':-2" -b '.$_c_b.'k -bufsize '.$_c_b.'K "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');
-				$_h=popen('ffmpeg -hwaccel qsv -i "'.$_f['p'].'" -threads 1 -preset ultrafast -crf 30 -y -vf "scale='.$_d['c']['w'].':-2" -b '.$_c_b.'k -bufsize '.$_c_b.'K "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');
-			}else{
-				// $_h=popen($_root.'bin/WIN32/FFmpeg/ffmpeg -hwaccel qsv -i "'.$_f['p'].'" -threads 1 -preset ultrafast -y -b:a '.$_c_b.'k "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');	
-				$_h=popen('ffmpeg -hwaccel qsv -i "'.$_f['p'].'" -threads 1 -preset ultrafast -y -b:a '.$_c_b.'k "'.$_d['p'].'" 1>"'.$_l.'" 2>&1', 'r');	
-			}
-			$_i=0;
-			while($_i<$_outTime) {
-				$_log=$this->_log($_d['n'],'r');
-				if($_log){
-					preg_match("/video:(\d+)kB/", $_log, $_ar);
-					$_v['videoSize']=$_ar[1];
-					preg_match("/audio:(\d+)kB/", $_log, $_ar);
-					$_v['audioSize']=$_ar[1];
-					preg_match("/Input[\S\s]*?,\s(\d+)x(\d+)\s/", $_log, $_ar);
-					$_v['swidth'] = $_ar[1];
-					$_v['sheight'] = $_ar[2];
-					preg_match("/Output[\S\s]*?,\s(\d+)x(\d+)\s/", $_log, $_ar);
-					$_v['width'] = $_ar[1];
-					$_v['height'] = $_ar[2];
-					if(@$_v['videoSize']||@$_v['audioSize']){
-						$_f['i']['filesizekb']=(@$_v['videoSize']+@$_v['audioSize']).'KB';
-						//转码完成;
-						return array('原始比特率'=>$_f['i']['bitrate'],'比特率'=>$_d['c']['b'],'时长'=>$_f['i']['duration'],'大小'=>$_f['i']['filesizekb'],'原始宽度'=>$_v['swidth'],'原始高度'=>$_v['sheight'],'宽度'=>$_v['width'],'高度'=>$_v['height']);
-					}else{
-						preg_match_all("/time=(\S+)/", $_log, $_ar);
-						$_v['time']=$this->mtfUnit->time2ms(end($_ar[1]));
-						$_v['progress']=round($_v['time']/$_f['i']['duration']*100,2).'%';
-						
-						if($queue){
-							$this->mtfQueue->urlUpdate($queue,$_v['progress']);	
-						}
-						//'转码$0',array($_v['progress']);
+					preg_match_all("/time=(\S+)/", $_log, $_ar);
+					if (empty($_ar[1])) {
+						if ($queue) $this->mtfQueue->urlError($queue);	
+						return false;	
 					}
+					$_v['time'] = $this->mtfUnit->time2ms(end($_ar[1]));
+					if ($queue) $this->mtfQueue->urlUpdate($queue, round($_v['time'] / $_f['i']['duration'] * 100, 2) . '%');
 				}
-				$_i++;
-				sleep(3);//每3秒更新一次，减轻CPU占用率
-			}
-			//转码出错处理
-			if(!@$_v['Lsize']){
-				if($queue){
-					$this->mtfQueue->urlError($queue);	
-				}
-				//'转码出错$0',array(@$_v['progress']);
-				return false;	
 			}
 		}elseif($_f['t']==='doc'){
 			$_h=exec($_root.'bin/WIN32/LibreOfficePortable/LibreOfficePortable --headless -convert-to '.$_d['e'].' "'.$_f['p'].'" -outdir "'.$_d['d'].'"');
@@ -726,9 +704,6 @@ class mtfFile{
 				}
 				$_t=7;
 				$_r=1;
-				// exec($_root.'bin/WIN32/FFmpeg/ffmpeg -ss '.$_ss.' -t '.$_t.' -i "'.$_f['p'].'" -r '.$_r.' -vf "scale='.$_config['w'].':-1,format=yuv420p" -f image2 "'.$_f['d'].'/'.$_f['bn'].'-%03d.jpg"');
-				// exec($_root.'bin/WIN32/FFmpeg/ffmpeg -i "'.$_f['d'].'/'.$_f['bn'].'-%03d.jpg" -filter_complex scale=120:-1,tile=3x3 "'.$_f['d'].'/'.$_f['bn'].'.jpg"');
-				// exec($_root.'bin/WIN32/FFmpeg/ffmpeg -f image2 -framerate 5 -i "'.$_f['d'].'/'.$_f['bn'].'-%03d.jpg" "'.$_f['d'].'/'.$_f['bn'].'.'.$this->conf['preview'][$_f['t']]['ext'].'"');
 				exec('ffmpeg -ss '.$_ss.' -t '.$_t.' -i "'.$_f['p'].'" -r '.$_r.' -vf "scale='.$_config['w'].':-1,format=yuv420p" -f image2 "'.$_f['d'].'/'.$_f['bn'].'-%03d.jpg"');
 				exec('ffmpeg -i "'.$_f['d'].'/'.$_f['bn'].'-%03d.jpg" -filter_complex scale=120:-1,tile=3x3 "'.$_f['d'].'/'.$_f['bn'].'.jpg"');
 				exec('ffmpeg -f image2 -framerate 5 -i "'.$_f['d'].'/'.$_f['bn'].'-%03d.jpg" "'.$_f['d'].'/'.$_f['bn'].'.'.$this->conf['preview'][$_f['t']]['ext'].'"');
@@ -740,8 +715,7 @@ class mtfFile{
 		}elseif($_f['t']==='audio'){
 			$_d['p'].=$this->conf['preview'][$_f['t']]['ext'];
 			
-			if(!file_exists($_d['p'])){
-				// exec($_root.'bin/WIN32/FFmpeg/ffmpeg -i "'.$_f['p'].'" -filter_complex "compand,showwavespic=s=640x50:colors=#666666" -frames:v 1 "'.$_f['d'].'/'.$_f['bn'].'.'.$this->conf['preview'][$_f['t']]['ext'].'"');
+			if(file_exists($_d['p']) === false){
 				exec('ffmpeg -i "'.$_f['p'].'" -filter_complex "compand,showwavespic=s=640x50:colors=#666666" -frames:v 1 "'.$_f['d'].'/'.$_f['bn'].'.'.$this->conf['preview'][$_f['t']]['ext'].'"');//compand，扩大音频高度，充满画布，让声音较小的音频也能获取指纹
 			}
 		}elseif($_f['t']==='people'){
@@ -880,7 +854,7 @@ class mtfFile{
 									empty($_key['描述']) ? $_v2['loc_description'] : $_key['描述'][0]
 								)) . ']]></video:description>';
 							$_h .= '<video:content_loc>' . $_v2['content_loc'] . '</video:content_loc>';
-							if ($_v2['duration']) $_h.='<video:duration>' . $_v2['duration'] . '</video:duration>';
+							if ($_v2['duration']) $_h.='<video:duration>' . intval($_v2['duration'] / 1000) . '</video:duration>';
 							$_h .= '<video:publication_date>' . $_v2['publication_date'] . '</video:publication_date>';
 							$_h .= '</video:video>';
 						}
@@ -1488,42 +1462,12 @@ class mtfFile{
 		}
 		return @$_h;
 	}
-	
-	public function class($_f_p)
-	{
-		$_root=$this->_root;
-		$_ar=array();
-		// $_bin=$_root.'bin/WIN32/Detect/';
-		// $_classifier=array(
-		// 	'haarcascade_frontalface_alt2'=>'人像',
-		// 	'anime'=>'动漫人像',
-		// 	'haarcascade_frontalcatface'=>'猫'
-		// );
-		// $_i=1;
-		// foreach($_classifier as $_k=>$_v){
-		// 	$_r=exec($_bin.'Detect -f "'.$_bin.'classifier/'.$_k.'.xml"  -i "'.$_f_p.'" -m "'.$_bin.'model.bin" -t "'.$_bin.'train.txt"');
-		// 	if($_r!=='false' && $_r!=='Error loading the image.'){
-		// 		$_ar[]=$_v;	
-		// 	}
-		// 	unset($_r);
-		// 	$_i++;
-		// }
-		
-		return $_ar;
-	}
-	
+
 	public function tags($_f_p)
 	{
 		$_f=$this->pathInfo($_f_p);
 		
 		$_attr=array();
-		
-		if($_f['t']==='image'||$_f['t']==='video'){
-			$_ar=$this->class($_f['p']);
-			if($_ar){
-				$_attr['分类']=$_ar;
-			}
-		}
 		
 		if($_f['t']==='image'){
 			$exif = @exif_read_data($_f['p'], 'IFD0');//不支持GIF
@@ -5522,11 +5466,6 @@ class mtfFile{
 					}
 					unset($_d['d']);
 					foreach($this->conf['convert'][$_f['t']] as $__k=>$__v){
-						
-						if(@$__v['skip']){
-							continue;
-						}
-						
 						$_d['convert']=array();						
 						@$_d['convert']['ext']=$__v['ext'];
 						@$_d['convert']['b']=$__v['b'];
@@ -5638,41 +5577,41 @@ class mtfFile{
 					if(!empty($this->conf['_extConf']['ftp']['on'])) {
 						$_ftp_con = ftp_connect($this->conf['_extConf']['ftp']['url']);
 						ftp_login($_ftp_con, $this->conf['_extConf']['ftp']['usr'], $this->conf['_extConf']['ftp']['psd']);
-						ftp_delete($_ftp_con, $this->conf['_extConf']['ftp']['defaultDir'] . $this->n2dir($_dat['n']) . $_dat['n']);
+						ftp_delete($_ftp_con, $this->conf['_extConf']['ftp']['baseDir'] . $this->conf['_extConf']['ftp']['defaultDir'] . $this->n2dir($_dat['n']) . $_dat['n']);
 					}
 
-					if(@$this->conf['_extConf']['webdav']['on']){
-						include_once($this->_root.'../sabre/autoload.php');
-						$settings = array(
-							'baseUri' => $this->conf['_extConf']['webdav']['url'],
-							'userName' => $this->conf['_extConf']['webdav']['usr'],
-							'password' => $this->conf['_extConf']['webdav']['psd']
-						);
-						$this->sabre=new Sabre\DAV\Client($settings);
-						//同步webdav
-						$this->sabre->request('DELETE', $this->conf['_extConf']['webdav']['url'].$this->n2dir($_dat['n']).$_dat['n']);
-					}
+					// if(@$this->conf['_extConf']['webdav']['on']){
+					// 	include_once($this->_root.'../sabre/autoload.php');
+					// 	$settings = array(
+					// 		'baseUri' => $this->conf['_extConf']['webdav']['url'],
+					// 		'userName' => $this->conf['_extConf']['webdav']['usr'],
+					// 		'password' => $this->conf['_extConf']['webdav']['psd']
+					// 	);
+					// 	$this->sabre=new Sabre\DAV\Client($settings);
+					// 	//同步webdav
+					// 	$this->sabre->request('DELETE', $this->conf['_extConf']['webdav']['url'].$this->n2dir($_dat['n']).$_dat['n']);
+					// }
 					
 					
-					if(@$this->conf['_extConf']['s3']['on']){
-						require_once $this->_root.'../AWS/aws.phar';
-						//客户端
-						$s3=Aws\S3\S3Client::factory(array(
-							'endpoint' => $this->conf['_extConf']['s3']['endpoint'],
-							'region' => '',
-							'version'=>'latest',
-							'credentials' => array(
-								'key' => $this->conf['_extConf']['s3']['key'],
-								'secret' => $this->conf['_extConf']['s3']['secret'],
-							)
-						));
-						if($s3->doesObjectExist($this->conf['_extConf']['s3']['bucket'],$this->n2dir($_dat['n']).$_dat['n'])){
-							$s3->deleteObject(array(
-								'Bucket' => $this->conf['_extConf']['s3']['bucket'],
-								'Key' => $this->n2dir($_dat['n']).$_dat['n']
-							));
-						}
-					}
+					// if(@$this->conf['_extConf']['s3']['on']){
+					// 	require_once $this->_root.'../AWS/aws.phar';
+					// 	//客户端
+					// 	$s3=Aws\S3\S3Client::factory(array(
+					// 		'endpoint' => $this->conf['_extConf']['s3']['endpoint'],
+					// 		'region' => '',
+					// 		'version'=>'latest',
+					// 		'credentials' => array(
+					// 			'key' => $this->conf['_extConf']['s3']['key'],
+					// 			'secret' => $this->conf['_extConf']['s3']['secret'],
+					// 		)
+					// 	));
+					// 	if($s3->doesObjectExist($this->conf['_extConf']['s3']['bucket'],$this->n2dir($_dat['n']).$_dat['n'])){
+					// 		$s3->deleteObject(array(
+					// 			'Bucket' => $this->conf['_extConf']['s3']['bucket'],
+					// 			'Key' => $this->n2dir($_dat['n']).$_dat['n']
+					// 		));
+					// 	}
+					// }
 				}
 			}
 		}
