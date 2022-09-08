@@ -98,7 +98,7 @@
       switch (a) {
         case "雪":
           this.el = cache.get(
-            "./mtf/mtfWeatherPic/snow" + Math.floor(Math.random() * 5) + ".gif"
+            "./mtf/weather/pic/snow" + Math.floor(Math.random() * 5) + ".gif"
           );
           this.el.size = (Math.random() * 40 + 10) | 0;
           this.common(this.el);
@@ -114,7 +114,7 @@
           break;
         case "蝴蝶":
           this.el = cache.get(
-            "./mtf/mtfWeatherPic/butterfly" +
+            "./mtf/weather/pic/butterfly" +
               Math.floor(Math.random() * 5) +
               ".gif"
           );
@@ -168,7 +168,7 @@
         default:
           //默认樱花
           this.el = cache.get(
-            "./mtf/mtfWeatherPic/sakura" +
+            "./mtf/weather/pic/sakura" +
               Math.floor(Math.random() * 8) +
               ".gif"
           );
