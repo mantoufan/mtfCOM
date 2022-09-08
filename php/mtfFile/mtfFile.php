@@ -1162,7 +1162,7 @@ class mtfFile{
 				return false;	
 			}
 			$this->down($_d['p'], $_t);
-		} elseif ($_f['t'] === 'video' || $_f['t'] === 'audio' || $_f['t'] === 'doc') {
+		} elseif ($_f['t'] === 'video' || $_f['t'] === 'audio' || $_f['t'] === 'doc' || $_f['t'] === 'rom') {
 			$this->down($_d['p'], $_t);
 		} elseif ($_f['t']==='txt' || $_f['t']==='sub') {
 			switch($_t){
@@ -1225,7 +1225,8 @@ class mtfFile{
 	}
 	
 	public function down($_f_p, $_type = 'down'){
-		header('Content-Type: ' . ($_type === 'down' ? 'application/force-download' : mime_content_type($_f_p)));
+		header('Content-Type: ' . mime_content_type($_f_p));
+		if ($_type === 'down') header('Content-Disposition: attachment');
 		header('cache-control: max-age=31536000');
 		//kangle 虚拟主机，配置zoneUp 的别名，路径
 		// kangle
