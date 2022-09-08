@@ -999,7 +999,7 @@ class mtfFile{
 								return $this->getContent($_p, 'data');
 							}
 						} elseif ($_d['t']==='audio'){//语音直接显示
-							$_b = $this->conf['convert']['audio'][0];
+							$_b = end($this->conf['convert']['audio']);
 							$_ar['audio'][] = array(
 								'i' => $_d['id'],'source' => array('b' => $_b['b'], 'w' => $_b['w'], 'ext' => $_b['ext']
 							));	
@@ -3844,7 +3844,7 @@ class mtfFile{
 		$__c=array();$_source=array();$_sub=array();
 									
 		foreach($this->conf['convert'] as $__k=>$__v){
-			foreach($__v as $_k2=>$_v2){
+			foreach($__v as $_v2){
 				if($__k===$_t){
 					$__c[$__k][$_v2['b']]=array('w'=>@$_v2['w'],'ext'=>$_v2['ext']);	
 				}
@@ -3854,12 +3854,12 @@ class mtfFile{
 			foreach($_attr['比特率'] as $__k=>$__v){
 				if(@$__c[$_t][$__v]){
 					$_b=$__c[$_t][$__v];
-					$_source[]=array('b'=>$__v,'w'=>$_b['w'],'ext'=>$_b['ext']);
+					array_unshift($_source, array('b'=>$__v,'w'=>$_b['w'],'ext'=>$_b['ext']));
 				}
 			}
 		}else{
 			$_b=$this->conf['convert'][$_t][0];
-			$_source[]=array('b'=>$_b['b'],'w'=>$_b['w'],'ext'=>$_b['ext']);
+			array_unshift($_source, array('b'=>$_b['b'],'w'=>$_b['w'],'ext'=>$_b['ext']));
 		}
 		
 		$_txt='';
