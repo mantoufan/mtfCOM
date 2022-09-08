@@ -17,8 +17,7 @@ include_once __DIR__ . '/../mtfFileConf/mtfFileConf.php';
 
 class mtfFile{
 	/** 配置：与 mtfFileConf 一致：开始 */
-	public $maxTime = 600;//与kangle中的配置中 超时 时间对应：转码时间是这个时间的 10 倍，不超过10分钟
-	//相对于root的路径
+	public $maxTime;// 注意配置 Web 服务器的超时时间
 	private $root = '';
 	public $dir = array();
 	public $conf = array();
@@ -42,18 +41,12 @@ class mtfFile{
 	public $mtfKeyword;
 	public $mtfProxyCurl;
 	private $mtfColor;
-	private $_root;
 	private $__config = array('w' => '', 'h' => '', 'nl' => 0, 'default' => '', 'ext' => '');
 	private $_cache = array();
 	private $_var = array();
-	public function __construct($__root = '')
-    {	
+	public function __construct($config = array()) {	
+		if (empty($config['root'])) return;
 		ini_set('memory_limit', '512M');
-		set_time_limit($this->maxTime);
-
-		$_root = __DIR__ . '/';
-		$this->_root = $_root;
-		
 		$this->mtfUnit = new mtfUnit();
 		$this->mtfGuid = new mtfGuid();
 		$this->mtfUrl = new mtfUrl();
@@ -69,28 +62,20 @@ class mtfFile{
 		$this->mtfZH = new mtfZH();
 		$this->mtfKeyword = new mtfKeyword();
 		$mtfFileConf = new mtfFileConf();
-
 		$this->maxTime = $mtfFileConf->maxTime;
-		$this->root = $mtfFileConf->root;
 		$this->dir = $mtfFileConf->dir;
 		$this->conf = $mtfFileConf->conf;
 		$this->db = $mtfFileConf->db;
 
 		$this->conf = array_merge(array(
-			'ext2type' => json_decode(file_get_contents($_root . 'json/ext2type.json'), true),
-			'minetype2ext' => json_decode(file_get_contents($_root . 'json/minetype2ext.json'), true),
+			'ext2type' => json_decode(file_get_contents(__DIR__ . '/' . 'json/ext2type.json'), true),
+			'minetype2ext' => json_decode(file_get_contents(__DIR__ . '/' . 'json/minetype2ext.json'), true),
 		), $this->conf);
 		
-		if ($__root) {
-			$this->root = $__root;
-			$_root = $__root . '/';
-		} else {
-			$_root = $_root . '../../../../' . $this->root . '/';
-		}
-		
-		if (is_dir($_root) === false) mkdir($_root);
+		$this->root = $config['root'];
+		if (is_dir($this->root) === false) mkdir($this->root);
 		foreach ($this->dir as $_k => $_v) {
-			$this->dir[$_k] = $_root . $_v . '/';
+			$this->dir[$_k] = $this->root . '/' . $_v . '/';
 			if (is_dir($this->dir[$_k]) === false) mkdir($this->dir[$_k]);
 		}
 	}
@@ -112,14 +97,15 @@ class mtfFile{
 		}
 		return $_d['c'];
 	}
-	
-	public function n2dir($_n)
-	{
+	public function e2dir($_e) {
+		if (in_array($_e, $this->conf['oss']['ext'])) return $this->dir['oss'];
+		return $this->dir['file'];
+	}
+	public function n2dir($_n) {
 		return substr($_n,0,6).'/';
 	}
 	
-	public function n2date($_n)
-	{
+	public function n2date($_n) {
 		return substr($_n,0,4).'-'.substr($_n,4,2).'-'.substr($_n,6,2).' '.substr($_n,8,2).':'.substr($_n,10,2).':'.substr($_n,12,2);
 	}
 	
@@ -216,7 +202,7 @@ class mtfFile{
 				if($_e==='*'||(strpos($_e,$_ext)) !== false){
 					
 				}else{
-					return reset(explode(',',$_e));
+					return explode(',',$_e)[0];
 				}
 			}
 		}
@@ -228,21 +214,16 @@ class mtfFile{
 		exit;
 	}
 	
-	public function convert($_f_p,$_d_p,$queue=0,$_force='0')
+	public function convert($_f_p, $_d_p, $queue = 0, $_force = '0')
 	{ 
-		if(file_exists($_d_p) === true && filesize($_d_p) > 0){
-			return true;
-		}
-		$_root=$this->_root;
-		
-		$_f=$this->_info($_f_p);
-		
-		$_d=$this->pathInfo($_d_p);
-		$_d['c']=$this->config($_d['p']);
+		if (file_exists($_d_p) === true && filesize($_d_p) > 0) return true;
+		$_f = $this->_info($_f_p);
+		$_d = $this->pathInfo($_d_p);
+		$_d['c'] = $this->config($_d['p']);
 		
 		if($_f['t']==='image'){
 			$_c=@$_d['c'];
-			include_once($_root.'../Grafika/autoload.php');
+			include_once __DIR__ . '/../Grafika/autoload.php';
 			$editor = Grafika\Grafika::createEditor();
 			
 			if(@$_c['p']){
@@ -430,8 +411,8 @@ class mtfFile{
 					if ($queue) $this->mtfQueue->urlUpdate($queue, round($_v['time'] / $_f['i']['duration'] * 100, 2) . '%');
 				}
 			}
-		}elseif($_f['t']==='doc'){
-			$_h=exec($_root.'bin/WIN32/LibreOfficePortable/LibreOfficePortable --headless -convert-to '.$_d['e'].' "'.$_f['p'].'" -outdir "'.$_d['d'].'"');
+		} elseif ($_f['t'] === 'doc') {
+			$_h = exec('LibreOfficePortable --headless -convert-to ' . $_d['e'] . ' "' . $_f['p'] . '" -outdir "' . $_d['d'] . '"');
 			//目标文件名与源文件一样
 			return true;
 		}
@@ -675,20 +656,15 @@ class mtfFile{
 	}
 	
 	//w 缩略图宽度 n 上传文件名
-	public function getPreView($_f_p,$_config=array(),$_arv=array())
+	public function getPreView($_f_p, $_config = array(), $_arv = array())
 	{
-		$_arv2=array('n'=>'','url'=>'');
-		$_config=$_config?array_merge($this->__config,$_config):$this->__config;
-		$_arv=$_arv?array_merge($_arv2,$_arv):$_arv2;
-		$_root=$this->_root;
-		
-		$_f=$this->_info($_f_p);
-		
-		$_d=$this->pathInfo();
-		
-		
-		$_config['ext']=$_f['e'];
-		$_d['p']=$_f['d'].'/'.$_f['id'].$this->config2Url($_config).'.';
+		$_arv2 = array('n' => '', 'url' => '');
+		$_config = array_merge($this->__config, $_config);
+		$_arv = array_merge($_arv2, $_arv);
+		$_f = $this->_info($_f_p);
+		$_d = $this->pathInfo();
+		$_config['ext'] = $_f['e'];
+		$_d['p'] = $_f['d'] . '/' . $_f['id'] . $this->config2Url($_config) . '.';
 		
 		if($_f['t']==='image'){
 			$_d['p'].=$_f['e'];
@@ -696,7 +672,7 @@ class mtfFile{
 		}elseif($_f['t']==='video'){
 			$_d['p'].=$this->conf['preview'][$_f['t']]['ext'];
 			
-			if(!file_exists($_d['p'])){
+			if(file_exists($_d['p']) === false){
 				if($_f['i']['duration']){
 					$_ss=floor($_f['i']['duration']/1000/3);
 				}else{
@@ -728,34 +704,26 @@ class mtfFile{
 				$_f=$this->pathInfo($_config['default']);
 				$_d['p']=$this->dir['file'].$this->n2dir($_f['id']).$_f['id'].$this->config2Url($_config).'.'.$_f['e'];	
 			}
-		}/*elseif($_f['t']==='doc'){//效率不高
-			$_d['p'].='jpg';
-			$this->convert($_f_p,$_d['p']);
-		}*/else{
+		} else {
 			$_d['p'].='jpg';
 			
-			if(!file_exists($_d['p'])){
-				include_once($_root.'../Grafika/autoload.php');
-				$editor=Grafika\Grafika::createEditor();
-				$image=Grafika\Grafika::createBlankImage(600,60);
+			if(file_exists($_d['p']) === false){
+				include_once __DIR__ . '/../Grafika/autoload.php';
+				$editor = Grafika\Grafika::createEditor();
+				$image = Grafika\Grafika::createBlankImage(600,60);
 				$editor->draw($image, Grafika\Grafika::createDrawingObject('Rectangle', 600, 60, array(0, 0), 0, null, '#333333'));
 				$editor->draw($image, Grafika\Grafika::createDrawingObject('Rectangle', 320, 40, array(140, 10), 0, null, '#FFFFFF'));
 				$editor->text($image, $_f['e'], 24, 70-$this->mtfUnit->strLen($_f['e'])*8.5, 16, new Grafika\Color('#FFFFFF'));
-				$_fs=$_f['i']['filesizemb'];
-				if($_fs==='0MB'){
-					$_fs=$_f['i']['filesizekb'];
-				}
+				$_fs = $_f['i']['filesizemb'];
+				if ($_fs === '0MB') $_fs=$_f['i']['filesizekb'];
 				$editor->text($image, $_fs, 24, 530-$this->mtfUnit->strLen($_fs)*8.5, 16, new Grafika\Color('#FFFFFF'));
 				$_arv['n']=$this->mtfUnit->subStr($_arv['n'], 18,'..');
-				$editor->text($image, $_arv['n'], 24, 300-$this->mtfUnit->strLen($_arv['n'])*8.5, 16, new Grafika\Color('#333333'), $_root.'../Grafika/fonts/wenquanyidengkuanzhenghei.ttf');
+				$editor->text($image, $_arv['n'], 24, 300-$this->mtfUnit->strLen($_arv['n'])*8.5, 16, new Grafika\Color('#333333'), __DIR__ . '/../Grafika/fonts/wenquanyidengkuanzhenghei.ttf');
 				$editor->save($image, $_f['d'].'/'.$_f['bn'].'.jpg');
 			}
 		}
-		if($_arv['url']){
-			$_a=explode($this->root,$_d['p']);
-			$_a=explode('/',$_a[1]);
-			unset($_a[0]);unset($_a[1]);unset($_a[2]);
-			return implode('/',$_a);
+		if ($_arv['url']) {
+			return implode('/', array_slice(explode('/', explode($this->root, $_d['p'])[1]), 3));
 		}else{
 			return $_d['p'];
 		}
@@ -883,17 +851,14 @@ class mtfFile{
 		}
 	}
 	//类型：view 预览 down 下载
-	public function getContent($_f_p,$_t='view',$_arv=array(),$_config=array())
-	{
-		$_arv2=array('mtfdat'=>array('pattern'=>"[\d+]{6,18}"));
-		$_config=$_config?array_merge($this->__config,$_config):$this->__config;
-		$_arv=$_arv?array_merge($_arv2,$_arv):$_arv2;
-		$_root=$this->_root;
-		
-		$_f=$this->pathInfo($_f_p);
-		$_f['des']='';
-		$_d=$this->pathInfo();
-		$_img=array();
+	public function getContent($_f_p, $_t='view', $_arv = array(), $_config = array()) {
+		$_arv2 = array('mtfdat' => array('pattern' => "[\d+]{6,18}"));
+		$_config = array_merge($this->__config, $_config);
+		$_arv = array_merge($_arv2, $_arv);
+		$_f = $this->pathInfo($_f_p);
+		$_f['des'] = '';
+		$_d = $this->pathInfo();
+		$_img = array();
 		
 		if($_f['t']==='mtfdat'){  
 			
@@ -901,7 +866,6 @@ class mtfFile{
 				case 'view':
 					$_c=file_get_contents($_f['p']);
 					return $_c;
-					break;
 				case 'mustache':
 					$_f['p']=$this->fileOrTmp($_f['n']);
 					$_c=file_get_contents($_f['p']);
@@ -1160,7 +1124,6 @@ class mtfFile{
 						if ($img_count > 1) {
 							$_ar['list']['ps'] = $img_count;
 							$_ar['list']['wh'] = 900 / $_ar['list']['ps']; // 300
-							$_ar['list']['psn'] = $this->conf['list']['max_p_length'] - $_ar['list']['ps'] + 2;
 						} else {
 							$_r = $this->mtfAttr->sql('s1',$this->db['table'],'a','WHERE i=\''.$_a['img'][0]['i'].'\'',0,'|');
 							if ($_a['img'][0]['e'] === 'gif') $_ar['list']['p'][0]['g'] = 1;
@@ -1177,8 +1140,7 @@ class mtfFile{
 				case 'down':
 					$this->down($_f['p']);
 					break; 
-			}	
-			
+			}
 		}elseif($_f['t']==='image'){
 			$_d['n']=$_f['n'];
 
@@ -1199,74 +1161,41 @@ class mtfFile{
 			if(!$this->convert($_f['p'], $_d['p'])){
 				return false;	
 			}
-			switch($_t){
-				case 'view':
-					$this->down($_d['p'],'range');
-					break;
-				case 'down':
-					$this->down($_d['p'],'force',0);
-					break;
-			}	
-			
-		}elseif($_f['t']==='video'||$_f['t']==='audio'){
-			switch($_t){
-				case 'view':
-					$this->down($_f['p'],'range');
-					break;
-				case 'down':
-					$this->down($_f['p']);
-					break;
-			}
-		}elseif($_f['t']==='doc'){
-			
-			switch($_t){
-				case 'view':
-					$this->down($_f['p'],'range');
-					break;
-				case 'down':
-					$this->down($_f['p']);
-					break;
-			}
-			
-		}elseif($_f['t']==='txt'||$_f['t']==='sub'){
-			
+			$this->down($_d['p'], $_t);
+		} elseif ($_f['t'] === 'video' || $_f['t'] === 'audio' || $_f['t'] === 'doc') {
+			$this->down($_d['p'], $_t);
+		} elseif ($_f['t']==='txt' || $_f['t']==='sub') {
 			switch($_t){
 				case 'view':
 					return file_get_contents($_f['p']);
 				case 'down':
 					$this->down($_f['p']);
-					break;
 			}
-			
-		}elseif($_f['t']==='zip'){
-		
+		} elseif($_f['t']==='zip') {
 			switch($_t){
 				case 'view':
 					header('Content-type:text/html;charset=utf-8');
 					if($_f['e']==='7z'){
 						return 403;//不支持预览
 					}else{
-						include_once($_root.'../UnifiedArchive/autoload.php');
+						include_once __DIR__ . '/../UnifiedArchive/autoload.php';
 						$archive=new wapmorgan\UnifiedArchive\UnifiedArchive();
 						$archive->open($_f['n']);	
 						return implode("\n",$archive->getFileNames());
 					}
 				case 'down':
 					$this->down($_f['p']);
-					break;
 			}
-		}elseif($_f['t']==='bt'){
-
+		} elseif($_f['t']==='bt') {
 			switch($_t){
 				case 'view':
-					include_once($_root.'../Torrent/Torrent.php');
+					include_once __DIR__ .'/../Torrent/Torrent.php';
 					$_torrent=new Torrent($_f['p']);
 					$_ar=$_torrent->info['files'];
 					$_files=array();
 					foreach($_ar as $_k=>$_v){
 						$_p=$_v['path.utf-8']?$_v['path.utf-8']:$_v['path'];
 						$_l=count($_p);
-						
 						if($_l==1){
 							$_files[$_p[0]]='';
 						}else{
@@ -1281,155 +1210,36 @@ class mtfFile{
 					break;
 				case 'down':
 					$this->down($_f['p']);
-					break;
 			}
-				
-		}elseif($_f['t']==='url'){
-			
-			switch($_t){
+		} elseif ($_f['t'] === 'url') {
+			switch ($_t) {
 				case 'view':
-					$_c=file_get_contents($_f['p']);
-					$_a=explode('BASEURL=',$_c);
-					$_c=@$_a[1]?$_a[1]:@$_a[0];
-					$_a=explode('[',$_c);
-					return $_c=@$_a[0];
+					$_c = file_get_contents($_f['p']);
+					$_a = explode('BASEURL=', $_c);
+					$_c= empty($_a[1]) === false ? $_a[1] : $_a[0];
+					return explode('[', $_c)[0];
 				case 'down':
 					$this->down($_f['p']);
-					break;  
 			}
 		}
-		/*
-		function _empty($_j=0){	
-			$_empty='';
-			for($_i=0;$_i<$_j;$_i++){
-				$_empty.='　';
-			}
-			return $_empty;
-		}
-		function _foreach($_ar,$_i=0){
-			$_a=array();
-			$_l=count($_ar)-1;	
-			foreach($_ar as $_k=>$_v){
-				if($_v){
-					if(is_array($_v)){
-						$_a[]=_empty($_i).$_k;
-						$_a=array_merge($_a,_foreach($_v,$_i));
-					}else{
-						if($_k===0){
-							$_i++;
-							$_a[]=_empty($_i).$_v;
-						}elseif($_k===$_l){
-							$_a[]=_empty($_i).$_v;
-							$_i--;	
-						}else{
-							$_a[]=_empty($_i).$_v;	
-						}
-					}
-				}else{
-					$_i=0;
-					$_a[]=_empty($_i).$_k;	
-				}
-			}
-			return $_a;
-		}
-		*/
 	}
 	
-	public function down($_f_p,$_type='force',$_sendfile=1){
-		 if($_sendfile){
-			 if($_type==='force'){//图片下载不可用，其它类型文件可以
-				header('Content-Type: application/force-download');
-			 }else{ 
-				header('Content-type: '.mime_content_type($_f_p));
-				header('cache-control: max-age=31536000');
-			 }
-			 //kangle 虚拟主机，配置zoneUp 的别名，路径
-			 // kangle
-			 //header('X-Accel-Redirect: '.$this->conf['dir'].end(explode('/',$this->root)).$_a[1]);
-			 // nginx
-			 $_t = explode('/', $this->root);
-			 header('X-Accel-Redirect: ' . end($_t) . explode($this->root, $_f_p)[1]);
-			 // apache
-			 //header('X-Sendfile: '.$_a[1]);
-			exit;
-		 }else{
-			if($_type==='force'){
-				header("Content-Type: application/force-download");
-				header("Content-Type: application/octet-stream");
-				header("Content-Type: application/download");
-				//header("Content-Disposition: attachment; filename=".$_f['n'].";");
-				header("Content-Transfer-Encoding: binary");
-				header("Content-Length: ".filesize($_f_p));
-				@readfile($_f_p);
-			}else{
-				
-				header("Content-type: ".mime_content_type($_f_p));
-				if (isset($_SERVER['HTTP_RANGE']))  { 
-					//不支持mp4
-					$fp = @fopen($_f_p, 'rb');
-					$size   = filesize($_f_p); 
-					$length = $size;       
-					$start  = 0; 
-					$end    = $size - 1;
-					header("Accept-Ranges: 0-$length");
-					if (isset($_SERVER['HTTP_RANGE'])) {
-						$c_start = $start;
-
-						$c_end   = $end;
-						list(, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
-						if (strpos($range, ',') !== false) {
-							header('HTTP/1.1 416 Requested Range Not Satisfiable');
-							header("Content-Range: bytes $start-$end/$size");
-							exit;
-						}
-						if ($range0 == '-') {
-							// The n-number of the last bytes is requested
-							$c_start = $size - substr($range, 1);
-						}
-						else {
-							$range  = explode('-', $range);
-							$c_start = $range[0];
-							$c_end   = (isset($range[1]) && is_numeric($range[1])) ? $range[1] : $size;
-						}
-						$c_end = ($c_end > $end) ? $end : $c_end;
-						if ($c_start > $c_end || $c_start > $size - 1 || $c_end >= $size) {
-							header('HTTP/1.1 416 Requested Range Not Satisfiable');
-							header("Content-Range: bytes $start-$end/$size");
-							exit;
-						}
-						$start  = $c_start;
-						$end    = $c_end;
-						$length = $end - $start + 1; // Calculate new content length
-						fseek($fp, $start);
-						header('HTTP/1.1 206 Partial Content');
-					}
-					// Notify the client the byte range we'll be outputting
-					header("Content-Range: bytes $start-$end/$size");
-					header("Content-Length: $length");
-					$buffer = 1024 * 8;
-					while(!feof($fp) && ($p = ftell($fp)) <= $end) {
-						if ($p + $buffer > $end) {
-							$buffer = $end - $p + 1;
-						}
-						echo fread($fp, $buffer);
-						flush();
-					}
-					fclose($fp);
-					
-				}else {
-					header("Content-Length: ".filesize($_f_p));
-					readfile($_f_p);
-				}
-			} 
-		 }
+	public function down($_f_p, $_type = 'down'){
+		header('Content-Type: ' . ($_type === 'down' ? 'application/force-download' : mime_content_type($_f_p)));
+		header('cache-control: max-age=31536000');
+		//kangle 虚拟主机，配置zoneUp 的别名，路径
+		// kangle
+		//header('X-Accel-Redirect:');
+		// nginx
+		header('X-Accel-Redirect: ' . substr(strrchr($this->root, '/'), 1) . explode($this->root, $_f_p)[1]);
+		// apache
+		//header('X-Sendfile:');
+		exit;
 	}
 	
-	public function hash($_f_p)
-	{
-		$_root=$this->_root;
+	public function hash($_f_p) {
 		$_f=$this->pathInfo($_f_p);
-		
-		include_once($_root.'../Grafika/autoload.php');
+		include_once __DIR__ . '/../Grafika/autoload.php';
 		$_editor=Grafika\Grafika::createEditor();
 		if($_f['t']==='image'){
 			$_editor->open($_image, $_f['p']);  
@@ -1445,22 +1255,18 @@ class mtfFile{
 				$_l=ceil(sqrt($_l));//四入五入
 				$_image=Grafika\Grafika::createBlankImage(12*$_l,16*$_l);//16兼容纯字母，字母高度>数字高度>汉字高度
 				for ($_i=0; $_i<=$_l; $_i++) {
-					$_editor->text($_image, mb_substr($_s,$_i*$_l,$_l), 12, 0, $_i*16, new Grafika\Color('#FFFFFF'), $_root.'../Grafika/fonts/wenquanyidengkuanzhenghei.ttf');
+					$_editor->text($_image, mb_substr($_s,$_i*$_l,$_l), 12, 0, $_i*16, new Grafika\Color('#FFFFFF'), __DIR__ .'/../Grafika/fonts/wenquanyidengkuanzhenghei.ttf');
 				}
 				//$_editor->save($_image, $_f['bn'].'.jpg');
 			}else{
 				//其他格式不支持相似度hash
 			}
 		}
-		if(@$_image){
-			if(extension_loaded('imagick')){
-				$_hash=new Grafika\Imagick\ImageHash\DifferenceHash();
-			}else{
-				$_hash=new Grafika\Gd\ImageHash\DifferenceHash();
-			}
-			$_h=$_hash->hash($_image, $_editor);
+		if (empty($_image) === false) {
+			$_hash = new Grafika\Gd\ImageHash\DifferenceHash();
+			return $_hash->hash($_image, $_editor);
 		}
-		return @$_h;
+		return '';
 	}
 
 	public function tags($_f_p)
@@ -1507,22 +1313,19 @@ class mtfFile{
 	private function _get_ture_orientation_img($_f_p)
 	{
 		$_i = getimagesize($_f_p);
-		if(in_array($_i['mime'], array('image/png', 'image/jpeg', 'image/pjpeg')) === false){
-			return false;	
-		}
+		if (function_exists('exif_read_data') === false || in_array($_i['mime'], array('image/png', 'image/jpeg', 'image/pjpeg')) === false) return false;
 		$_img = imagecreatefromstring(file_get_contents($_f_p));
-		$_exif = @exif_read_data($_f_p);
+		$_exif = exif_read_data($_f_p);
 		if(empty($_exif['Orientation']) === false) {//只旋转照片，不旋转透明png，png经过处理，会变为半透明（黑色背景）
 			switch($_exif['Orientation']) {
 				case 8:
-					$_img=imagerotate($_img,90,0);
+					$_img = imagerotate($_img, 90, 0);
 					break;
 				case 3:
-					$_img=imagerotate($_img,180,0);
+					$_img = imagerotate($_img, 180, 0);
 					break;
 				case 6:
-					$_img=imagerotate($_img,-90,0);
-					break;
+					$_img = imagerotate($_img, -90, 0);
 			}
 			switch($_i['mime']){
 				case 'image/png':
@@ -1531,93 +1334,35 @@ class mtfFile{
 				case 'image/jpeg':
 				case 'image/pjpeg':
 					imagejpeg($_img,$_f_p);
-					break;
-				default:;
 			}
 		}
 	}
 	
-	
-	//文件名固定为 年月日时分秒（微妙）（18+4=22）的情况
-	public function ext($_extConf=array('db'=>'','queue'=>'','mail'=>''))
-	{	
-		$_root=$this->_root;
-		if(@$_extConf['db']){
-			$this->db=array_merge($this->db,$_extConf['db']);
-			include_once($_root.'../mtfMysql/mtfMysql.php');
-			$this->mtfMysql=new mtfMysql($this->db);
-			include_once($_root.'../mtfAttr/mtfAttr.php');
-			$this->mtfAttr=new mtfAttr($this->db);
-			include_once($_root.'../mtfRelate/mtfRelate.php');
-			$this->mtfRelate=new mtfRelate($this->db);
+	public function ext($_extConf = array('db' => array(), 'queue' => array(), 'mail' => array())) {
+		if(empty($_extConf['db']) === false){
+			$this->db = array_merge($this->db,$_extConf['db']);
+			include_once __DIR__.'/../mtfMysql/mtfMysql.php';
+			$this->mtfMysql = new mtfMysql($this->db);
+			include_once __DIR__ . '/../mtfAttr/mtfAttr.php';
+			$this->mtfAttr = new mtfAttr($this->db);
+			include_once __DIR__ . '/../mtfRelate/mtfRelate.php';
+			$this->mtfRelate = new mtfRelate($this->db);
 		}
-		
-		if(@$_extConf['que']){
-			include_once($_root.'../mtfQueue/mtfQueue.php');
-			$this->mtfQueue=new mtfQueue($_extConf['que']);
+		if(empty($_extConf['que']) === false){
+			include_once __DIR__ . '/../mtfQueue/mtfQueue.php';
+			$this->mtfQueue = new mtfQueue($_extConf['que']);
 			$this->mtfQueue->RESTful();
 		}
-		
-		if(@$_extConf['mail']){
-			$this->conf['mail']=$_extConf['mail'];
+		if(empty($_extConf['mail']) === false){
+			$this->conf['mail'] = $_extConf['mail'];
 		}
-		if(@$_extConf['time']){
-			$this->conf['time']=$_extConf['time'];
-		}
-	}
-	
-	public function getName()
-	{
-		$_m=explode(' ',microtime());
-		return date('YmdHis', time()).sprintf("%04d",$_m[0]*10000);
-	}
-	
-	private function _ct($_u,$_cookie){
-		$ch=curl_init();
-		curl_setopt($ch, CURLOPT_URL, $_u);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch,CURLOPT_SSL_VERIFYPEER,false);
-		curl_setopt($ch,CURLOPT_SSL_VERIFYHOST,false);
-		curl_setopt($ch, CURLOPT_COOKIE, $_cookie);
-		$output=curl_exec($ch);
-		curl_close($ch);
-		return $output;
-	}
-	
-	private function _ct_auto_direct($_d,$_folder_id,$_cookie){
-		$_json=$this->_ct('https://home.ctfile.com/iajax.php?item=file_act&action=file_list&folder_id='.$_folder_id.'&task=index&sEcho=2&iColumns=5&sColumns=%2C%2C%2C%2C&iDisplayStart=0&iDisplayLength=10&mDataProp_0=0&sSearch_0=&bRegex_0=false&bSearchable_0=true&bSortable_0=false&mDataProp_1=1&sSearch_1=&bRegex_1=false&bSearchable_1=true&bSortable_1=true&mDataProp_2=2&sSearch_2=&bRegex_2=false&bSearchable_2=true&bSortable_2=true&mDataProp_3=3&sSearch_3=&bRegex_3=false&bSearchable_3=true&bSortable_3=true&mDataProp_4=4&sSearch_4=&bRegex_4=false&bSearchable_4=true&bSortable_4=true&sSearch=&bRegex=false&iSortingCols=0&_=1486785345286',$_cookie);
-		$this->_log($_d.'.ct','w',$_json);
-		$_ar=@json_decode($_json,true);
-		if(is_array(@$_ar['aaData'])){
-			$_id=array();
-			foreach($_ar['aaData'] as $_k=>$_v){
-				$_s=$_v[0];
-				preg_match("/value=\"(\d+)\"/", $_s, $_a);
-				$_id[]=@$_a[1];
-			}
-			return $this->_ct('https://home.ctfile.com/iajax.php?item=file_act&action=file_directlinks&task=file_directlinks&share=1&file_id='.implode(',',$_id).'&t=913316',$_cookie);
+		if(empty($_extConf['time']) === false){
+			$this->conf['time'] = $_extConf['time'];
 		}
 	}
 	
-	private function _webdav($_f,$_d){
-		$_ch=curl_init();
-		curl_setopt($_ch, CURLOPT_URL, $this->webdav['url'].$_d);
-		curl_setopt($_ch, CURLOPT_HEADER, 0);
-		curl_setopt($_ch, CURLOPT_USERPWD, $this->webdav['usr'].':'.$this->webdav['psd']);		
-		curl_setopt($_ch, CURLOPT_RETURNTRANSFER, true);	
-		curl_setopt($_ch, CURLOPT_PUT,1);
-		curl_setopt($_ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-		$_f_res=fopen($_f, 'r');
-		curl_setopt($_ch, CURLOPT_INFILE, $_f_res);
-		curl_setopt($_ch, CURLOPT_INFILESIZE, filesize($_f));		
-		$data=curl_exec($_ch);
-		
-		//成通网盘兼容-打开直链
-		if($this->webdav['ct']){
-			$this->_ct_auto_direct($_d,$this->webdav['ct']['folder_id'],$this->webdav['ct']['cookie']);
-		}
-		
-		return($data);	
+	public function getName() { // 文件名固定为 年月日时分秒（微妙）（18+4=22）的情况
+		return date('YmdHis', time()).sprintf("%04d", explode(' ', microtime())[0] * 10000);
 	}
 	
 	public function uid2id($_server_uid){
@@ -3348,7 +3093,7 @@ class mtfFile{
 							$this->mtfRelate->sql('i1',$this->db['table'],array('q'=>$_mtfdata_id),'WHERE i='.$_r['i']);
 							$skip=1;
 						}else{
-							$_r=$this->mtfProxyCurl->down($this->conf['domain']['cdn'],$_ar[1]);
+							$_r=$this->mtfProxyCurl->down($this->conf['domain']['cdn'], $_ar[1]);
 							//站外图片，直接过滤
 							$_f['p']=$_r['p'];
 							$_f['id']=$_r['id'];
@@ -3430,9 +3175,7 @@ class mtfFile{
 				$_f['n']=$_f['id'].'.'.$_f['e'];
 				
 				$_f['dir']=$this->dir['file'].$this->n2dir($_f['n']);//文档直接覆盖，不再调起 移动
-				if(!is_dir($_f['dir'])){
-					mkdir($_f['dir']);
-				}
+				if (is_dir($_f['dir']) === false) mkdir($_f['dir']);
 				$_f['p']=$_f['dir'].$_f['n'];
 				
 				
@@ -3935,8 +3678,6 @@ class mtfFile{
 						}
 					}
 				}
-				//删除原始视频/音频文件（下面删除自身，已包含原始视频/音频文件）
-				//$__d['cdn'][]=array('n'=>$_i.'.'.$__r['e']);
 			}
 			
 			//删除缩略图
@@ -4772,14 +4513,14 @@ class mtfFile{
 						$_tpl=$_v;
 						break;
 					case 'color':
-						$_query.='&color='.$_v;
-						$_hsv=@$this->conf['hsv'][$_v];
-						if(@$_hsv){
-							$_l=count($_hsv);
-							for($__i=0;$__i<$_l;$__i+=2){
-								switch($_i){
+						$_query .= '&color='.$_v;
+						$_hsv = $this->conf['hsv'][$_v];
+						if(empty($_hsv) === false){
+							$_l = count($_hsv);
+							for($__i =0; $__i < $_l; $__i += 2){
+								switch ($_i){
 									case 0:
-										$_c='ch';
+										$_c = 'ch';
 									break;
 									case 2:
 										$_c='cs';
@@ -4788,15 +4529,16 @@ class mtfFile{
 										$_c='cv';
 									break;
 								}
-								$_min=$_hsv[$__i];$_max=$_hsv[$__i+1];
-								if(is_array($_min)){
-									$_s=array();
-									foreach($_min as $__k=>$__v){
-										$_s[]=$_c.'>'.$_min[$__k].' AND '.$_c.'<'.$_max[$__k];
+								$_min = $_hsv[$__i];
+								$_max = $_hsv[$__i + 1];
+								if (is_array($_min)){
+									$_s = array();
+									foreach($_min as $__k => $__v){
+										$_s []= $_c . '>' . $_min[$__k] . ' AND ' . $_c . '<' . $_max[$__k];
 									}
-									$_sql[]='('.implode(' OR ',$_s).')';
+									$_sql []= '(' . implode(' OR ', $_s) . ')';
 								}else{
-									$_sql[]=$_c.'>'.$_min; $_sql[]=$_c.'<'.$_max;
+									array_push($_sql, $_c . '>' . $_min, $_c . '<' . $_max);
 								}
 							}
 						}
@@ -5388,233 +5130,145 @@ class mtfFile{
 		}
 	}
 	
-	public function mtfQueueStatus($_f_bn)
-	{	
-		$_d=array();
-		$_s=json_decode($this->mtfQueue->urlStatus($_f_bn),true);
-		if(@$_s){
-			return $_s['g'].' '.$_s['s'];
-		}else{
-			return false;
-		}
+	public function mtfQueueStatus($_f_bn) {	
+		$_s = json_decode($this->mtfQueue->urlStatus($_f_bn), true);
+		return empty($_s) ? false : $_s['g'] . ' ' . $_s['s'];
 	}
 		
-	public function idWaterMark($_d_p,$_w=1280)
-	{
-		$_root=$this->_root;
-		include_once($_root.'../Grafika/autoload.php');
-		$_editor=Grafika\Grafika::createEditor();
-		$_p1=Grafika\Grafika::createImage($_d_p);
-		$_p2=Grafika\Grafika::createImage($_root.'pic/IDWaterMark.png');
+	public function idWaterMark($_d_p, $_w = 1280) {
+		include_once __DIR__ . '/../Grafika/autoload.php';
+		$_editor = Grafika\Grafika::createEditor();
+		$_p1 = Grafika\Grafika::createImage($_d_p);
+		$_p2 = Grafika\Grafika::createImage(__DIR__ . '/pic/IDWaterMark.png');
 		$_editor->resizeExactWidth($_p1, $_w);
 		$_editor->blend($_p1, $_p2, 'overlay', 0.5, 'center');
 		$_editor->save($_p1, $_d_p);
 	}
 	
-	public function mtfQueueWork($_i,$_data,$_g){
-		$_f=array();
-		$_d=array();
-		if($_g==='移动'){
-			foreach($_data as $_k=>$_f_p){
-				//移动
-				$_f=$this->pathInfo($_f_p);
-				
-				$_f['d']=$this->dir['tmp'].$_f['mid'];
-				
-				$_f['p']=$_f['d'].'/'.$_f['id'].'.'.$_f['e'];
-				
-				$_f['dir']=$this->dir['file'].$_f['mid'].'/';
-				
-				if(!is_dir($_f['dir'])){
-					mkdir($_f['dir']);
+	public function mtfQueueWork($_i, $_data, $_g) {
+		$_f = array();
+		$_d = array();
+		if($_g === '移动'){
+			foreach($_data as $_f_p){
+				$_f = $this->pathInfo($_f_p);
+				$_f['d'] = $this->dir['tmp'] . $_f['mid'];
+				$_f['p'] = $_f['d'] . '/' . $_f['id'] . '.' . $_f['e'];
+
+				$_f['dir'] = $this->e2dir($_f['e']) . $_f['mid'] . '/';
+				if (is_dir($_f['dir']) === false) mkdir($_f['dir']);
+				$_d['p'] = $_f['dir'] . $_f['id'] . '.' . $_f['e'];
+
+				$_f['dir_file'] = $this->dir['file'] . $_f['mid'] . '/';
+				if (is_dir($_f['dir_file']) === false) mkdir($_f['dir_file']);
+				$_d_file = $_f['dir_file'] . $_f['id'] . '.';
+
+				if ($_f['t'] === 'video' || $_f['t'] === 'audio'){
+					copy($_f['p'], $_d['p']); //复制：视频·音频
+				} else {
+					rename($_f['p'], $_d['p']); //移动
 				}
-				
-				$_d['d']=$_f['dir'].$_f['id'].'.';
-				$_d_p=$_d['p']=$_d['d'].$_f['e'];
-				
-				if($_f['t']==='video'||$_f['t']==='audio'){
-					copy($_f['p'],$_d['p']);//复制：视频·音频
-				}else{
-					rename($_f['p'],$_d['p']);//移动
-				}
-				
-				$this->mtfQueue->urlRemove($_i);
-				
-				$_hsv=array();
-			
-				if($_f['t']==='image'){
-					$_c=$this->mtfColor->rec($_d['p']);
-					$_hsv=array('ch'=>round($_c['h']),'cv'=>round($_c['v']),'cs'=>round($_c['s']));
-					$qrcode=$this->mtfCode->deQRcode($_d['p']);//扫描二维码·链接
-					if($qrcode && !is_numeric($qrcode)){//过滤黑白漫画中的二维码·数字
-						$this->mtfQueue->urlAdd(array('class'=>'mtfMysql','sql'=>array('u',array('url'=>$qrcode),'WHERE i='.$_f['id'])),'数据',$this->conf['domain']['dat'],60);
+				$_hsv = array();
+				if ($_f['t'] === 'image'){
+					$_c = $this->mtfColor->rec($_d['p']);
+					$_hsv = array('ch' => intval($_c['h']), 'cv' => intval($_c['v']), 'cs' => intval($_c['s']));
+					$qrcode = $this->mtfCode->deQRcode($_d['p']);//扫描二维码·链接
+					if($qrcode && is_numeric($qrcode) === false){//过滤黑白漫画中的二维码·数字
+						$this->mtfQueue->urlAdd(array(
+							'class' => 'mtfMysql', 'sql' => array('u', array('url' => $qrcode), 'WHERE i=' . $_f['id'])
+						), '数据', $this->conf['domain']['dat'], 60);
 					}
 					$_attr = array();
-					list($width, $height) = getimagesize($_d['p']);
-					if ($width) $_attr['宽度'] = $width;
-					if ($height) $_attr['高度'] = $height;
-					
-					$this->mtfQueue->urlAdd(array('class'=>'mtfAttr','sql'=>array('i1',array('k'=>$this->tags($_d['p']),'a'=>$_attr),'WHERE i='.$_f['id'])),'数据',$this->conf['domain']['dat'],60);
-				}elseif($_f['t']==='video'||$_f['t']==='audio'){
-					if($_f['t']==='video'){
-						rename($_f['d'].'/'.$_f['id'].'.jpg',$_d['d'].'jpg');//缩略图
-						rename($_f['d'].'/'.$_f['id'].'.'.$this->conf['preview'][$_f['t']]['ext'],$_d['d'].$this->conf['preview'][$_f['t']]['ext']);
-						$_c=$this->mtfColor->rec($_d['d'].'jpg');
-						$_hsv=array('ch'=>round($_c['h']),'cv'=>round($_c['v']),'cs'=>round($_c['s']));
+					list($_attr['宽度'], $_attr['高度']) = getimagesize($_d['p']);
+					$this->mtfQueue->urlAdd(array(
+						'class' => 'mtfAttr', 'sql' => array('i1', array('k' => $this->tags($_d['p']), 'a' => $_attr), 'WHERE i='.$_f['id'])
+					), '数据', $this->conf['domain']['dat'], 60);
+				} elseif ($_f['t'] === 'video' || $_f['t'] === 'audio') {
+					if($_f['t'] === 'video'){
+						rename($_f['d'] . '/' . $_f['id'] . '.jpg', $_d_file . 'jpg'); // 缩略图
+						rename($_f['d'] . '/' . $_f['id'] . '.' . $this->conf['preview'][$_f['t']]['ext'], $_d_file . $this->conf['preview'][$_f['t']]['ext']);
+						$_c = $this->mtfColor->rec($_d_file . 'jpg');
+						$_hsv = array('ch' => intval($_c['h']), 'cv' => intval($_c['v']), 'cs' => intval($_c['s']));
 					}else{
-						rename($_f['d'].'/'.$_f['id'].'.'.$this->conf['preview'][$_f['t']]['ext'],$_d['d'].$this->conf['preview'][$_f['t']]['ext']);
+						rename($_f['d'] . '/' . $_f['id'] . '.' . $this->conf['preview'][$_f['t']]['ext'], $_d_file . $this->conf['preview'][$_f['t']]['ext']);
 					}
-					unset($_d['d']);
-					foreach($this->conf['convert'][$_f['t']] as $__k=>$__v){
-						$_d['convert']=array();						
-						@$_d['convert']['ext']=$__v['ext'];
-						@$_d['convert']['b']=$__v['b'];
-						if(@$__v['w']){
-							@$_d['convert']['w']=$__v['w'];
-						}
-						if(@$__v['force']){
-							@$_d['convert']['force']=$__v['force'];
-						}
-						$_d['id']=$_f['id'];
-						$_d['t']=$_f['t'];
-						
-						$_d['p']=$_f['p'];//复制：视频·音频
-						
-						$this->mtfQueue->urlAdd($_d,'转码',$this->conf['domain']['up'],600);
+					foreach ($this->conf['convert'][$_f['t']] as $__v) {
+						$_d['convert'] = array('ext' => $__v['ext'], 'b' => $__v['b']);
+						if (empty($__v['w']) === false) $_d['convert']['w'] = $__v['w'];
+						if (empty($__v['force']) === false) $_d['convert']['force'] = $__v['force'];
+						$_d['id'] = $_f['id'];
+						$_d['t'] = $_f['t'];
+						$this->mtfQueue->urlAdd(array_merge($_d, array('p' => $_f['p'])), '转码', $this->conf['domain']['up'], 600);
 					}
-					
-				}elseif($_f['t']==='doc'){
-					
-					rename($_f['d'].'/'.$_f['id'].'.'.$this->conf['preview'][$_f['t']]['ext'],$_d['d'].$this->conf['preview'][$_f['t']]['ext']);//缩略图
-				
-					unset($_d['d']);
-					
-					foreach($this->conf['convert'][$_f['t']] as $__k=>$__v){
-						$_d['convert']=array();
-						@$_d['convert']['ext']=$__v['ext'];
-						
-						$_d['id']=$_f['id'];
-						$_d['t']=$_f['t'];
-						$this->mtfQueue->urlAdd($_d,'转码',$this->conf['domain']['up'],600);
+				} elseif ($_f['t'] === 'doc') {
+					rename($_f['d'] . '/' . $_f['id'] . '.' . $this->conf['preview'][$_f['t']]['ext'], $_d_file . $this->conf['preview'][$_f['t']]['ext']); // 缩略图
+					foreach($this->conf['convert'][$_f['t']] as $__v){
+						$_d['convert'] = array('ext' => $__v['ext']);
+						$_d['id'] = $_f['id'];
+						$_d['t'] = $_f['t'];
+						$this->mtfQueue->urlAdd($_d, '转码', $this->conf['domain']['up'], 600);
 					}
-				
-				}elseif($_f['t']==='sub'){
-					
-					$_lang=$this->mtfApiLanguageDetector->detect($this->mtfSub->convert(file_get_contents($_d['p']),'txt'));
-					$this->mtfQueue->urlAdd(array('class'=>'mtfAttr','sql'=>array('u1',array('a'=>array('字幕语种'=>$_lang)),'WHERE i='.$_f['id']),0,'|'),'数据',$this->conf['domain']['dat'],60);
-					
+				} elseif ($_f['t'] === 'sub') {
+					$_lang = $this->mtfApiLanguageDetector->detect($this->mtfSub->convert(file_get_contents($_d['p']), 'txt'));
+					$this->mtfQueue->urlAdd(array(
+						'class' => 'mtfAttr', 'sql' => array('u1', array('a' => array('字幕语种' => $_lang)
+					), 'WHERE i=' . $_f['id']), 0, '|'), '数据', $this->conf['domain']['dat'], 60);
 				}else{
-					rename($_f['d'].'/'.$_f['id'].'.'.$this->conf['preview'][$_f['t']]['ext'],$_d['d'].$this->conf['preview'][$_f['t']]['ext']);//缩略图
-					unset($_d['d']);
+					rename($_f['d'] . '/' . $_f['id'] . '.' . $this->conf['preview'][$_f['t']]['ext'], $_d_file . $this->conf['preview'][$_f['t']]['ext']); // 缩略图
 				}
-				
-				//重复将hash入库
-				$_h=$this->hashhm(array('p'=>$_d_p),1);
-				$_hsv+=array('h'=>$_h['hash'],'hm'=>$_h['hm']);
-				$this->mtfQueue->urlAdd(array('class'=>'mtfMysql','sql'=>array('u',$_hsv,'WHERE i='.$_f['id'])),'数据',$this->conf['domain']['dat'],60);
+				// 重复将 hash 入库
+				$_h = $this->hashhm(array('p' => $_d['p']), 1);
+				$_hsv += array('h' => $_h['hash'], 'hm' => $_h['hm']);
+				$this->mtfQueue->urlAdd(array(
+					'class' => 'mtfMysql', 'sql' => array('u', $_hsv, 'WHERE i=' . $_f['id'])
+				), '数据', $this->conf['domain']['dat'], 60);
 			}
-		}elseif($_g==='转码'){
-			$_f['p']=$_data['p'];
-			$_f['convert']=$_data['convert'];
-			$_f['n']=$_f['id']=$_data['id'];
-			$_f['t']=$_data['t'];
-			$_convert=true;
-			
-			if($_f['t']==='video'){
-				$_f['n'].='_c_b_'.$_f['convert']['b'].'_w_'.$_f['convert']['w'].'.'.$_f['convert']['ext'];
+		} elseif ($_g === '转码') {
+			$_f['p'] = $_data['p'];
+			$_f['convert'] = $_data['convert'];
+			$_f['n'] = $_f['id'] = $_data['id'];
+			$_f['t'] = $_data['t'];
+			$_convert = true;
+			if ($_f['t'] === 'video') {
+				$_f['n'] .= '_c_b_' . $_f['convert']['b'] . '_w_' . $_f['convert']['w'] . '.' . $_f['convert']['ext'];
+			} elseif ($_f['t'] === 'audio') {
+				$_f['n'] .= '_c_b_' . $_f['convert']['b'] . '.' . $_f['convert']['ext'];
+			} elseif($_f['t'] === 'doc') {
+				if ($_f['e'] === $_f['convert']['ext']) $_convert = false;
+				else $_f['n'] .= '.' . $_f['convert']['ext'];	
 			}
-			elseif($_f['t']==='audio'){
-				$_f['n'].='_c_b_'.$_f['convert']['b'].'.'.$_f['convert']['ext'];
-			}
-			elseif($_f['t']==='doc'){
-				if($_f['e']===$_f['convert']['ext']){
-					$_convert=false;
-				}else{
-					$_f['n'].='.'.$_f['convert']['ext'];	
-				}
-			}
-			$_d['p']=$this->dir['tmp'].$this->n2dir($_f['n']).$_f['n'];
-			$_d['n']=$_f['n'];
-			if($_convert){
-				$_r=$this->convert($_f['p'],$_d['p'],$_i,$_f['convert']['force']);
-				if($_r){
-					rename($_d['p'],$this->dir['file'].$this->n2dir($_f['n']).$_f['n']);//先转码到临时文件夹，再移动文件，触发同步，避免同步不完整
-					if($_f['t']==='video'||$_f['t']==='audio'){
-						$this->mtfQueue->urlAdd(array('class'=>'mtfAttr','sql'=>array('i1',array('a'=>$_r),'WHERE i='.$_f['id'],0,'|')),'数据',$this->conf['domain']['dat'],60);
+			$_d['p'] = $this->dir['tmp'] . $this->n2dir($_f['n']) . $_f['n'];
+			$_d['n'] = $_f['n'];
+			if ($_convert) {
+				$_r = $this->convert($_f['p'], $_d['p'], $_i, $_f['convert']['force']);
+				if ($_r) {
+					rename($_d['p'], $this->e2dir($_f['convert']['ext']) . $this->n2dir($_f['n']) . $_f['n']); // 先转码到临时文件夹，再移动文件，触发同步，避免同步不完整
+					if($_f['t'] === 'video' || $_f['t'] === 'audio'){
+						$this->mtfQueue->urlAdd(array(
+							'class' => 'mtfAttr', 'sql' => array('i1', array('a' => $_r), 'WHERE i=' . $_f['id'], 0, '|')
+						), '数据', $this->conf['domain']['dat'], 60);
 					}
 				}
 			}
-			$this->mtfQueue->urlRemove($_i);
-		}elseif($_g==='同步'){
-			$this->_webdav($_data['p'],$_data['n']);
-			$this->mtfQueue->urlRemove($_i);
-		}elseif($_g==='数据'){
-			
-			if(@$_data['sql']){
-				array_splice($_data['sql'],1,0,$this->db['table']);
-				$_sql=$_data['sql'];
-				$_class=$_data['class'];
-				if(@$_sql[5]){
-					$this->$_class->sql($_sql[0],$_sql[1],$_sql[2],$_sql[3],@$_sql[4],$_sql[5]);
-				}else{
-					$this->$_class->sql($_sql[0],$_sql[1],$_sql[2],$_sql[3],@$_sql[4]);
-				}
+		} elseif ($_g === '数据') {
+			if (empty($_data['sql']) === false) {
+				array_splice($_data['sql'], 1, 0, $this->db['table']);
+				$_sql = $_data['sql'];
+				$_class = $_data['class'];
+				$_n = count($_sql);
+				$this->$_class->sql($_sql[0], $_sql[1], $_sql[2], $_sql[3], $_n >= 5 ? $_sql[4] : null, $_n >= 6 ? $_sql[5] : null);
 			}
-			
-			$this->mtfQueue->urlRemove($_i);
-		}elseif($_g==='删除'){
-			foreach($_data as $_k=>$_dat){
-				if($_dat['dir']){
-					@unlink($this->dir[$_dat['dir']].$this->n2dir($_dat['n']).$_dat['n']);
-					$this->mtfQueue->urlRemove($_i);
-				}else{
-					$_f=$this->fileOrTmp($_dat['n']);
-					if($_f){//如果删除成功，同步到云时，已经删除
-						@unlink($_f);
-					}
-					$this->mtfQueue->urlRemove($_i);
-
-					if(!empty($this->conf['_extConf']['ftp']['on'])) {
-						$_ftp_con = ftp_connect($this->conf['_extConf']['ftp']['url']);
-						ftp_login($_ftp_con, $this->conf['_extConf']['ftp']['usr'], $this->conf['_extConf']['ftp']['psd']);
-						ftp_delete($_ftp_con, $this->conf['_extConf']['ftp']['baseDir'] . $this->conf['_extConf']['ftp']['defaultDir'] . $this->n2dir($_dat['n']) . $_dat['n']);
-					}
-
-					// if(@$this->conf['_extConf']['webdav']['on']){
-					// 	include_once($this->_root.'../sabre/autoload.php');
-					// 	$settings = array(
-					// 		'baseUri' => $this->conf['_extConf']['webdav']['url'],
-					// 		'userName' => $this->conf['_extConf']['webdav']['usr'],
-					// 		'password' => $this->conf['_extConf']['webdav']['psd']
-					// 	);
-					// 	$this->sabre=new Sabre\DAV\Client($settings);
-					// 	//同步webdav
-					// 	$this->sabre->request('DELETE', $this->conf['_extConf']['webdav']['url'].$this->n2dir($_dat['n']).$_dat['n']);
-					// }
-					
-					
-					// if(@$this->conf['_extConf']['s3']['on']){
-					// 	require_once $this->_root.'../AWS/aws.phar';
-					// 	//客户端
-					// 	$s3=Aws\S3\S3Client::factory(array(
-					// 		'endpoint' => $this->conf['_extConf']['s3']['endpoint'],
-					// 		'region' => '',
-					// 		'version'=>'latest',
-					// 		'credentials' => array(
-					// 			'key' => $this->conf['_extConf']['s3']['key'],
-					// 			'secret' => $this->conf['_extConf']['s3']['secret'],
-					// 		)
-					// 	));
-					// 	if($s3->doesObjectExist($this->conf['_extConf']['s3']['bucket'],$this->n2dir($_dat['n']).$_dat['n'])){
-					// 		$s3->deleteObject(array(
-					// 			'Bucket' => $this->conf['_extConf']['s3']['bucket'],
-					// 			'Key' => $this->n2dir($_dat['n']).$_dat['n']
-					// 		));
-					// 	}
-					// }
+		} elseif ($_g === '删除') {
+			foreach ($_data as $_dat) {
+				if ($_dat['dir']) {
+					$_f = $this->dir[$_dat['dir']] . $this->n2dir($_dat['n']) . $_dat['n'];
+				} else {
+					$_e = substr(strrchr($_dat['n'], '.'), 1);
+					$_f = $this->e2dir($_e) . $this->n2dir($_dat['n']) . $_dat['n'];
 				}
+				if (file_exists($_f)) unlink($_f);
 			}
 		}
+		$this->mtfQueue->urlRemove($_i);
 	}
 }
 ?>
