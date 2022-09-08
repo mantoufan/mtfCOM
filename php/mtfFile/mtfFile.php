@@ -539,8 +539,8 @@ class mtfFile{
 						$__a['b']=$_a['b'];
 					}
 				}
-				if(@$_key){
-					$_tag=$this->mtfAttr->parseK(@$_key);
+				if(empty($_key) === false){
+					$_tag = $this->mtfAttr->parseK($_key);
 					if($_tag){
 						$__a['tag']=explode(',',str_replace('标签:','',implode(',',$_tag)));
 					}
@@ -945,32 +945,10 @@ class mtfFile{
 								$__a=$this->_isDownGifExt($_v['e'],'',$_v['i']);
 								$_key=$this->mtfAttr->parseA($_v['k'],'|');
 								$_attr=$this->mtfAttr->parseA($_v['a'],'|');
-								if(@$_key['标题'][0]){
-									$__a['alt']=$this->mtfUnit->clearEmoji($_key['标题'][0]);
-									
-									$_tag=array();
-									if(@$_key['作者']){
-										$_tag['作者']=$_key['作者'];
-									}
-									if(@$_key['模特']){
-										$_tag['模特']=$_key['模特'];
-									}
-									if(@$_key['摄影师']){
-										$_tag['摄影师']=$_key['摄影师'];
-									}
-									if(@$_key['共享许可']){
-										$_tag['共享许可']=$_key['共享许可'];
-									}
-									if(@$_tag){
-										$_key=array();
-										foreach($_tag as $__k=>$__v){
-											foreach($__v as $__k2=>$__v2){
-												$_key[]=$__k.':'.$__v2;
-											}
-										}
-										$_tag=array();
-										$__a['k']=$_key;
-									}
+								if(empty($_key['标题']) === false){
+									$__a['alt'] = $this->mtfUnit->clearEmoji($_key['标题'][0]);
+									$_tag = self::FilterTag($_key, $this->conf['tag']['filter'] + array('共享许可'));
+									if(empty($_tag) === false) $__a['k'] = $this->mtfAttr->parseK($_tag);
 								}
 								if($_v['url']){
 									$__a['u']=$_v['url'];
@@ -2055,7 +2033,7 @@ class mtfFile{
 							if($_key){
 								foreach($_key as $__k=>$__v){
 									if($_tag[$__k]){
-										foreach($__v as $__k2=>$__v2){
+										foreach($__v as $__v2){
 											if(in_array($__v2,$_tag[$__k])){
 												
 											}else{
@@ -2063,7 +2041,7 @@ class mtfFile{
 											}	
 										}
 									}else{
-										foreach($__v as $__k2=>$__v2){
+										foreach($__v as $__v2){
 											$_del[]=$this->_ui(($__k==='标签'?$__v2:$__k.':'.$__v2),$_i);
 										}
 									}
@@ -2113,7 +2091,7 @@ class mtfFile{
 						if (empty($_data['title']) === false) $_tag['标题'] = array($_data['title']);
 						if (empty($_data['des']) === false) $_tag['描述'] = array($_data['des']);
 						if (empty($_data['list']) === false) {
-							$_tag['标签'] = $this->_getTAG($_ar);
+							$_tag['标签'] = $this->_getTag($_ar);
 							$_ar = $_tag;
 						} else {
 							$_ar = array_merge($_ar, $_tag);
@@ -3863,7 +3841,7 @@ class mtfFile{
 	}
 	
 	private function _getMedia($_i,$_t,$_attr,$_key=array()){
-		$__c=array();$_source=array();$_sub=array();$_tag=array();
+		$__c=array();$_source=array();$_sub=array();
 									
 		foreach($this->conf['convert'] as $__k=>$__v){
 			foreach($__v as $_k2=>$_v2){
@@ -3896,27 +3874,8 @@ class mtfFile{
 		}
 		
 		if($_key){
-			if(@$_key['作者']){
-				$_tag['作者']=$_key['作者'];
-			}
-			if(@$_key['模特']){
-				$_tag['模特']=$_key['模特'];
-			}
-			if(@$_key['摄影师']){
-				$_tag['摄影师']=$_key['摄影师'];
-			}
-			if(@$_key['共享许可']){
-				$_tag['共享许可']=$_key['共享许可'];
-			}
-			if(@$_tag){
-				$_key=array();
-				foreach($_tag as $__k=>$__v){
-					foreach($__v as $__k2=>$__v2){
-						$_key[]=$__k.':'.$__v2;
-					}
-				}
-				$_tag=$_key;
-			}
+			$_tag = self::FilterTag($_key, $this->conf['tag']['filter'] + array('共享许可'));
+			if(empty($_tag) === false) $_tag = $this->mtfAttr->parseK($_tag);
 		}
 		return array('poster'=>array('i'=>$_i, 'e'=>'gif'),'source'=>$_source,'sub'=>$_sub)+($_txt?array('txt'=>$_txt):array())+($_tag?array('k'=>$_tag):array());
 	}
@@ -3965,16 +3924,37 @@ class mtfFile{
 		}
 		return array(1280, null);
 	}
-
-	private function _getTAG($_key) {
-		if (empty($_key)) return array();
-		$_tag = array();
+	static private function FindTag($tags, $filters) {
+		foreach ($filters as $filter) {
+			if (empty($tags[$filter]) === false) return $tags[$filter];
+		}
+		return null;
+	}
+	static private function FilterTag($tags, $filters) {
+		$r = array();
+		foreach ($filters as $filter) {
+			if (empty($tags[$filter]) === false) $r[$filter] = $tags[$filter];
+		}
+		return $r;
+	}
+	static private function SortTag($tags, $filters) {
+		$r = array();
+		foreach ($filters as $filter) {
+			if (empty($tags[$filter]) === false) {
+				$r[$filter] = $tags[$filter];
+				unset($tags[$filter]);
+			}
+		}
+		return $r + $tags;
+	} 
+	private function _getTag($_key) {
 		unset($_key['标题']);
 		unset($_key['描述']);
-		$_tag_1 = $_key[0][0];
-		if ($_tag_1) $_tag[] = $_tag_1;
-		$_tag_2 = empty($_key['作者']) === false ? $_key['作者'][0] : (empty($_key['模特']) === false ? $_key['模特'][0] : (empty($_key['摄影师']) === false ? $_key['摄影师'][0] : null));
-		if ($_tag_2) $_tag[] = $_tag_2;
+		if (empty($_key)) return array();
+		$_tag = array();
+		if (empty($_key[0][0]) === false) $_tag []= $_key[0][0];
+		$_t = self::FindTag($_key, $this->conf['tag']['filter']);
+		if ($_t) $_tag []= $_t;
 		return array_unique($_tag);
 	}	
 	
@@ -4700,7 +4680,7 @@ class mtfFile{
 						unset($_key2['标题']);
 						unset($_key2['描述']);
 						if(empty($_key2) === false){
-							$_tag = $this->mtfAttr->parseK($_key2);
+							$_tag = $this->mtfAttr->parseK(self::SortTag($_key2, $this->conf['tag']['filter']));
 							if ($_tag) $_tdk['k'] = explode(',', str_replace('标签:', '', implode(',', $_tag)));
 						}
 					}
@@ -4930,7 +4910,7 @@ class mtfFile{
 										'pi' => $_data['pi'], 'o' => $_v['o'], 'nm' => $_v['nm'], 
 										'title' => empty($_key['标题']) ? null: $_key['标题'][0],
 										'des' => empty($_key['描述']) ? null: $_key['描述'][0],
-										'tag' => $this->_getTAG($_key), 
+										'tag' => $this->_getTag($_key), 
 										'domain' => empty($_attr['域名']) ? null : $_attr['域名'][0]
 									)
 								));

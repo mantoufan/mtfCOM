@@ -52,17 +52,13 @@ class mtfAttr{
 	}
 	
 	public function parseK($_a){
-		if($_a){
-			$_ar=array();
-			foreach($_a as $_k=>$__ar){
-				foreach($__ar as $__k=>$_v){
-					$_ar[]=$_k.':'.$_v;	
-				}
+		$_ar = array();
+		foreach($_a as $_k => $__ar){
+			foreach($__ar as $_v){
+				$_ar []= $_k. ':' . $_v;	
 			}
-			return $_ar;
-		}else{
-			return '';	
 		}
+		return $_ar;
 	}
 	
 	// $_t='|'/''
