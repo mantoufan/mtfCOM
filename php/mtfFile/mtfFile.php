@@ -3954,7 +3954,7 @@ class mtfFile{
 		$_tag = array();
 		if (empty($_key[0][0]) === false) $_tag []= $_key[0][0];
 		$_t = self::FindTag($_key, $this->conf['tag']['filter']);
-		if ($_t) $_tag []= $_t;
+		if (empty($_t) === false) $_tag []= $_t[0];
 		return array_unique($_tag);
 	}	
 	
