@@ -215,20 +215,14 @@ if($j){
 	}
 }
 function addFileToZip($path, $zip, $des='', $rep='') {
-	$handler = opendir($path); //打开当前文件夹由$path指定。
-	/*
-	循环的读取文件夹下的所有文件和文件夹
-	其中$filename = readdir($handler)是每次循环的时候将读取的文件名赋值给$filename，
-	为了不陷于死循环，所以还要让$filename !== false。
-	一定要用!==，因为如果某个文件名如果叫'0'，或者某些被系统认为是代表false，用!=就会停止循环
-	*/
+	$handler = opendir($path);
 	while (($filename = readdir($handler)) !== false) {
-		if ($filename != '.' && $filename != '..') {//文件夹文件名字为'.'和‘..’，不要对他们进行操作
-			if (is_dir($path.'/'.$filename)) {// 如果读取的某个对象是文件夹，则递归
-				$zip->addEmptyDir($des.'/'.$path.'/'.$filename);//空文件夹
-				addFileToZip($path.'/'.$filename, $zip, $des);
-			} else { //将文件加入zip对象
-				$zip->addFile($path.'/'.$filename, $des?($des.'/'.str_replace($rep,'',$path).'/'.$filename):'');
+		if ($filename != '.' && $filename != '..') {
+			if (is_dir($path . '/' . $filename)) {
+				$zip->addEmptyDir($des . '/' . str_replace($rep, '', $path) . '/' . $filename);
+				addFileToZip($path . '/' . $filename, $zip, $des, $rep);
+			} else {
+				$zip->addFile($path . '/' . $filename, $des ? ($des . '/' . str_replace($rep, '', $path) . '/' . $filename) : '');
 			}
 		}
 	}
