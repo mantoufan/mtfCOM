@@ -710,15 +710,26 @@ class mtfFile{
 			if(file_exists($_d['p']) === false){
 				include_once __DIR__ . '/../Grafika/autoload.php';
 				$editor = Grafika\Grafika::createEditor();
-				$image = Grafika\Grafika::createBlankImage(600,60);
-				$editor->draw($image, Grafika\Grafika::createDrawingObject('Rectangle', 600, 60, array(0, 0), 0, null, '#333333'));
-				$editor->draw($image, Grafika\Grafika::createDrawingObject('Rectangle', 320, 40, array(140, 10), 0, null, '#FFFFFF'));
-				$editor->text($image, $_f['e'], 24, 70-$this->mtfUnit->strLen($_f['e'])*8.5, 16, new Grafika\Color('#FFFFFF'));
+				$image = Grafika\Grafika::createBlankImage(300, 300);
+				$editor->draw($image, Grafika\Grafika::createDrawingObject('Rectangle', 300, 300, array(0, 0), 0, null, '#F6F6F6'));
+				$editor->draw($image, Grafika\Grafika::createDrawingObject('Rectangle', 260, 220, array(20, 60), 0, null, '#FAFAFA'));
+				$editor->text($image, strtoupper($_f['t']), 16, 20, 20, new Grafika\Color('#666'));
 				$_fs = $_f['i']['filesizemb'];
 				if ($_fs === '0MB') $_fs=$_f['i']['filesizekb'];
-				$editor->text($image, $_fs, 24, 530-$this->mtfUnit->strLen($_fs)*8.5, 16, new Grafika\Color('#FFFFFF'));
-				$_arv['n']=$this->mtfUnit->subStr($_arv['n'], 18,'..');
-				$editor->text($image, $_arv['n'], 24, 300-$this->mtfUnit->strLen($_arv['n'])*8.5, 16, new Grafika\Color('#333333'), __DIR__ . '/../Grafika/fonts/wenquanyidengkuanzhenghei.ttf');
+				$editor->text($image, $_fs, 16, 240 - strlen($_fs) * 5.5, 20, new Grafika\Color('#666'));
+				$_t = preg_split('/(?<!^)(?!$)/u', mb_substr($_arv['n'], 0, 36));
+				$_i = 0;
+				$_h = 1;
+				$_arv['n'] = implode('', array_map(function($_v) use(&$_i, &$_h) {
+					$_i += mb_strwidth($_v);
+					if (in_array($_i % 18, array(17, 0))) {
+						if ($_i % 18 === 17) $_i++;
+						$_h++;
+						return $_v . "\r\n";
+					}
+					return $_v;
+				}, $_t));
+				$editor->text($image, $_arv['n'], 18, $_h > 1 ? 40 : 20 + (260 - strlen($_arv['n']) * 9 >> 1), 60 + (220 - ($_h * 18) - ($_h - 1) * 10 >> 1), new Grafika\Color('#333'), __DIR__ . '/../Grafika/fonts/wenquanyidengkuanzhenghei.ttf');
 				$editor->save($image, $_f['d'].'/'.$_f['bn'].'.jpg');
 			}
 		}
