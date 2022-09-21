@@ -4637,7 +4637,7 @@ class mtfFile{
 							$_tdk['people'] = $_data['id'];
 							$_dn = $this->_dn($_tdk['people'], 1);//绑定域名
 							if ($_dn) $_tdk['dn'] = $_dn;
-							if (empty($_key['标题']) === false) {
+							if (isset($_key['标题']) && empty($_key['标题'][0]) === false) {
 							 $_dn_t = $_key['标题'][0];
 							 unset($_key['标题'][0]);
 							}
@@ -4663,7 +4663,7 @@ class mtfFile{
 						$__r = $this->mtfMysql->sql('s1', $this->db['table'], 'k', 'WHERE i=' . $_tag_i);
 						if($__r){
 							if(empty($_key)) $_key = array();
-							elseif (empty($_key['描述']) === false) $_des = $_key['描述'][0];
+							elseif (isset($_key['描述']) && empty($_key['描述'][0]) === false) $_des = $_key['描述'][0];
 							$_key = array_merge($_key, $this->mtfAttr->parseA($__r['k'], '|'));
 							if (isset($_des)) $_key['描述'][0] = preg_replace('/.+/', $_key['描述'][0], $_des, 1);
 						}
@@ -4673,11 +4673,11 @@ class mtfFile{
 						if (empty($_r[0]['k']) === false) $_key = $this->mtfAttr->parseA($_r[0]['k'],'|');
 					}
 					if(empty($_key) === false){
-						if(empty($_key['标题']) === false){
+						if(isset($_key['标题']) && empty($_key['标题'][0]) === false){
 							$_tdk['t'] = $_key['标题'][0];
 							if (empty($_dn_t) === false) $_tdk['t'] .= '_' . $_dn_t;
 						}
-						if(empty($_key['描述']) === false){
+						if(isset($_key['描述']) && empty($_key['描述'][0]) === false){
 							$_a = $this->mtfBBcode->parse(strtr($_key['描述'][0], array('：//'=>'://')), array('type'=>'tdk'));
 							$_tdk['des'] = preg_replace('/^\n|\n$/', '', $_a['d']);
 							if ($_a['d'] !== $_a['s']) $_tdk['d'] = str_replace($_a['d'], '', $_a['s']);
