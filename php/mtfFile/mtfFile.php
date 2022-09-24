@@ -1234,9 +1234,9 @@ class mtfFile{
 		if($_f['t']==='image'){
 			$_editor->open($_image, $_f['p']);  
 		}elseif($_f['t']==='video'){
-			$_editor->open($_image, $_f['d'].'/'.$_f['id'].'.jpg');
+			$_editor->open($_image, str_replace($this->dir['oss'], $this->dir['file'], $_f['d']) . '/' . $_f['id'] . '.jpg');
 		}elseif($_f['t']==='audio'){
-			$_editor->open($_image, $_f['d'].'/'.$_f['id'].'.'.$this->conf['preview'][$_f['t']]['ext']);
+			$_editor->open($_image, str_replace($this->dir['oss'], $this->dir['file'], $_f['d']) . '/' . $_f['id'] . '.' . $this->conf['preview'][$_f['t']]['ext']);
 		}else{
 			if($_f['t']==='txt'||$_f['t']==='sub'||$_f['t']==='mtfdat'||$_f['t']==='url'){
 				$_s=$this->mtfUnit->removeSpaceTabs(file_get_contents($_f['p']));
