@@ -5184,7 +5184,7 @@ class mtfFile{
 						if (empty($__v['force']) === false) $_d['convert']['force'] = $__v['force'];
 						$_d['id'] = $_f['id'];
 						$_d['t'] = $_f['t'];
-						$this->mtfQueue->urlAdd(array_merge($_d, array('p' => $_f['p'])), '转码', $this->conf['domain']['up'], 600);
+						$this->mtfQueue->urlAdd(array_merge($_d, array('p' => $_f['p'])), '转码', $this->conf['domain']['up'], 900);
 					}
 				} elseif ($_f['t'] === 'doc') {
 					rename($_f['d'] . '/' . $_f['id'] . '.' . $this->conf['preview'][$_f['t']]['ext'], $_d_file . $this->conf['preview'][$_f['t']]['ext']); // 缩略图
@@ -5192,7 +5192,7 @@ class mtfFile{
 						$_d['convert'] = array('ext' => $__v['ext']);
 						$_d['id'] = $_f['id'];
 						$_d['t'] = $_f['t'];
-						$this->mtfQueue->urlAdd($_d, '转码', $this->conf['domain']['up'], 600);
+						$this->mtfQueue->urlAdd($_d, '转码', $this->conf['domain']['up'], 900);
 					}
 				} elseif ($_f['t'] === 'sub') {
 					$_lang = $this->mtfApiLanguageDetector->detect($this->mtfSub->convert(file_get_contents($_d['p']), 'txt'));

@@ -1,6 +1,6 @@
 <?php 
 class mtfFileConf{
-  public $maxTime = 600; // 与 kangle 中的配置中 超时 时间对应：转码时间是这个时间的 5 倍，不超过10分钟
+  public $maxTime = 900; // 与 kangle 中的配置中 超时 时间对应：转码时间是这个时间的 5 倍，不超过10分钟
 	public $dir = array('log'=>'log', 'file'=>'file', 'cache'=>'cache', 'tmp'=>'tmp', 'chunk'=>'chunk', 'oss'=>'oss/mtf');
 	public $conf = array(
 		'convert'=>array(
