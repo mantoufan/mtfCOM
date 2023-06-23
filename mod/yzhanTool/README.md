@@ -1,6 +1,10 @@
 # yzhanTools
 A small tools zoome images using Real-CUGAN in bowsers offline.
 ## Setup
+### Clone realcugan-ncnn-vulkan
+```shell
+git clone git@github.com:nihui/realcugan-ncnn-vulkan.git
+```
 ### Install Emsdk
 ```shell
 git clone https://github.com/emscripten-core/emsdk.git
