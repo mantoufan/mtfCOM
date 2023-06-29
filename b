@@ -1,5 +1,5 @@
 <?php
-  include('buildConfig.php');
+  include('../mtfApp/buildConfig.php'); // Path of build Configuration file in another private repo named mtfApp
   $id=isset($params['i']) ? $params['i'] : (isset($argv[1]) ? $argv[1] : '');
   if (empty($id)) exit('id can not be empty');
   $DIR = isset($ID2DIR[$id]) ? '../' . $ID2DIR[$id] : '';

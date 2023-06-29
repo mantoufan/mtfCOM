@@ -1,5 +1,5 @@
 <?php
-include('buildConfig.php');
+include('../mtfApp/buildConfig.php'); // Path of build Configuration file in another private repo named mtfApp
 $g_dom='.';
 $g_usr='madfan';
 $g_psd='';
