@@ -1,23 +1,20 @@
 var mtfLang={
 	usrLang:'',
 	rec:function(){
-		if(this.usrLang){
-			
-		}else if(store.get('lang')){
-			this.usrLang=store.get('lang');
-		}else{
-			var lang = navigator.language;   //判断除IE外其他浏览器使用语言
-			if(!lang){//判断IE浏览器使用语言
-				lang = navigator.browserLanguage;
-			}
-			var _ar=lang.split(';'),_l=_ar.length;
-			for(var _i=0;_i<_l;_i++){
-				if(typeof(LANG[_i])!=="undefined"){
-					this.usrLang=_i;
+		if(!this.usrLang){
+			if (store.get('lang')) this.usrLang = store.get('lang');
+			else {
+				var lang = navigator.language || navigator.browserLanguage;
+				var _ar = lang.split(';'), _l = _ar.length;
+				for (var _i = 0; _i<_l; _i++) {
+					if (LANG[_ar[_i]] !== void 0){
+						this.usrLang = _ar[_i]
+						break
+					}
 				}
 			}
-		}
-		return typeof(LANG[this.usrLang])!=="undefined"?this.usrLang:'zh-CN';
+	  }
+		return LANG[this.usrLang] !== void 0 ? this.usrLang : 'zh-CN';
 		
 	},
 	get:function(_s,_ar){
