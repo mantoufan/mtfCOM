@@ -991,7 +991,7 @@ class mtfFile{
 					$_ar = array();
 					if (file_exists($_f['p']) === false) $_f['p'] = str_replace($this->dir['file'], $this->dir['tmp'], $_f['p']);
 					if (file_exists($_f['p']) === false) return $_ar;
-					$_h = $this->mtfBBcode->parse(strip_tags(preg_replace('/s+([ $])/', '', file_get_contents($_f['p'])), '<p>'), array('type'=>'list'));
+					$_h = $this->mtfBBcode->parse(strip_tags(preg_replace('/\s+([ $])/', ' ', file_get_contents($_f['p'])), '<p>'), array('type'=>'list'));
 					$_c = $_h['s'];
 					if (empty($_h['bb']) === false) $_ar['bb'] = $_h['bb'];
 					if (empty($_h['bb_html']) === false) $_ar['bb_html'] = $_h['bb_html'];

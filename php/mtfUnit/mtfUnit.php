@@ -94,7 +94,7 @@ class mtfUnit{
 	
 	//清除匹配任何空白字符，包括空格、制表符、换页符等等 
 	public function clearSpace($_s){
-		return preg_replace("/[\s]{2,}/","",strtr($_s,array('&nbsp;'=>'',' '=>'','　　'=>'')));//去除首行缩进的两个全角空格
+		return preg_replace("/^[\s]{2,}/", '', strtr($_s,array('&nbsp;'=>' ',' '=>' ','　　'=>' ')));//去除首行缩进的两个全角空格
 	}
 	
 	//过滤Emoji
