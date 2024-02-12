@@ -12,7 +12,7 @@
 
 		$mtfHTTP=new mtfHTTP();
 
-		$j=$mtfHTTP->curl(array('u'=>'http://dat.api.mantoufan.com/api/people/uid2i/?uid='.$_uid));
+		$j=$mtfHTTP->curl(array('u'=>'http://dat.y3.os120.com/api/people/uid2i/?uid='.$_uid));
 
 		$a=json_decode($j,TRUE);
 
