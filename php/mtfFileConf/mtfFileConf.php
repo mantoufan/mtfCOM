@@ -55,7 +55,6 @@ class mtfFileConf{
 			'100132'=>'yuanmeng.us',
 			'100133'=>'mzhan.mtf6.com',
 			'100138'=>'ac.mtf6.com',
-			'100315'=>'v.madfan.cn',
 			'115210'=>'yu.mtf6.com',
 		),
 		'oss'=>array(
