@@ -51,12 +51,12 @@ class mtfFileConf{
 			'filter'=>array('作者','摄影师','模特','画师')
 		),
 		'dn'=>array(
-			'100131'=>'www.mantoufan.com',
+			'100131'=>'www.mtf6.com',
 			'100132'=>'yuanmeng.us',
-			'100133'=>'mzhan.mantoufan.com',
-			'100138'=>'ac.mantoufan.com',
+			'100133'=>'mzhan.mtf6.com',
+			'100138'=>'ac.mtf6.com',
 			'100315'=>'v.madfan.cn',
-			'115210'=>'yu.mantoufan.com',
+			'115210'=>'yu.mtf6.com',
 		),
 		'oss'=>array(
 			'ext'=>array('mp4', 'mp3', 'nes', 'zip', '7z', 'rar', 'apk', 'ipa')
