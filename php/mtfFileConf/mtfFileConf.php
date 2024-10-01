@@ -56,6 +56,7 @@ class mtfFileConf{
 			'100133'=>'mzhan.mtf6.com',
 			'100138'=>'ac.mtf6.com',
 			'115210'=>'yu.mtf6.com',
+			'124693'=>'sm.mtf6.com'
 		),
 		'oss'=>array(
 			'ext'=>array('mp4', 'mp3', 'nes', 'zip', '7z', 'rar', 'apk', 'ipa')
