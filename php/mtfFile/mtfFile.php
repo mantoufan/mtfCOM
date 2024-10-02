@@ -3515,6 +3515,22 @@ class mtfFile{
 			}
 			
 			$_t=@$this->conf['ext2type'][@$__r['e']];
+
+			//关系：被包含的内容
+			$_r=$this->mtfMysql->sql('s',$this->db['table'],'i','WHERE FIND_IN_SET('.$_i.', r)');
+			if($_r){
+				foreach($_r as $__k=>$_v){
+					$this->mtfRelate->sql('d1',$this->db['table'],array('r'=>$_i),' WHERE i='.$_v['i']);
+				}
+			}
+			
+			//置顶
+			$_r=$this->mtfMysql->sql('s',$this->db['table'],'i','WHERE FIND_IN_SET('.$_i.', top)');
+			if($_r){
+				foreach($_r as $__k=>$_v){
+					$this->mtfRelate->sql('d1',$this->db['table'],array('top'=>$_i),' WHERE i='.$_v['i']);
+				}
+			}
 			
 			if(@$__r['q']){//如果文件被其他文件引用，能够引用其他文件的都是 mtfdat和视频/音频
 				
@@ -3630,21 +3646,7 @@ class mtfFile{
 				
 			}
 					
-			//关系：被包含的内容
-			$_r=$this->mtfMysql->sql('s',$this->db['table'],'i','WHERE FIND_IN_SET('.$_i.', r)');
-			if($_r){
-				foreach($_r as $__k=>$_v){
-					$this->mtfRelate->sql('d1',$this->db['table'],array('r'=>$_i),' WHERE i='.$_v['i']);
-				}
-			}
 			
-			//置顶
-			$_r=$this->mtfMysql->sql('s',$this->db['table'],'i','WHERE FIND_IN_SET('.$_i.', top)');
-			if($_r){
-				foreach($_r as $__k=>$_v){
-					$this->mtfRelate->sql('d1',$this->db['table'],array('top'=>$_i),' WHERE i='.$_v['i']);
-				}
-			}
 			
 			/* 删除文件本体 */
 			//删除不同比特率的文件
