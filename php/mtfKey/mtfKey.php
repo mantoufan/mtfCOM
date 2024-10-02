@@ -9,8 +9,8 @@ class mtfKey
 	public $error='';
 	public $errorCode='';
 	public $domain=array(
-		'allow'=>array('mtf.im'),
-		'redirect'=>'http://mtf.yzhan.cyou'
+		'allow'=>array(''),
+		'redirect'=>''
 	);
 	public $keyTimes=35;//key能使用多少次，用户不刷新页面的情况下
 	public $jsEncodeTimes=3;//js加密多少次

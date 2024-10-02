@@ -3639,7 +3639,6 @@ class mtfFile{
 			}
 			
 			//置顶
-			
 			$_r=$this->mtfMysql->sql('s',$this->db['table'],'i','WHERE FIND_IN_SET('.$_i.', top)');
 			if($_r){
 				foreach($_r as $__k=>$_v){
