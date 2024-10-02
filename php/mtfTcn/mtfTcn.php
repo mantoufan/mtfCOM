@@ -60,16 +60,16 @@ class mtfTcn{
 	}  
 	//根据长网址获取短网址  
 	public function short($long_url) {
-		$url = 'https://api.xiaomark.com/v1/link/create'; // 小马短链接 
+		$url = 'https://www.urlc.cn/api/url/add';
 		$result = $this->_curl($url, array(  
-			'content-type: application/json'
+			'content-type: application/json',
+			"Authorization: Token 6O7tCnwfRiyhfQJdXzo0",
 		), json_encode(array(
-			'apikey' => '689a5b4bfa3a492e1874c0ad5e171b75', // 自己去申请 key ，每天 50 条，不用用我的 ^_^
-			'origin_url' => $long_url
+			'url' => $long_url
 		)));
     $json = json_decode($result);
-		if ($json->code !== 0) return FALSE;
-		return $json->data->link->url;
+		if ($json->error !== 0) return FALSE;
+		return $json->short;
 	}  
 	//根据短网址获取长网址，此函数重用了不少sinaShortenUrl中的代码，以方便你阅读对比，你可以自行合并两个函数  
 	public function expand($short_url) {  
