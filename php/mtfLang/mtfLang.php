@@ -128,7 +128,7 @@ class mtfLang{
 				}
 			}
 		}else{
-			$this->usrLang=$_ls?$_ls:'zh-CN';
+			$this->usrLang=$_ls?$_ls:'en';
 		}
 		return $this->usrLang;
 	}
@@ -150,7 +150,7 @@ class mtfLang{
 		$_l=count($_a);
 		foreach($_a as $_k=>$__s){
 			$s.=@$_lang[$_usrLang][$__s]?$_lang[$_usrLang][$__s]:$__s;
-			if($_usrLang!=='zh-CN' && $_k<$_l-1){//非中文，添加空格分隔符
+			if($_usrLang!=='zh-CN' && $_usrLang!=='zh-TW'&& $_k<$_l-1){//非中文，添加空格分隔符
 				$s.=' ';
 			}
 		}
