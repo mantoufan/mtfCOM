@@ -120,7 +120,7 @@ class mtfLang {
         }
       }
     } else {
-      $this->usrLang = $_ls ? $_ls : 'en';
+      $this->usrLang = $_ls ? $_ls : 'zh-CN';
     }
     return $this->usrLang;
   }

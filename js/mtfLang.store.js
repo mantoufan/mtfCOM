@@ -1,5 +1,6 @@
 var mtfLang = {
   usrLang: "",
+  contentLang: "",
   rec: function () {
     if (!this.usrLang) {
       if (store.get("lang")) this.usrLang = store.get("lang");
@@ -15,7 +16,7 @@ var mtfLang = {
         }
       }
     }
-    return LANG[this.usrLang] !== void 0 ? this.usrLang : "en";
+    return LANG[this.usrLang] !== void 0 ? this.usrLang : "zh-CN";
   },
   get: function (_s, _ar) {
     var _usrLang = this.rec(),
@@ -50,6 +51,11 @@ var mtfLang = {
     return _s;
   },
   flag: function (list, icon) {
+    var m = location.href.match(/[?&]hl=([^&]*)/);
+    if (m && m[1]) {
+      store.set("lang", m[1]);
+      this.contentLang = m[1] || "zh-CN";
+    }
     var _ar = list,
       _l = _ar.length,
       _d,
@@ -61,6 +67,9 @@ var mtfLang = {
       _p.src = icon + "/" + _ar[_i] + ".png";
       _p.width = 23;
       _p.height = 17;
+      if (_ar[_i] === this.rec()) {
+        _p.className = "active";
+      }
       _p.onclick = function () {
         var _a = this.src.split("/"),
           _e = _a[_a.length - 1].split(".")[0];
