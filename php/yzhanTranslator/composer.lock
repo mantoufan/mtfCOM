@@ -1,9 +1,14 @@
 {
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "917b740c5c84bd2220de11165a7bab37",
     "packages": [
         {
             "name": "graham-campbell/result-type",
             "version": "v1.1.2",
-            "version_normalized": "1.1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/GrahamCampbell/Result-Type.git",
@@ -28,9 +33,7 @@
             "require-dev": {
                 "phpunit/phpunit": "^8.5.34 || ^9.6.13 || ^10.4.2"
             },
-            "time": "2023-11-12T22:16:48+00:00",
             "type": "library",
-            "installation-source": "dist",
             "autoload": {
                 "psr-4": {
                     "GrahamCampbell\\ResultType\\": "src/"
@@ -69,12 +72,11 @@
                     "type": "tidelift"
                 }
             ],
-            "install-path": "../graham-campbell/result-type"
+            "time": "2023-11-12T22:16:48+00:00"
         },
         {
             "name": "mantoufan/yzhancache",
             "version": "1.0.0",
-            "version_normalized": "1.0.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mantoufan/yzhanCache.git",
@@ -98,9 +100,7 @@
             "require-dev": {
                 "phpunit/phpunit": "^9.5"
             },
-            "time": "2022-09-16T19:26:17+00:00",
             "type": "library",
-            "installation-source": "dist",
             "autoload": {
                 "psr-4": {
                     "YZhanCache\\": "src/"
@@ -126,12 +126,11 @@
                 "issues": "https://github.com/mantoufan/yzhanCache/issues",
                 "source": "https://github.com/mantoufan/yzhanCache/tree/1.0.0"
             },
-            "install-path": "../mantoufan/yzhancache"
+            "time": "2022-09-16T19:26:17+00:00"
         },
         {
             "name": "mantoufan/yzhangateway",
             "version": "1.0.6",
-            "version_normalized": "1.0.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mantoufan/yzhanGateway.git",
@@ -157,9 +156,7 @@
             "require-dev": {
                 "phpunit/phpunit": "^9.5"
             },
-            "time": "2024-10-04T06:17:45+00:00",
             "type": "library",
-            "installation-source": "dist",
             "autoload": {
                 "psr-4": {
                     "YZhanGateway\\": "src/"
@@ -189,21 +186,20 @@
                 "issues": "https://github.com/mantoufan/yzhanGateway/issues",
                 "source": "https://github.com/mantoufan/yzhanGateway/tree/1.0.6"
             },
-            "install-path": "../mantoufan/yzhangateway"
+            "time": "2024-10-04T06:17:45+00:00"
         },
         {
-            "name": "mantoufan/yzhanjsontranslater",
-            "version": "1.0.9",
-            "version_normalized": "1.0.9.0",
+            "name": "mantoufan/yzhantranslator",
+            "version": "2.0.4",
             "source": {
                 "type": "git",
-                "url": "https://github.com/mantoufan/yzhanJSONTranslater.git",
-                "reference": "7e3730f87d2c4657701fb5a2255082db76c89e23"
+                "url": "https://github.com/mantoufan/yzhanTranslator.git",
+                "reference": "fcdccf03620b7f72553606427088148c0be667df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mantoufan/yzhanJSONTranslater/zipball/7e3730f87d2c4657701fb5a2255082db76c89e23",
-                "reference": "7e3730f87d2c4657701fb5a2255082db76c89e23",
+                "url": "https://api.github.com/repos/mantoufan/yzhanTranslator/zipball/fcdccf03620b7f72553606427088148c0be667df",
+                "reference": "fcdccf03620b7f72553606427088148c0be667df",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -220,12 +216,10 @@
             "require-dev": {
                 "phpunit/phpunit": "^9.5"
             },
-            "time": "2024-10-04T06:25:12+00:00",
             "type": "library",
-            "installation-source": "dist",
             "autoload": {
                 "psr-4": {
-                    "YZhanJSONTranslater\\": "src/"
+                    "YZhanTranslator\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -239,7 +233,7 @@
                     "homepage": "https://github.com/mantoufan"
                 }
             ],
-            "description": "JSON language translater using OpenAI with cache. 使用 AI 将 JSON 翻译成不同语言，缓存结果以节省费用.",
+            "description": "Language translater using OpenAI with cache. 使用 AI 翻译内容到不同语言，缓存结果以节省费用.",
             "keywords": [
                 "cache",
                 "json",
@@ -247,15 +241,14 @@
                 "translater"
             ],
             "support": {
-                "issues": "https://github.com/mantoufan/yzhanJSONTranslater/issues",
-                "source": "https://github.com/mantoufan/yzhanJSONTranslater/tree/1.0.9"
+                "issues": "https://github.com/mantoufan/yzhanTranslator/issues",
+                "source": "https://github.com/mantoufan/yzhanTranslator/tree/2.0.4"
             },
-            "install-path": "../mantoufan/yzhanjsontranslater"
+            "time": "2024-10-05T11:15:43+00:00"
         },
         {
             "name": "phpoption/phpoption",
             "version": "1.9.3",
-            "version_normalized": "1.9.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/schmittjoh/php-option.git",
@@ -280,7 +273,6 @@
                 "bamarni/composer-bin-plugin": "^1.8.2",
                 "phpunit/phpunit": "^8.5.39 || ^9.6.20 || ^10.5.28"
             },
-            "time": "2024-07-20T21:41:07+00:00",
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -291,7 +283,6 @@
                     "dev-master": "1.9-dev"
                 }
             },
-            "installation-source": "dist",
             "autoload": {
                 "psr-4": {
                     "PhpOption\\": "src/PhpOption/"
@@ -334,12 +325,11 @@
                     "type": "tidelift"
                 }
             ],
-            "install-path": "../phpoption/phpoption"
+            "time": "2024-07-20T21:41:07+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
             "version": "v1.31.0",
-            "version_normalized": "1.31.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
@@ -366,7 +356,6 @@
             "suggest": {
                 "ext-ctype": "For best performance"
             },
-            "time": "2024-09-09T11:45:10+00:00",
             "type": "library",
             "extra": {
                 "thanks": {
@@ -374,7 +363,6 @@
                     "url": "https://github.com/symfony/polyfill"
                 }
             },
-            "installation-source": "dist",
             "autoload": {
                 "files": [
                     "bootstrap.php"
@@ -422,12 +410,11 @@
                     "type": "tidelift"
                 }
             ],
-            "install-path": "../symfony/polyfill-ctype"
+            "time": "2024-09-09T11:45:10+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
             "version": "v1.29.0",
-            "version_normalized": "1.29.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
@@ -454,7 +441,6 @@
             "suggest": {
                 "ext-mbstring": "For best performance"
             },
-            "time": "2024-01-29T20:11:03+00:00",
             "type": "library",
             "extra": {
                 "thanks": {
@@ -462,7 +448,6 @@
                     "url": "https://github.com/symfony/polyfill"
                 }
             },
-            "installation-source": "dist",
             "autoload": {
                 "files": [
                     "bootstrap.php"
@@ -511,12 +496,11 @@
                     "type": "tidelift"
                 }
             ],
-            "install-path": "../symfony/polyfill-mbstring"
+            "time": "2024-01-29T20:11:03+00:00"
         },
         {
             "name": "symfony/polyfill-php80",
             "version": "v1.31.0",
-            "version_normalized": "1.31.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php80.git",
@@ -537,7 +521,6 @@
             "require": {
                 "php": ">=7.2"
             },
-            "time": "2024-09-09T11:45:10+00:00",
             "type": "library",
             "extra": {
                 "thanks": {
@@ -545,7 +528,6 @@
                     "url": "https://github.com/symfony/polyfill"
                 }
             },
-            "installation-source": "dist",
             "autoload": {
                 "files": [
                     "bootstrap.php"
@@ -600,12 +582,11 @@
                     "type": "tidelift"
                 }
             ],
-            "install-path": "../symfony/polyfill-php80"
+            "time": "2024-09-09T11:45:10+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
             "version": "v5.6.0",
-            "version_normalized": "5.6.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vlucas/phpdotenv.git",
@@ -640,7 +621,6 @@
             "suggest": {
                 "ext-filter": "Required to use the boolean validator."
             },
-            "time": "2023-11-12T22:43:29+00:00",
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -651,7 +631,6 @@
                     "dev-master": "5.6-dev"
                 }
             },
-            "installation-source": "dist",
             "autoload": {
                 "psr-4": {
                     "Dotenv\\": "src/"
@@ -693,9 +672,16 @@
                     "type": "tidelift"
                 }
             ],
-            "install-path": "../vlucas/phpdotenv"
+            "time": "2023-11-12T22:43:29+00:00"
         }
     ],
-    "dev": true,
-    "dev-package-names": []
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
 }

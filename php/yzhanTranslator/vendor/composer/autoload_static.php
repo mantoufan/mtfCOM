@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit381a5d8b0f3f274e075be22803fa7ba3
+class ComposerStaticInitd0b10a64af66d780a3e9b2ad09693f07
 {
     public static $files = array (
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
@@ -15,7 +15,7 @@ class ComposerStaticInit381a5d8b0f3f274e075be22803fa7ba3
     public static $prefixLengthsPsr4 = array (
         'Y' => 
         array (
-            'YZhanJSONTranslater\\' => 20,
+            'YZhanTranslator\\' => 16,
             'YZhanGateway\\' => 13,
             'YZhanCache\\' => 11,
         ),
@@ -40,9 +40,9 @@ class ComposerStaticInit381a5d8b0f3f274e075be22803fa7ba3
     );
 
     public static $prefixDirsPsr4 = array (
-        'YZhanJSONTranslater\\' => 
+        'YZhanTranslator\\' => 
         array (
-            0 => __DIR__ . '/..' . '/mantoufan/yzhanjsontranslater/src',
+            0 => __DIR__ . '/..' . '/mantoufan/yzhantranslator/src',
         ),
         'YZhanGateway\\' => 
         array (
@@ -90,9 +90,9 @@ class ComposerStaticInit381a5d8b0f3f274e075be22803fa7ba3
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit381a5d8b0f3f274e075be22803fa7ba3::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit381a5d8b0f3f274e075be22803fa7ba3::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit381a5d8b0f3f274e075be22803fa7ba3::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitd0b10a64af66d780a3e9b2ad09693f07::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitd0b10a64af66d780a3e9b2ad09693f07::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitd0b10a64af66d780a3e9b2ad09693f07::$classMap;
 
         }, null, ClassLoader::class);
     }

@@ -6,7 +6,7 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'YZhanJSONTranslater\\' => array($vendorDir . '/mantoufan/yzhanjsontranslater/src'),
+    'YZhanTranslator\\' => array($vendorDir . '/mantoufan/yzhantranslator/src'),
     'YZhanGateway\\' => array($vendorDir . '/mantoufan/yzhangateway/src'),
     'YZhanCache\\' => array($vendorDir . '/mantoufan/yzhancache/src'),
     'Symfony\\Polyfill\\Php80\\' => array($vendorDir . '/symfony/polyfill-php80'),
