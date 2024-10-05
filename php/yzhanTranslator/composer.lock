@@ -190,16 +190,16 @@
         },
         {
             "name": "mantoufan/yzhantranslator",
-            "version": "2.0.4",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mantoufan/yzhanTranslator.git",
-                "reference": "fcdccf03620b7f72553606427088148c0be667df"
+                "reference": "2a60ddf7bcd21f71d83e4eb198ced1b0f788dd43"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mantoufan/yzhanTranslator/zipball/fcdccf03620b7f72553606427088148c0be667df",
-                "reference": "fcdccf03620b7f72553606427088148c0be667df",
+                "url": "https://api.github.com/repos/mantoufan/yzhanTranslator/zipball/2a60ddf7bcd21f71d83e4eb198ced1b0f788dd43",
+                "reference": "2a60ddf7bcd21f71d83e4eb198ced1b0f788dd43",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -242,9 +242,9 @@
             ],
             "support": {
                 "issues": "https://github.com/mantoufan/yzhanTranslator/issues",
-                "source": "https://github.com/mantoufan/yzhanTranslator/tree/2.0.4"
+                "source": "https://github.com/mantoufan/yzhanTranslator/tree/2.1.0"
             },
-            "time": "2024-10-05T11:15:43+00:00"
+            "time": "2024-10-05T17:15:10+00:00"
         },
         {
             "name": "phpoption/phpoption",

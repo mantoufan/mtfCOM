@@ -1379,6 +1379,17 @@ class mtfFile {
           }
         }
       }
+
+      include_once __DIR__ . '/../yzhanTranslator/vendor/autoload.php';
+      $yzhanTranslator = new YZhanTranslator\YZhanTranslator(array(
+        'apiKey' => $this->conf['yzhanTranslator']['openAIApiKey'],
+        'apiUrl' => $this->conf['yzhanTranslator']['openAIApiUrl'],
+      ));
+      $imageUrl = 'https://' . $this->conf['domain']['cdn'] . '/' . $_f['id'] . '_c_w_1280.' . $_f['e'];
+      $tmp = $yzhanTranslator->translate(json_encode(array($imageUrl)), 'zh-CN', array('type' => 'images', 'timeout' => $this->conf['yzhanTranslator']['timeout'], 'cache' => array('maxAge' => $this->conf['yzhanTranslator']['maxAge'])));
+      if (empty($tmp) === false) {
+        $_attr['标题'] = $tmp[$imageUrl]['description'];
+      }
     }
     return $_attr;
   }
