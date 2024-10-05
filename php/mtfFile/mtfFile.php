@@ -832,11 +832,14 @@ class mtfFile {
               file_put_contents($_var_sitemap . $_i . '.xml', $_h);
               $_hi .= '<sitemap><loc>https://' . $_host . '/sitemap' . $_i . '.xml</loc><lastmod>' . $_l_t_ar[$_i - 1] . '</lastmod></sitemap>';
             }
-            $_h = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">';
+            $_h = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1" xmlns:xhtml="http://www.w3.org/1999/xhtml">';
             $_l++;
           }
           $_h .= '<url>';
           $_h .= '<loc>https://' . $_host . '/' . $_v['i'] . '</loc>';
+          foreach ($this->conf['languages'] as $language) {
+            $_h .= '<xhtml:link rel="alternate" hreflang="' . $language . '" href="https://' . $_host . '/' . $_v['i'] . '&amp;hl=' . $language . '"/>';
+          }
           $_l_t = (new DateTime($_v['t0']))->format('c');
           if (isset($_l_t_ar[$_i]) === false) {
             $_l_t_ar[$_i] = $_l_t;
