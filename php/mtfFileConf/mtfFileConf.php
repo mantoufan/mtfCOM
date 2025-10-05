@@ -54,8 +54,8 @@ class mtfFileConf {
     'dn' => array(
       '100131' => 'www.mfan8.com',
       '100132' => 'www.yuanmenghuashi.com',
-      '100133' => 'mzhan.yz8.org',
-      '100138' => 'ac.yz8.org',
+      '100133' => 'mzhan.kv.cm',
+      '100138' => 'ac.kv.cm',
       '115210' => 'www.shon8.com',
     ),
     'oss' => array(
