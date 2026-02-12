@@ -205,7 +205,6 @@ if($j){
 			'upload' => new CURLFile($f)
 		));
 		$h = curl_exec($ch);
-		curl_close($ch);
 		t($h);
 	}
 	if($tmp){
