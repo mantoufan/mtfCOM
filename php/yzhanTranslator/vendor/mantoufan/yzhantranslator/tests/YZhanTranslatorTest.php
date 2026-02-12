@@ -91,10 +91,10 @@ class YZhanTranslatorTest extends TestCase {
 
   public function dataProviderImages(): array {
     return array(
-      array(array('https://s1.cdn00.com/202208210352513488_c_w_1280_ext_jpg.webp'), 'zh-CN', array('https://s1.cdn00.com/202208210352513488_c_w_1280_ext_jpg.webp' => array('description' => '这张照片展示了一位穿着传统服饰的人坐在椅子上，房间内灯光柔和，营造出温暖的氛围。窗外透入的光线照亮了环境，周围还有植物装饰。'))),
-      array(array('https://s1.cdn00.com/202208210352513488_c_w_1280_ext_jpg.webp', 'https://s1.cdn00.com/202208210352501766_c_w_1280_ext_jpg.webp'), 'zh-CN', array(
-        'https://s1.cdn00.com/202208210352513488_c_w_1280_ext_jpg.webp' => array('description' => '这张照片展示了一位穿着传统服饰的人坐在椅子上，房间内灯光柔和，营造出温暖的氛围。窗外透入的光线照亮了环境，周围还有植物装饰。'),
-        'https://s1.cdn00.com/202208210352501766_c_w_1280_ext_jpg.webp' => array('description' => '同样是一位身穿青色长袍的人，手中拿着扇子，坐在靠窗的椅子上，窗外的阳光洒进屋内，营造出温暖的氛围，旁边有绿色植物点缀。'),
+      array(array('https://s1.mtf6.com/202208210352513488_c_w_1280_ext_jpg.webp'), 'zh-CN', array('https://s1.mtf6.com/202208210352513488_c_w_1280_ext_jpg.webp' => array('description' => '这张照片展示了一位穿着传统服饰的人坐在椅子上，房间内灯光柔和，营造出温暖的氛围。窗外透入的光线照亮了环境，周围还有植物装饰。'))),
+      array(array('https://s1.mtf6.com/202208210352513488_c_w_1280_ext_jpg.webp', 'https://s1.mtf6.com/202208210352501766_c_w_1280_ext_jpg.webp'), 'zh-CN', array(
+        'https://s1.mtf6.com/202208210352513488_c_w_1280_ext_jpg.webp' => array('description' => '这张照片展示了一位穿着传统服饰的人坐在椅子上，房间内灯光柔和，营造出温暖的氛围。窗外透入的光线照亮了环境，周围还有植物装饰。'),
+        'https://s1.mtf6.com/202208210352501766_c_w_1280_ext_jpg.webp' => array('description' => '同样是一位身穿青色长袍的人，手中拿着扇子，坐在靠窗的椅子上，窗外的阳光洒进屋内，营造出温暖的氛围，旁边有绿色植物点缀。'),
       )),
     );
   }

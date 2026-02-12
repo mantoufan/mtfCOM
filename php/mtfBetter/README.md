@@ -80,7 +80,7 @@ $path = array(
 
 ### 介绍
 
-![shopXO加速优化插件介绍](https://s1.cdn00.com/202011112129349627_c_w_600.png)
+![shopXO加速优化插件介绍](https://s1.mtf6.com/202011112129349627_c_w_600.png)
 
 ### 使用
 
