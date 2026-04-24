@@ -1,61 +1,68 @@
 <?php
 class mtfHTTP {
   public function curl($_arv = array()) {
-    $arv = array_merge(array('u' => '', 't' => 6, 'p' => '', 'f' => '', 'h' => array()), $_arv);
+    $arv = array_merge(['u' => '', 't' => 6, 'p' => '', 'f' => '', 'h' => []], $_arv);
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $arv['u']);
-    curl_setopt($ch, CURLOPT_HEADER, FALSE);
-    curl_setopt($ch, CURLOPT_NOBODY, FALSE);
-    if ($arv['t'] < 1) {
-      curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-      curl_setopt($ch, CURLOPT_TIMEOUT_MS, $arv['t'] * 1000);
-    } else {
-      curl_setopt($ch, CURLOPT_TIMEOUT, $arv['t']);
-    }
 
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-    @curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+    $opts = [
+      CURLOPT_URL            => $arv['u'],
+      CURLOPT_HEADER         => false,
+      CURLOPT_NOBODY         => false,
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_SSL_VERIFYPEER => false,
+      CURLOPT_SSL_VERIFYHOST => false,
+      CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
+      CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+      CURLOPT_ENCODING       => 'gzip',
+    ];
+
+    if ($arv['t'] < 1) {
+      $opts[CURLOPT_NOSIGNAL]   = 1;
+      $opts[CURLOPT_TIMEOUT_MS] = (int)($arv['t'] * 1000);
+    } else {
+      $opts[CURLOPT_TIMEOUT] = $arv['t'];
+    }
 
     //兼容302CDN
     if ($arv['f']) {
-      curl_setopt($ch, CURLOPT_MAXREDIRS, 2);
-      curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+      $opts[CURLOPT_MAXREDIRS]      = 2;
+      $opts[CURLOPT_FOLLOWLOCATION] = true;
     }
 
-    //加速POST，减少1秒延迟 Expect: 请求gzip，并解压
-    curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1); //强制协议为1.1
-
-    //开启GZIP解压，减少数据传输量
-    curl_setopt($ch, CURLOPT_ENCODING, 'gzip');
-    if (@$_SERVER['HTTP_COOKIE']) {
-      curl_setopt($ch, CURLOPT_COOKIE, $_SERVER['HTTP_COOKIE']);
+    if (isset($_SERVER['HTTP_COOKIE'])) {
+      $opts[CURLOPT_COOKIE] = $_SERVER['HTTP_COOKIE'];
     }
 
     if ($arv['p']) {
-      curl_setopt($ch, CURLOPT_POST, 1);
-      // 建议post数据可以使用http_build_query()函数处理, 能实现更好的兼容性, 更小的请求数据包
-      curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($arv['p']));
+      $opts[CURLOPT_POST]       = 1;
+      $opts[CURLOPT_POSTFIELDS] = http_build_query($arv['p']);
     }
-    // Expect 作用减少一次 POST 预检请求
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge(array("Expect: ", "Accept-Encoding:gzip", "SERVER:" . json_encode($this->getFilteredSever())), $arv['h']));
+
+    // Expect 减少一次 POST 预检，Accept-Encoding 请求 gzip 并解压
+    $opts[CURLOPT_HTTPHEADER] = array_merge(
+      ['Expect: ', 'Accept-Encoding:gzip', 'SERVER:' . json_encode($this->getFilteredServer())],
+      $arv['h']
+    );
+
+    curl_setopt_array($ch, $opts);
     $_h = curl_exec($ch);
-    if (curl_errno($ch)) {
-      return 'error';
-    } else {
-      return $_h;
-    }
+    return curl_errno($ch) ? 'error' : $_h;
   }
-  public function getFilteredSever() {
-    $whiteList = array('HTTP', 'SERVER', 'REMOTE', 'REQUEST', 'QUERY', 'PHP');
-    $server = array();
+
+  public function getFilteredServer() {
+    static $whitelist = ['HTTP' => 1, 'SERVER' => 1, 'REMOTE' => 1, 'REQUEST' => 1, 'QUERY' => 1, 'PHP' => 1];
+    $server = [];
     foreach ($_SERVER as $k => $v) {
-      if (in_array(substr($k, 0, stripos($k, '_')), $whiteList)) {
+      $pos = strpos($k, '_');
+      if ($pos !== false && isset($whitelist[substr($k, 0, $pos)])) {
         $server[$k] = $v;
       }
     }
     return $server;
   }
+
+  // 保留旧拼写作为别名，向后兼容
+  public function getFilteredSever() {
+    return $this->getFilteredServer();
+  }
 }
-?>
