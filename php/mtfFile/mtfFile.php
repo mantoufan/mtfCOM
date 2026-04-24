@@ -119,7 +119,10 @@ class mtfFile {
   }
 
   public function n2date($_n) {
-    return substr($_n, 0, 4) . '-' . substr($_n, 4, 2) . '-' . substr($_n, 6, 2) . ' ' . substr($_n, 8, 2) . ':' . substr($_n, 10, 2) . ':' . substr($_n, 12, 2);
+    return sprintf('%s-%s-%s %s:%s:%s',
+      substr($_n, 0, 4), substr($_n, 4, 2), substr($_n, 6, 2),
+      substr($_n, 8, 2), substr($_n, 10, 2), substr($_n, 12, 2)
+    );
   }
 
   public function en($_id) {
@@ -153,7 +156,7 @@ class mtfFile {
   private function _info($_f_p) {
     $_f = $this->pathInfo($_f_p);
 
-    $_f['i'] = array('mimetype' => @$_f['i']['mimetype'], 'duration' => '', 'bitrate' => '', 'filesize' => '', 'filesizekb' => '', 'filesizemb' => '');
+    $_f['i'] = array('mimetype' => $_f['i']['mimetype'] ?? '', 'duration' => '', 'bitrate' => '', 'filesize' => '', 'filesizekb' => '', 'filesizemb' => '');
     if (file_exists($_f['p'])) {
       if ($_f['t'] === 'image') {
         $_i = getimagesize($_f['p']);
@@ -181,25 +184,24 @@ class mtfFile {
       $_p = $_a[0];
       $_o['p'] = $_p;
       $_i = pathinfo($_o['p']);
-      $_o['e'] = strtolower(@$_i['extension']);
+      $ext = $_i['extension'] ?? '';
+      $_o['e'] = strtolower($ext);
       $_o['n'] = $_i['basename'];
-      $_o['bn'] = $this->mtfUnit->rtrim($_i['basename'], '.' . @$_i['extension']);
+      $_o['bn'] = $this->mtfUnit->rtrim($_i['basename'], '.' . $ext);
       $_o['id'] = $this->mtfUnit->rtrim($_o['bn'], strstr($_o['bn'], '_c_'));
-      $_o['id'] = ($_o['id'] ? $_o['id'] : $_o['bn']);
-
-      settype($_o['id'], 'string');
+      $_o['id'] = (string)($_o['id'] ?: $_o['bn']);
 
       $_o['d'] = $_i['dirname'];
       $_o['mid'] = substr($_o['id'], 0, 6);
 
-      $_o['t'] = @$this->conf['ext2type'][strtolower($_o['e'])]; //iphone的MOV是大写的
+      $_o['t'] = $this->conf['ext2type'][$_o['e']] ?? null; //iphone的MOV是大写的
     }
     return $_o;
   }
 
   public function trueExt($_p) {
     $_i = pathinfo($_p);
-    $_ext = strtolower(@$_i['extension']);
+    $_ext = strtolower($_i['extension'] ?? '');
     $_i = new finfo(FILEINFO_MIME_TYPE);
     if (file_exists($_p)) {
       $_mimetype = $_i->file($_p);
@@ -230,11 +232,11 @@ class mtfFile {
     $_d['c'] = $this->config($_d['p']);
 
     if ($_f['t'] === 'image') {
-      $_c = @$_d['c'];
+      $_c = ($_d['c'] ?? null);
       include_once __DIR__ . '/../Grafika/autoload.php';
       $editor = Grafika\Grafika::createEditor();
 
-      if (@$_c['p']) {
+      if (!empty($_c['p'])) {
         $_p = explode(',', $_c['p']);
         $_f['p'] = $this->mtfRand->get('img', $_p[0], $_p[1]);
         $_f = $this->_info($_f['p']);
@@ -260,9 +262,9 @@ class mtfFile {
       }
 
       //剪裁
-      if (@$_c['ace']) {
+      if (!empty($_c['ace'])) {
         $_a = $this->_av2url($_c['ace'], $_f['id']);
-        if (@$_a['csw']) {
+        if (!empty($_a['csw'])) {
           $editor->resizeExactWidth($image, $_a['csw']);
           $editor->crop($image, $_a['cw'], $_a['ch'], 'top-left', $_a['cx'], $_a['cy']);
 
@@ -272,20 +274,20 @@ class mtfFile {
         }
       }
       //文本
-      if (@$_c['txt']) { //第一位为文本，第二位为位置，第三位为字号，第四位为颜色
+      if (!empty($_c['txt'])) { //第一位为文本，第二位为位置，第三位为字号，第四位为颜色
         $_font = explode(',', $_c['txt']);
-        if (!@$_font[0]) {
+        if (empty($_font[0])) {
           $_s = '';
         } else {
           $_s = $_font[0];
         }
-        if (!@$_font[1]) {
+        if (empty($_font[1])) {
           $_font[1] = 'center';
         }
-        if (!@$_font[2]) {
+        if (empty($_font[2])) {
           $_font[2] = 12;
         }
-        if (!@$_font[3]) {
+        if (empty($_font[3])) {
           $_font[3] = 'FFFFFF';
         }
         $_lh = $_font[2]; //字高
@@ -334,7 +336,7 @@ class mtfFile {
       }
 
       //w 宽度 h 高度 nl 不要放大 c裁剪
-      if (@$_c['c']) {
+      if (!empty($_c['c'])) {
         if ($_c['c'] === 's') {
           $editor->crop($image, $_c['w'], $_c['h'], 'smart');
         } elseif ($_c['c'] === 'f') {
@@ -345,8 +347,8 @@ class mtfFile {
           }
         }
       } else {
-        if (@$_c['w']) {
-          if (@$_c['nl'] && $_f['i']['width'] < $_c['w']) {
+        if (!empty($_c['w'])) {
+          if ($_c['nl'] && $_f['i']['width'] < $_c['w']) {
           } else {
             if ($_f['e'] === 'gif') {
               $editor->resizeExact($image, $_c['w'], floor($_c['w'] / $_f['i']['width'] * $_f['i']['height']));
@@ -354,8 +356,8 @@ class mtfFile {
               $editor->resizeExactWidth($image, $_c['w']);
             }
           }
-        } elseif (@$_c['h']) {
-          if (@$_c['nl'] && $_f['i']['height'] < $_c['h']) {
+        } elseif (!empty($_c['h'])) {
+          if ($_c['nl'] && $_f['i']['height'] < $_c['h']) {
           } else {
             $editor->resizeExactHeight($image, $_c['h']);
           }
@@ -513,29 +515,29 @@ class mtfFile {
       $_waifu = $this->mtfCrypt->en(implode('_', $_a), $_id);
 
     }
-    return @$_waifu ? $_waifu : array('s' => $_a[1], 'n' => $_a[2]);
+    return ($_waifu ?? null) ? $_waifu : array('s' => $_a[1], 'n' => $_a[2]);
   }
 
   private function _get_people($_f_id = '', $_tpl = 'card', $_uid = '', $_nm = '') {
-    if (@$_f_id) {
+    if (!empty($_f_id)) {
       $__a = array();
       //如果有缓存，优先读取缓存
-      if (!@$this->_cache['list'][$_f_id]) {
+      if (!($this->_cache['list'][$_f_id] ?? null)) {
         $this->_set_people_cache('i=' . $_f_id, $_uid);
       }
-      $_cache = @$this->_cache['list'][$_f_id];
-      if (@$_cache['k']) {
+      $_cache = ($this->_cache['list'][$_f_id] ?? null);
+      if (!empty($_cache['k'])) {
         $_key = $_cache['k'];
-        $_title = @$_key['标题'][0];
-        $_des = preg_replace('/：(\d+)/', ':$1', strtr(@$_key['描述'][0], array('：//' => '://')));
+        $_title = $_key['标题'][0] ?? null;
+        $_des = preg_replace('/：(\d+)/', ':$1', strtr(($_key['描述'][0] ?? ''), array('：//' => '://')));
         unset($_key['标题']);
         unset($_key['描述']);
       }
-      if (@$_cache['a']) {
+      if (!empty($_cache['a'])) {
         $_attr = $_cache['a'];
 
-        if (@$_attr['头像'][0]) {
-          $_a = $this->_av2url(@$_attr['头像'][0]);
+        if (($_attr['头像'][0] ?? null)) {
+          $_a = $this->_av2url(($_attr['头像'][0] ?? null));
           $__a['avi'] = $_a['avi'];
           $__a['ave'] = $_a['ave'];
           $__a['ace'] = $_a['ace'];
@@ -543,23 +545,23 @@ class mtfFile {
           $__a['avn'] = $this->_uname($_f_id); //根据名称生成的唯一标识符
         }
 
-        if (@$_attr['实名'][0] === '通过') {
-          if (@$_title === @$_attr['名称'][0]) {
+        if (($_attr['实名'][0] ?? null) === '通过') {
+          if ($_title === ($_attr['名称'][0] ?? null)) {
             $__a['real'] = 1;
           }
         }
       }
-      if (@$_cache['dn']) {
+      if (!empty($_cache['dn'])) {
         $__a['dn'] = $_cache['dn'];
       }
-      if (@$_title) {
+      if (!empty($_title)) {
         $__a['title'] = $_title;
       }
       if ($_tpl === 'card') {
-        if (@$_des) {
+        if (!empty($_des)) {
           $_a = $this->mtfBBcode->parse($_des, array('type' => 'tdk'));
-          $__a['des'] = @$_a['s'];
-          if (@$_a['b']) {
+          $__a['des'] = ($_a['s'] ?? null);
+          if (!empty($_a['b'])) {
             $__a['b'] = $_a['b'];
           }
         }
@@ -569,21 +571,21 @@ class mtfFile {
             $__a['tag'] = explode(',', str_replace('标签:', '', implode(',', $_tag)));
           }
         }
-        if (@$_cache['count']) { //统计信息
+        if (!empty($_cache['count'])) { //统计信息
           $__a['count'] = $_cache['count'];
-          if (@$this->_cache['dashen'][$_f_id]) {
+          if (($this->_cache['dashen'][$_f_id] ?? null)) {
             $__a['count']['nz_p'] = $this->_cache['dashen'][$_f_id];
           }
         }
-        if (@$this->_cache['nmsg1'][$_f_id]) {
+        if (($this->_cache['nmsg1'][$_f_id] ?? null)) {
           $__a['nmsg1'] = $this->_cache['nmsg1'][$_f_id];
         }
       }
       $_data = array('i' => $_f_id) + $__a;
     } else {
       $_data['i'] = 0;
-      $_data['title'] = @$_nm ? $_nm : $this->_mtflang2span('匿名'); //匿名
-      if (@$this->_cache['nmsg1'][$_data['i']]) {
+      $_data['title'] = ($_nm ?? null) ? $_nm : $this->_mtflang2span('匿名'); //匿名
+      if (!empty($this->_cache['nmsg1'][$_data['i']])) {
         $_data['nmsg1'] = $this->_cache['nmsg1'][$_data['i']];
       }
       $_data['avn'] = $this->_uname($_data['title']); //根据名称生成的唯一标识符
@@ -599,22 +601,22 @@ class mtfFile {
     if ($_t === 'people') {
       $_i = $_v['i'];
       if ($_uid) {
-        if (in_array($_uid, @$_attr['粉丝'])) { //当前用户是否为作者的粉丝
+        if (in_array($_uid, $_attr['粉丝'] ?? [])) { //当前用户是否为作者的粉丝
           $_d['fol'] = 1;
         }
       }
     } else {
-      if (@$_attr['关注可见'][0]) {
+      if (($_attr['关注可见'][0] ?? null)) {
         $_d['xf'] = 1;
       }
-      if (@$_attr['禁止回复'][0]) {
+      if (($_attr['禁止回复'][0] ?? null)) {
         $_d['br'] = 1;
       }
-      if (@$_attr['作者可见'][0]) {
+      if (($_attr['作者可见'][0] ?? null)) {
         $_var['reply_author'] = 1;
       }
       if ($_t === 'video' || $_t === 'audio') {
-        if (@$_attr['字幕']) {
+        if (!empty($_attr['字幕'])) {
           $_a = $this->_getSub($_attr['字幕']);
           $_d['cap'] = $_a['cap'];
         }
@@ -626,31 +628,31 @@ class mtfFile {
     }
     $_d['r'] = $this->mtfRight($_uid, $_i);
 
-    if (@$_v['nz']) {
+    if (!empty($_v['nz'])) {
       $_d['zan'] = $_v['nz'];
     }
-    if (@$_v['nrel']) {
+    if (!empty($_v['nrel'])) {
       $_d['rel'] = $_v['nrel'];
     }
-    if (@$_v['t1']) {
+    if (!empty($_v['t1'])) {
       $_d['tag']['t1'] = $_v['t1'];
     }
     /*
-    if(@$_v['k']){
+    if(($_v['k'] ?? null)){
     $_d['tag']=$this->mtfAttr->parseA($_v['k']);
     }
      */
     //获取弹幕（最近5条） 包含最近评论
     if (!in_array($_v['e'], array('people', 'mtftag')) && $_v['r']) {
-      $__d = $this->mtfQueueList(array('r' => $_v['r'], 'tpl' => 'dm', 'dm' => '1', 'page' => '1_100', 'order' => 'i DESC', 'reply_author' => @$_var['reply_author']));
+      $__d = $this->mtfQueueList(array('r' => $_v['r'], 'tpl' => 'dm', 'dm' => '1', 'page' => '1_100', 'order' => 'i DESC', 'reply_author' => ($_var['reply_author'] ?? null)));
       if ($__d) {
         $_d['dm'] = $__d;
       }
     }
 
     //获取红包
-    if (@$this->_var['task']) { //如果是 完成任务送红包
-      if ($_v['o'] && !in_array($_v['o'], @$this->_var['task']['u'])) { //匿名用户和已经领过的用户 不能领取红包
+    if (!empty($this->_var['task'])) { //如果是 完成任务送红包
+      if ($_v['o'] && !in_array($_v['o'], $this->_var['task']['u'] ?? [])) { //匿名用户和已经领过的用户 不能领取红包
         $_d['task'] = array('i' => $this->_var['task']['i'], 'o' => $_v['o']);
       }
     }
@@ -666,7 +668,7 @@ class mtfFile {
 
     }
     //获取重复
-    if (@$_attr['主人'][0]) {
+    if (($_attr['主人'][0] ?? null)) {
       $_d['pok'] = $this->_get_people($_attr['主人'][0], 'info', $_uid);
     }
 
@@ -718,7 +720,7 @@ class mtfFile {
       }
     } elseif ($_f['t'] === 'people') {
       $_attr = $this->mtfAttr->sql('s1', $this->db['table'], 'a', 'WHERE i=' . $_f['id'], 0, '|');
-      if (@$_attr['a']['头像'][0]) {
+      if (!empty($_attr['a']['头像'][0])) {
         $_a = $this->_av2url($_attr['a']['头像'][0]);
         $_config['ace'] = $_a['ace'];
         $_d['p'] = $this->dir['file'] . $this->n2dir($_a['avi']) . $_a['avi'] . $this->config2Url($_config) . '.' . $_a['ave'];
@@ -922,7 +924,7 @@ class mtfFile {
         $_c = file_get_contents($_f['p']);
 
         //先进行BBcode的CC代码解析，避免其中的图片被解析
-        if (!@$_arv['preview']) {
+        if (empty($_arv['preview'])) {
           $_uid = $this->uid2id($_SERVER['HTTP_UID']);
           $_c = $this->mtfBBcode->parse($_c, array('uid' => $_uid, 'id' => $_f['id']));
         }
@@ -937,13 +939,13 @@ class mtfFile {
           }
           if ($_d['e'] === 'url') {
             $__a = array('u' => $this->getContent($this->fileOrTmp($_d['n']), 'view'));
-            if (@$_arv['preview']) {
+            if (!empty($_arv['preview'])) {
               $_ar['sub'][$_d['id']]['preview']['url'] = $__a;
             } else {
               $_ar['sub'][$_d['id']]['url'] = $__a;
             }
           } elseif ($_d['e'] === 'mtfdat') {
-            if (@$_arv['preview']) {
+            if (!empty($_arv['preview'])) {
               $_v = '';
             } else {
               $_p = $this->dir['file'] . $this->n2dir($_d['id']) . $_d['id'] . '.' . $_d['e'];
@@ -954,7 +956,7 @@ class mtfFile {
               }
             }
           } else {
-            if (@$_arv['preview']) {
+            if (!empty($_arv['preview'])) {
               $_t = $this->conf['ext2type'][$_d['e']];
 
               if ($_t === 'video' || $_t === 'audio') {
@@ -1481,14 +1483,14 @@ class mtfFile {
   }
   //权限 [管理，自己，授权，好友，关注，粉丝，会员，游客]
   public function mtfRight($_uid, $_object) {
-    if (!@$_uid) { //游客
+    if (empty($_uid)) { //游客
       return '游客';
     } elseif ($this->isAdmin($_uid)) {
       return '管理';
     } else {
       if ($_object) {
         $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'i,e,o,msg,aw', 'WHERE i=' . $_object);
-        if (@$_r['e']) {
+        if (!empty($_r['e'])) {
           $_e = $_r['e'];
 
           if ($_e === 'people') {
@@ -1499,31 +1501,31 @@ class mtfFile {
 
           if ($_uid === $_o) { //如果是自己的接收的消息
             return '自己';
-          } elseif (@$_r['aw'] && in_array($_uid, explode(',', $_r['aw']))) {
+          } elseif ($_r['aw'] && in_array($_uid, explode(',', $_r['aw']))) {
             return '授权';
           } else {
-            if (@$this->_cache['list'][$_o]) {
+            if (($this->_cache['list'][$_o] ?? null)) {
               $_r = $this->_cache['list'][$_o];
             } else {
               $_r = $this->mtfAttr->sql('s1', $this->db['table'], 'a', 'WHERE i=' . $_o, 0, '|');
             }
 
-            if (@$_r['a']['关注']) {
+            if (!empty($_r['a']['关注'])) {
               if (in_array($_uid, $_r['a']['关注'])) {
                 $_n1 = '关注';
               }
             }
-            if (@$_r['a']['粉丝']) {
+            if (!empty($_r['a']['粉丝'])) {
               if (in_array($_uid, $_r['a']['粉丝'])) {
                 $_n2 = '粉丝';
               }
             }
 
-            if (@$_n1 && @$_n2) {
+            if (!empty($_n1) && !empty($_n2)) {
               return '好友';
-            } elseif (@$_n1) {
+            } elseif (!empty($_n1)) {
               return $_n1;
-            } elseif (@$_n2) {
+            } elseif (!empty($_n2)) {
               return $_n2;
             } else {
               return '会员';
@@ -1538,14 +1540,14 @@ class mtfFile {
     }
   }
   public function hasRight($_uid, $_object, $_need, $_disallow = array(), $_tip = 1) {
-    $_rights = array('游客', '会员', '粉丝', '关注', '好友', '授权', '自己', '管理');
-    $_l_need = array_search($_need, $_rights);
+    static $_rights_level = ['游客' => 0, '会员' => 1, '粉丝' => 2, '关注' => 3, '好友' => 4, '授权' => 5, '自己' => 6, '管理' => 7];
+    $_l_need = $_rights_level[$_need] ?? false;
     if ($_l_need) {
       $_right = $this->mtfRight($_uid, $_object);
       if (in_array($_right, $_disallow)) {
         return false;
       } else {
-        $_l_self = array_search($_right, $_rights);
+        $_l_self = $_rights_level[$_right] ?? 0;
         if ($_l_self >= $_l_need) {
           return true;
         } else {
@@ -1568,9 +1570,9 @@ class mtfFile {
 
   private function _verify($_data, $_n, $_r = '') {
     foreach ($_n as $_k => $_v) {
-      $d = trim(@$_data[$_v]);
-      if ((!$d && !$_r[$_k]) || ($d && @$_r[$_k] && preg_match($_r[$_k], $d))) {
-        $this->error('io', 'input-error', array('n' => @$_v, 'r' => @$_r[$_k]));
+      $d = trim($_data[$_v] ?? '');
+      if ((!$d && !$_r[$_k]) || ($d && !empty($_r[$_k]) && preg_match($_r[$_k], $d))) {
+        $this->error('io', 'input-error', array('n' => ($_v ?? null), 'r' => ($_r[$_k] ?? null)));
       }
     }
   }
@@ -1600,7 +1602,7 @@ class mtfFile {
         $_sql_or = '';
       }
       $_r = $this->mtfMysql->sql('s1', $this->db['table_msg'], 'i', 'WHERE h=\'' . $_md5 . '\'' . $_sql . $_sql_or);
-      if (@$_r['i']) {
+      if (!empty($_r['i'])) {
         return false;
       }
     }
@@ -1658,7 +1660,7 @@ class mtfFile {
 
   private function _get_raw($_i, $_raw) {
     $_attr = $this->mtfAttr->sql('s1', $this->db['table'], 'a', 'WHERE i=' . $_i, 0, '|');
-    $_p = (@$_attr['a']['原图价'] ? $_attr['a']['原图价'][0] : $_raw['p']);
+    $_p = (($_attr['a']['原图价'] ?? null) ? $_attr['a']['原图价'][0] : $_raw['p']);
     $_p1 = ceil($_p * $_raw['r']);
     return array('p' => $_p, 'p1' => $_p1);
   }
@@ -1672,8 +1674,8 @@ class mtfFile {
       } else if ($_action === 'data') {
         return $this->mtfQueueList($_data);
       } else if ($_action === 'hm') {
-        $_hm = @$_data[0]['hm'];
-        $_type = @$_data[0]['type'];
+        $_hm = ($_data[0]['hm'] ?? null);
+        $_type = ($_data[0]['type'] ?? null);
         if ($_type === 'hash') {
           $_type = 'h';
         }
@@ -1687,7 +1689,7 @@ class mtfFile {
             }
           }
 
-          if (@$_r['i']) {
+          if (!empty($_r['i'])) {
             return array($_hm => $_r['i'] . '.' . $_r['e']);
           } else {
             return array($_hm => false);
@@ -1702,12 +1704,12 @@ class mtfFile {
 
         $_ip = $this->mtfGuid->ip();
         $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'count(*) as t', 'WHERE FIND_IN_SET("IP:' . $_ip . '", a) AND t>"' . date("Y-m-d") . '"');
-        if (@$_r['t'] > $this->conf['uid']['limit']) { //限制每天单IP注册人数不超过指定人数
+        if ($_r['t'] > $this->conf['uid']['limit']) { //限制每天单IP注册人数不超过指定人数
           $this->error('uid', 'login-limit-num');
         }
 
         $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'max(i) AS i', 'WHERE e="people"');
-        if (@$_r['i']) {
+        if (!empty($_r['i'])) {
           $_i = $_r['i'];
 
         } else {
@@ -1721,21 +1723,21 @@ class mtfFile {
             break;
           }
         }
-        $this->mtfMysql->sql('i', $this->db['table'], array('i' => $_i, 'e' => 'people', 'a' => 'IP:' . $_ip . ',密码:' . md5(md5($_data['psd'])) . ',名称:' . $_data['name'] . ',手机:' . $_data['phone'] . ',安全码:' . $_data['safe'] . (@$_data['qq'] ? ',QQ:' . $_data['qq'] : '') . (@$_data['mail'] ? ',邮箱:' . $_data['mail'] : ''))); //注册后，增加一条未知消息
+        $this->mtfMysql->sql('i', $this->db['table'], array('i' => $_i, 'e' => 'people', 'a' => 'IP:' . $_ip . ',密码:' . md5(md5($_data['psd'])) . ',名称:' . $_data['name'] . ',手机:' . $_data['phone'] . ',安全码:' . $_data['safe'] . (($_data['qq'] ?? null) ? ',QQ:' . $_data['qq'] : '') . (($_data['mail'] ?? null) ? ',邮箱:' . $_data['mail'] : ''))); //注册后，增加一条未知消息
         return array('i' => $_i);
       } elseif ($_action === 'login') {
-        $_i = @$_data['i'];
-        $_password = @$_data['psd'];
+        $_i = ($_data['i'] ?? null);
+        $_password = ($_data['psd'] ?? null);
 
         if ($_i && $_password) {
           $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'i,a,fol', 'WHERE i=' . $_i);
-          if (@$_r['i']) {
+          if (!empty($_r['i'])) {
             $__r = $this->mtfAttr->parseA($_r['a'], '|');
-            if (@$__r['密码'][0]) {
+            if (!empty($__r['密码'][0])) {
               if (md5($_password) === $__r['密码'][0]) {
                 $_i = $_r['i'];
                 $_uid = $this->mtfGuid->enUid($_i);
-                if (@$_data['i_e']) {
+                if (!empty($_data['i_e'])) {
                   $_a = explode(',', $_data['i_e']);
                   foreach ($_a as $_k => $_v) {
                     $_a[$_k] = $this->mtfCrypt->de($_v);
@@ -1749,7 +1751,7 @@ class mtfFile {
           $this->error('io', 'input-error');
         }
       } elseif ($_action === 'uid2i') {
-        $_i = $this->uid2id(@$_data[0]['uid']);
+        $_i = $this->uid2id(($_data[0]['uid'] ?? null));
         if ($_i) {
           return array('i' => $_i);
         } else {
@@ -1757,8 +1759,8 @@ class mtfFile {
         }
       }
     } elseif ($_object === 'bt') {
-      $_i = @$_data['id'];
-      $_uid = $this->uid2id(@$_SERVER['HTTP_UID']);
+      $_i = ($_data['id'] ?? null);
+      $_uid = $this->uid2id(($_SERVER['HTTP_UID'] ?? null));
 
       if ($_i && !is_numeric($_i)) { //如果非数字，标签
         if ($_action !== 'zan' && $_action !== 'zan2' && $_action !== 'p2p') {
@@ -1794,7 +1796,7 @@ class mtfFile {
               //给作者增加♥：每一天，同一IP / FID / UID，对任意一作者，只增加一个♥
               $this->fen('zan', '点 ♥', $_uid, $_o, $_i, $_zan, $_ip, $_fid, $this->conf['time']['zan']['item'] * 86400, '', array('tt', 'v')); //1代表任意作者，0代表同一作者
               //给父文章增加赞
-              if (@$_data['i']) {
+              if (!empty($_data['i'])) {
                 if (is_numeric($_data['i']) && $_i !== $_data['i'] && $_o !== $_data['i']) { //作者不重复增加
                   $this->mtfMysql->sql('u', $this->db['table'], array('nz' => '///nz+' . $_zan), 'WHERE i=' . $_data['i']);
                 }
@@ -1826,7 +1828,7 @@ class mtfFile {
           return array('status' => true) + $this->_get_raw($_i, $_raw);
         } else if ($_step === '4') { //作者设置赞
           if ($this->hasRight($_uid, $_i, '自己', '', 1)) {
-            if (is_numeric(@$_data['p'])) {
+            if (is_numeric(($_data['p'] ?? null))) {
               $this->mtfAttr->sql('u1', $this->db['table'], array('a' => array('原图价' => array($_data['p']))), 'WHERE i=' . $_i);
             }
             return array('status' => true);
@@ -1835,7 +1837,7 @@ class mtfFile {
           }
         } else {
           $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'e,o,a', 'WHERE i=' . $_i);
-          if (@$_r['e']) {
+          if (!empty($_r['e'])) {
             if ($_uid === $_r['o']) { //不扣除♥
             } elseif ($this->hasRight($_uid, $_i, '会员', '', 1)) {
               $_p = $this->_get_raw($_i, $_raw);
@@ -1847,7 +1849,7 @@ class mtfFile {
                 $_ip = $this->mtfGuid->ip();
                 $_fid = $_data['fid'];
                 $this->fen('zan', '原图 ♥', '', $_uid, $_i, '-' . $_p['p'], $_ip, $_fid);
-                if (@$_r['o']) {
+                if (!empty($_r['o'])) {
                   $_o = $_r['o'];
                   $this->fen('zan', '原图 ♥', $_uid, $_o, $_i, $_p['p1'], $_ip, $_fid);
                 }
@@ -1869,11 +1871,11 @@ class mtfFile {
         if ($this->hasRight($_uid, $_i, '会员')) {
           $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'a,nz,o', 'WHERE i=' . $_i);
           $_attr = $this->mtfAttr->parseA($_r['a'], '|');
-          $_p = @$_attr['主人'][0];
-          $_zan = floor(@$_r['nz']) + $_pok['z'];
+          $_p = ($_attr['主人'][0] ?? null);
+          $_zan = (int)($_r['nz'] ?? 0) + $_pok['z'];
           $_uzan = floor($_zan * $_pok['u']);
 
-          if (@$_r['o']) {
+          if (!empty($_r['o'])) {
             $__r = $this->mtfMysql->sql('s1', $this->db['table_msg'], 't', 'WHERE f=' . $_r['o'] . ' AND s=\'逃跑 ♥\' ORDER BY i DESC LIMIT 1');
             if ($__r['t']) {
               if ((time() - strtotime($__r['t'])) / 86400 < $_pok['t']) {
@@ -1893,7 +1895,7 @@ class mtfFile {
             $_pzan = 0;
           }
           if ($_p) {
-            $_s = array_search($_uid, array('主人' => $_p, '作者' => @$_r['o']));
+            $_s = array_search($_uid, array('主人' => $_p, '作者' => ($_r['o'] ?? null)));
           } else {
             $_s = '';
           }
@@ -1939,8 +1941,8 @@ class mtfFile {
         }
       } elseif ($_action === 'p2p') //分享
       {
-        if (@$_data[0]['psd'] === 'madfan') { //绕过Key验证
-          $_tt = @$_POST['uid'];
+        if (($_data[0]['psd'] ?? null) === 'madfan') { //绕过Key验证
+          $_tt = ($_POST['uid'] ?? null);
           if ($_tt) {
             $_s = '分享 ♥';
             $_uid = '';
@@ -1973,33 +1975,33 @@ class mtfFile {
           }
           $_q['t'] .= ($_a ? ':' . $_a : '');
 
-          $_a = $this->_av2url(@$_attr['头像'][0]);
+          $_a = $this->_av2url(($_attr['头像'][0] ?? null));
 
-          $_q['a'] = '//' . $this->conf['domain']['cdn'] . '/' . (@$_a['avi'] ? $_a['avi'] . '_c_' . (@$_a['ace'] ? 'ace_' . $_a['ace'] . '_' : '') . 'c_f_w_50_h_50.' . $_a['ave'] : '201207010000000002_c_w_50_h_50_p_pokemongif,' . $this->_uname($_q['t'] ? $_q['t'] : $_o) . '.gif');
+          $_q['a'] = '//' . $this->conf['domain']['cdn'] . '/' . (($_a['avi'] ?? null) ? $_a['avi'] . '_c_' . (($_a['ace'] ?? null) ? 'ace_' . $_a['ace'] . '_' : '') . 'c_f_w_50_h_50.' . $_a['ave'] : '201207010000000002_c_w_50_h_50_p_pokemongif,' . $this->_uname($_q['t'] ? $_q['t'] : $_o) . '.gif');
 
           if ($_uid) { //会员分享，可以给自己获得♥
             $_q['uid'] = $_uid;
           }
           $_q['i'] = $_i;
           $_q['r'] = 1; //自动跳转
-          $_q['d'] = @$_data['d'];
+          $_q['d'] = ($_data['d'] ?? null);
 
           $_dn_id = array_flip($this->conf['dn'])[$_SERVER['SERVER_NAME']];
           if ($_dn_id) {
             $_q['bu_true'] = 1;
           }
 
-          $_q['bu'] = @$_data['bu'];
+          $_q['bu'] = ($_data['bu'] ?? null);
 
-          $_q['bc'] = @$_data['bc'];
-          $_q['bt'] = @$_data['bt'];
+          $_q['bc'] = ($_data['bc'] ?? null);
+          $_q['bt'] = ($_data['bt'] ?? null);
           $_q['max'] = 5;
           $_q['return'] = 'https://' . $this->conf['domain']['web'] . '/api/bt/p2p/?psd=madfan'; //绕过key验证
 
           $_h = $this->mtfProxyCurl->p2p($this->conf['domain']['p2p'], $_q);
           $_j = json_decode($_h, true);
 
-          return array('u' => @$_j['u'], 'n' => @$_j['n']);
+          return array('u' => ($_j['u'] ?? null), 'n' => ($_j['n'] ?? null));
         }
 
       } elseif ($_action === 'zan2') {
@@ -2040,7 +2042,7 @@ class mtfFile {
         $_status = false;
         if ($this->hasRight($_uid, $_i, '会员', array('自己'))) {
           $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'p,r,nrel', 'WHERE i=' . $_uid);
-          if (@$_r['r']) {
+          if (!empty($_r['r'])) {
             $_a = explode(',', $_r['r']);
           } else {
             $_a = array();
@@ -2068,7 +2070,7 @@ class mtfFile {
 
         $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'e,a,k,o', 'WHERE i=' . $_i);
         if ($_step === '1') {
-          if (!@$_r['e']) {
+          if (empty($_r['e'])) {
             if (strlen($_i) > 18 && $_uid) { //标签
               $this->mtfMysql->sql('i', $this->db['table'], array('i' => $_i, 'o' => $_uid, 'e' => 'mtftag'));
             }
@@ -2086,26 +2088,26 @@ class mtfFile {
             $__a = array(); //头像
 
             if ($_r['e'] === 'people') { //如果是人，检查昵称的唯一性
-              if (@$_data['title']) {
+              if (!empty($_data['title'])) {
                 if (is_numeric($_data['title'])) {
                   $this->error('uid', 'title-num');
                 } elseif (preg_match("/\s/", $_data['title'])) {
                   $this->error('uid', 'title-space');
                 } else {
                   $__r = $this->mtfMysql->sql('s1', $this->db['table'], 'i', 'WHERE i!=' . $_i . ' AND e=\'people\' AND FIND_IN_SET(\'' . '标题:' . $_data['title'] . '\', k)');
-                  if (@$__r['i']) {
+                  if (!empty($__r['i'])) {
                     $this->error('uid', 'title-unique');
                   }
                 }
               }
             }
             $_ar = array();
-            $_ar['标题'] = @$_data['title'];
-            $_ar['描述'] = @$_data['des'];
+            $_ar['标题'] = ($_data['title'] ?? null);
+            $_ar['描述'] = ($_data['des'] ?? null);
             $_tag = array();
             $_del = array();
 
-            if (@$_data['tag']) {
+            if (!empty($_data['tag'])) {
               $_tag = json_decode(str_replace(' ', '', $_data['tag']), true);
             }
             if ($_r['e'] === 'people') {
@@ -2138,12 +2140,12 @@ class mtfFile {
 
             $_new = $_data['av'];
             //头像
-            if (@$_new && $_new !== '201207010000000001.jpg') {
-              if (@$_a['avi']) {
+            if ($_new && $_new !== '201207010000000001.jpg') {
+              if (!empty($_a['avi'])) {
                 $_old = $_a['avi'] . '.' . $_a['ave'];
               }
 
-              if ($_new !== @$_old) {
+              if ($_new !== ($_old ?? null)) {
                 $this->mtfQueueAdd(array('p' => $_new, 'quota' => $_uid));
                 if ($_old) {
                   $this->mtfQueueDel(array('i' => $_a['avi'], 'id' => $_uid));
@@ -2160,13 +2162,13 @@ class mtfFile {
                 $_new .= '_' . $_data['csw'] . '_' . $_data['cw'] . '_' . $_data['ch'] . '_' . $_data['cx'] . '_' . $_data['cy'];
               }
 
-              if ($_new !== @$_attr['头像'][0]) {
+              if ($_new !== ($_attr['头像'][0] ?? null)) {
                 $this->mtfAttr->sql('u1', $this->db['table'], array('a' => array('头像' => array($_new))), 'WHERE i=' . $_i);
                 $__a = $this->_av2url($_new);
               }
             }
 
-            $this->mtfMysql->sql('u', $this->db['table'], array('t1' => (@$_data['t1'] ? $_data['t1'] : 'NULL')), 'WHERE i=' . $_i);
+            $this->mtfMysql->sql('u', $this->db['table'], array('t1' => (($_data['t1'] ?? null) ? $_data['t1'] : 'NULL')), 'WHERE i=' . $_i);
 
             $_tag = array();
             if (empty($_data['title']) === false) {
@@ -2205,7 +2207,7 @@ class mtfFile {
               $_id = $this->_ui($_id, $_dn_id);
             } else {
               $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'p', 'WHERE i=' . $_i);
-              $_id = @$_r['p'] ? $_r['p'] : $_uid;
+              $_id = ($_r['p'] ?? null) ? $_r['p'] : $_uid;
             }
           }
 
@@ -2214,14 +2216,14 @@ class mtfFile {
           if ($_t === 'top') {
             if ($this->hasRight($_uid, $_id, '自己')) {
               $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'i,top', 'WHERE i=' . $_id);
-              if (@$_r['top']) {
+              if (!empty($_r['top'])) {
                 $_a = explode(',', $_r['top']);
               } else {
                 $_a = array();
               }
               if (in_array($_i, $_a)) {
                 $this->mtfRelate->sql('d1', $this->db['table'], array('top' => $_i), 'WHERE i=' . $_id);
-              } elseif (@$_r['i']) {
+              } elseif (!empty($_r['i'])) {
                 $this->mtfRelate->sql('i1', $this->db['table'], array('top' => $_i), 'WHERE i=' . $_id);
                 $_status = true;
               }
@@ -2231,7 +2233,7 @@ class mtfFile {
             if ($this->hasRight($_uid, $_id, '自己')) {
               $_a = array();
               $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'r', 'WHERE i=' . $_id);
-              if (@$_r['r']) {
+              if (!empty($_r['r'])) {
                 if (strpos($_r['r'], $_i) !== false) {
                   $_r['r'] = str_replace($_i, '', str_replace($_i . ',', '', str_replace(',' . $_i, '', $_r['r'])));
                   $_a = explode(',', $_r['r']);
@@ -2266,10 +2268,10 @@ class mtfFile {
               }
               $_w = array();
               $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'w', 'WHERE i=' . $_o);
-              if (@$_r['w']) {
+              if (!empty($_r['w'])) {
                 $_w = json_decode($_r['w'], true);
               }
-              if (!@$_w[$_t]) {
+              if (empty($_w[$_t])) {
                 $_w[$_t] = array();
               }
 
@@ -2307,7 +2309,7 @@ class mtfFile {
 
           if ($_s) {
             $_r = $this->mtfAttr->sql('s1', $this->db['table'], 'a', 'WHERE i=\'' . $_i . '\'', 0, '|');
-            if (@$_r['a'][$_s]) {
+            if (!empty($_r['a'][$_s])) {
               if ($_t === '1') {
                 $_xf = 0;
               }
@@ -2318,10 +2320,10 @@ class mtfFile {
               $_status = true;
             }
             if ($_t === '1') {
-              $_ar = array('xf' => @$_xf);
+              $_ar = array('xf' => ($_xf ?? null));
             }
           }
-          return array('status' => $_status)+@$_ar;
+          return array('status' => $_status) + ($_ar ?? []);
         }
       } elseif ($_action === 'av') {
         /*
@@ -2359,7 +2361,7 @@ class mtfFile {
             $this->error('bt', 'fol-self');
           } else {
             $__r = $this->mtfMysql->sql('s1', $this->db['table_msg'], 'i', 'WHERE g=1 AND f=' . $_uid . ' AND tt=' . $_o);
-            if (@$__r['i']) {
+            if (!empty($__r['i'])) {
               $_status = false;
               $_r = $this->mtfMysql->sql('d', $this->db['table_msg'], '', 'WHERE i=' . $__r['i']);
 
@@ -2371,9 +2373,9 @@ class mtfFile {
 
               //收回红包
               $__r = $this->mtfMysql->sql('s1', $this->db['table_msg'], 'i,n,v', 'WHERE g=0 AND s=\'关注 红包\' AND f=' . $_o . ' AND tt=' . $_uid . ' ORDER BY i DESC LIMIT 1');
-              if (@$__r['n']) {
+              if (!empty($__r['n'])) {
                 $___r = $this->mtfMysql->sql('s1', $this->db['table_msg'], 'i,n,v', 'WHERE g=0 AND s=\'红包 退回\' AND f=' . $_uid . ' AND tt=' . $_o . ' AND i>' . $__r['i'] . ' LIMIT 1');
-                if (!@$___r[i]) {
+                if (empty($___r[i])) {
                   $_zan = $__r['n'];
                   $this->fen('zan', '红包 退回', $_uid, $_o, $__r['v'], $_zan, $_ip, $_fid);
                   $_weal = array('t' => 'f', 'v' => '-' . $_zan);
@@ -2393,7 +2395,7 @@ class mtfFile {
           }
         }
         $_r = array('status' => $_status);
-        if (@$_weal) {
+        if (!empty($_weal)) {
           $_r['weal'] = $_weal;
         }
         return $_r;
@@ -2415,7 +2417,7 @@ class mtfFile {
               $_cap_same[$__a[0]] = $_cap[$_k][0];
             }
           }
-          if (@$_r['a']['字幕']) {
+          if (!empty($_r['a']['字幕'])) {
             $_b = $_r['a']['字幕'];
           } else {
             $_b = array();
@@ -2434,7 +2436,7 @@ class mtfFile {
             $this->mtfAttr->sql('i1', $this->db['table'], array('a' => array('字幕' => $_r1['id'])), 'WHERE i=' . $_i, 0, '|');
             if ($_r1['strtr']) { //与已有字幕重复
               foreach ($_cap as $_k => $_v) {
-                if (@$_r1['strtr'][$_v[1]]) {
+                if (!empty($_r1['strtr'][$_v[1]])) {
                   unset($_cap[$_k]);
                 }
               }
@@ -2455,7 +2457,7 @@ class mtfFile {
         }
       } elseif ($_action === 'del') {
         if ($this->hasRight($_uid, $_i, '授权')) {
-          $this->mtfQueueDel(array('i' => $_i, 'id' => @$_data['i'], 'a' => @$_data['a']));
+          $this->mtfQueueDel(array('i' => $_i, 'id' => ($_data['i'] ?? null), 'a' => ($_data['a'] ?? null)));
           return array('status' => true);
         }
       } elseif ($_action === 'set') {
@@ -2469,7 +2471,7 @@ class mtfFile {
 
           $this->_verify($_data, array('name', 'phone', 'safe', 'phone', 'safe'), array('', '', '', '^[0-9]*$', '^[0-9]{6}$'));
           $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'i,a', 'WHERE i=' . $_i);
-          if (@$_r['i']) {
+          if (!empty($_r['i'])) {
             $__r = $this->mtfAttr->parseA($_r['a'], '|');
             if ($_data['name'] === $__r['名称'][0] && $_data['phone'] === $__r['手机'][0] && $_data['safe'] === $__r['安全码'][0]) {
               if ($_data['psd']) {
@@ -2483,10 +2485,10 @@ class mtfFile {
         } elseif ($_a === 'info') {
           if ($_data['action'] === 'get') {
             $_r = $this->mtfAttr->sql('s1', $this->db['table'], 'a', 'WHERE i=' . $_uid);
-            if (@$_r['a']) {
+            if (!empty($_r['a'])) {
               return array(
-                'qq' => @$_r['a']['QQ'][0],
-                'mail' => @$_r['a']['邮箱'][0],
+                'qq' => ($_r['a']['QQ'][0] ?? null),
+                'mail' => ($_r['a']['邮箱'][0] ?? null),
               );
             }
           } else {
@@ -2497,11 +2499,11 @@ class mtfFile {
 
           if ($_data['action'] === 'get') {
             $_r = $this->mtfAttr->sql('s1', $this->db['table'], 'a', 'WHERE i=' . $_uid);
-            if (@$_r['a']) {
+            if (!empty($_r['a'])) {
               return array(
-                'receiptname' => @$_r['a']['收货名称'][0],
-                'receiptphone' => @$_r['a']['收货手机'][0],
-                'receiptaddress' => @$_r['a']['收货地址'][0],
+                'receiptname' => ($_r['a']['收货名称'][0] ?? null),
+                'receiptphone' => ($_r['a']['收货手机'][0] ?? null),
+                'receiptaddress' => ($_r['a']['收货地址'][0] ?? null),
               );
             }
           } else {
@@ -2512,22 +2514,22 @@ class mtfFile {
         } elseif ($_a === 'proof') {
           if ($_data['action'] === 'get') {
             $_r = $this->mtfAttr->sql('s1', $this->db['table'], 'a', 'WHERE i=' . $_uid);
-            if (@$_r['a']) {
+            if (!empty($_r['a'])) {
               return array(
-                'proof' => @$_r['a']['证件'][0] ? $this->en(@$_r['a']['证件'][0]) : '',
-                'name' => @$_r['a']['名称'][0],
-                'real' => @$_r['a']['实名'][0],
+                'proof' => ($_r['a']['证件'][0] ?? null) ? $this->en(($_r['a']['证件'][0] ?? null)) : '',
+                'name' => ($_r['a']['名称'][0] ?? null),
+                'real' => ($_r['a']['实名'][0] ?? null),
               );
             }
           } else {
             $_r = $this->mtfAttr->sql('s1', $this->db['table'], 'a', 'WHERE i=' . $_uid);
-            if (@$_r['a']) {
-              $_old = @$_r['a']['证件'][0];
+            if (!empty($_r['a'])) {
+              $_old = ($_r['a']['证件'][0] ?? null);
             }
             $_d = $this->pathInfo($_data['proof']);
             if ($_d['id']) {
               $_new = $this->de($_d['id']);
-              if ($_new !== @$_old) {
+              if ($_new !== ($_old ?? null)) {
                 $this->mtfQueueAdd(array('p' => $this->en($_new) . '.jpg', 'quota' => $_uid));
                 if ($_old) {
                   $this->mtfQueueDel(array('i' => $this->en($_old), 'id' => $_uid));
@@ -2547,7 +2549,7 @@ class mtfFile {
           $_i = $_a;
         } else {
           $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'i', 'WHERE e=\'people\' AND FIND_IN_SET(\'' . '标题:' . $_a . '\', k)');
-          if (@$_r['i']) {
+          if (!empty($_r['i'])) {
             $_i = $_r['i'];
           }
         }
@@ -2577,7 +2579,7 @@ class mtfFile {
               if (!$_i) {
                 return array('status' => false);
               } else {
-                if (@$_r['l'] === $_v) {
+                if ($_r['l'] === $_v) {
                   $this->mtfMysql->sql('u', $this->db['table'], array('l' => 0), 'WHERE i=' . $_o);
                   return array('status' => false);
                 } else {
@@ -2603,10 +2605,10 @@ class mtfFile {
             } else {
               if ($_v === '0') {
                 $_r = $this->mtfAttr->sql('s1', $this->db['table'], 'a', 'WHERE i=' . $_o);
-                if (@$_r['a']) {
+                if (!empty($_r['a'])) {
                   return array(
-                    'name' => @$_r['a']['名称'][0] ? @$_r['a']['名称'][0] : '',
-                    'proof' => @$_r['a']['证件'][0] ? $this->en(@$_r['a']['证件'][0]) : '',
+                    'name' => ($_r['a']['名称'][0] ?? null) ? ($_r['a']['名称'][0] ?? null) : '',
+                    'proof' => ($_r['a']['证件'][0] ?? null) ? $this->en(($_r['a']['证件'][0] ?? null)) : '',
                   );
                 }
               } elseif ($_v === '1') {
@@ -2689,7 +2691,7 @@ class mtfFile {
           } elseif ($_t === 'key') {
             $_num = $_POST['num'];
             $_a = $this->mtfBBcode->add($_c, array('uid' => $_uid, 'id' => $_id, 'i' => $_i, 'step' => 1));
-            if (!@$_num) {
+            if (empty($_num)) {
               exit;
             } else {
               $_n = $_a['num'];
@@ -2714,7 +2716,7 @@ class mtfFile {
           }
           //更新价格和销量
           $_bb = $this->mtfBBcode->parse($_c_new, array('type' => 'add'));
-          $this->mtfMysql->sql('u', $this->db['table'], array('bz' => @$_bb['av']['zan'], 'bn' => @$_bb['av']['num']), 'WHERE i=' . $_id);
+          $this->mtfMysql->sql('u', $this->db['table'], array('bz' => ($_bb['av']['zan'] ?? null), 'bn' => ($_bb['av']['num'] ?? null)), 'WHERE i=' . $_id);
 
           return array('status' => true);
         }
@@ -2727,8 +2729,8 @@ class mtfFile {
             return array('status' => false);
           }
           $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'j', 'WHERE i=' . $_uid);
-          if (@$_r['j']) {
-            return @$_r['j'];
+          if (!empty($_r['j'])) {
+            return $_r['j'];
           }
         } elseif ($_t === 'save') {
           if (!$this->hasRight($_uid, '', '会员')) {
@@ -2742,7 +2744,7 @@ class mtfFile {
           if ($_si) {
             $_j = array();
             $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'j', 'WHERE i=' . $_uid);
-            if (@$_r['j']) {
+            if (!empty($_r['j'])) {
               $_j = json_decode($_r['j'], true);
             }
             $_POST['time'] = date("Y-m-d H:i:s");
@@ -2800,7 +2802,7 @@ class mtfFile {
             $_r[$_p + 2] = array('p' => $_page + 1, 's' => $_next, 'l' => 1);
           }
         }
-        $_r[$_page] = @array_merge(@$_r[$_page], array('c' => 1));
+        $_r[$_page] = array_merge($_r[$_page] ?? [], ['c' => 1]);
         $_r[1]['p'] = 0; //第一页不显示page={page}
       }
     }
@@ -2886,8 +2888,8 @@ class mtfFile {
       $_h = $this->hash($_f['p']);
       $_hm = md5_file($_f['p']);
     } else {
-      $_h = @$this->_cache['hash'][$_f['n']]['hash'];
-      $_hm = @$this->_cache['hash'][$_f['n']]['hm'];
+      $_h = $this->_cache['hash'][$_f['n']]['hash'] ?? null;
+      $_hm = $this->_cache['hash'][$_f['n']]['hm'] ?? null;
     }
     return array('hash' => $_h, 'hm' => $_hm);
   }
@@ -2938,10 +2940,10 @@ class mtfFile {
     $_f = array();
     $_ar = array();
     $_hash = array();
-    $_uid = $this->uid2id(@$_SERVER['HTTP_UID']);
+    $_uid = $this->uid2id(($_SERVER['HTTP_UID'] ?? null));
     $this->_uidLock($_uid);
 
-    if (@$_data['p']) {
+    if (!empty($_data['p'])) {
       $_ps = $_data['p'];
       $__d = array('cdn' => array(), 'dat' => array());
       $_id = array();
@@ -2963,24 +2965,24 @@ class mtfFile {
         unset($_f['d']); //避免与弹幕“d”字段冲突
 
         $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'i', 'WHERE i=' . $_f['id']);
-        if (@$_r['i']) { //如果是已经存在的文件
-          $this->mtfRelate->sql('i1', $this->db['table'], array('q' => @$_data['quota']), 'WHERE i=' . $_r['i']);
+        if (!empty($_r['i'])) { //如果是已经存在的文件
+          $this->mtfRelate->sql('i1', $this->db['table'], array('q' => ($_data['quota'] ?? null)), 'WHERE i=' . $_r['i']);
         } else {
           $_h = $this->hashhm($_f);
           $_f['h'] = $_h['hash'];
           $_f['hm'] = $_h['hm'];
 
-          if ($_f['hm'] && @$_hash[$_f['hm']]) { //避免$_f['hm']为空的情况
+          if ($_f['hm'] && !empty($_hash[$_f['hm']])) { //避免$_f['hm']为空的情况
             $_f['id'] = $_hash[$_f['hm']];
           } else {
             $_hash[$_f['hm']] = $_f['id'];
             $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'i', 'WHERE hm!=\'\' AND hm="' . $_f['hm'] . '"');
-            if (@$_r['i']) {
-              $this->mtfRelate->sql('i1', $this->db['table'], array('q' => @$_data['quota']), 'WHERE i=' . $_r['i']);
+            if (!empty($_r['i'])) {
+              $this->mtfRelate->sql('i1', $this->db['table'], array('q' => ($_data['quota'] ?? null)), 'WHERE i=' . $_r['i']);
               $_strtr[$_f['id']] = $_r['i'];
               $_f['id'] = $_r['i'];
             } else {
-              $this->mtfMysql->sql('i', $this->db['table'], array('i' => $this->de($_f['id']), 'e' => $_f['e'], 'h' => $_f['h'], 'hm' => $_f['hm'], 'o' => $_uid, 'q' => @$_data['quota']));
+              $this->mtfMysql->sql('i', $this->db['table'], array('i' => $this->de($_f['id']), 'e' => $_f['e'], 'h' => $_f['h'], 'hm' => $_f['hm'], 'o' => $_uid, 'q' => ($_data['quota'] ?? null)));
               if ($this->_islocal($_f['e'])) {
                 $__d['dat'][] = $_f['id'] . '.' . $_f['e'];
               } else {
@@ -3000,12 +3002,12 @@ class mtfFile {
       return array('id' => $_id, 'strtr' => $_strtr);
     } elseif ($_data) {
       $_old_mtfdat = '';
-      if (@$_data['ed_i']) {
+      if (!empty($_data['ed_i'])) {
         $_mtfdata_id = $_data['ed_i'];
         if ($this->hasRight($_uid, $_mtfdata_id, '授权')) {
           $_old_mtfdat = $this->getContent($this->dir['file'] . $this->n2dir($_mtfdata_id) . $_mtfdata_id . '.mtfdat', 'view');
 
-          if (@$_data['data']) { //编辑
+          if (!empty($_data['data'])) { //编辑
             $_mode = 'edit';
           } else { //删除
             $_mode = 'del';
@@ -3019,7 +3021,7 @@ class mtfFile {
           //子域名
           $_dn_id = array_flip($this->conf['dn'])[$_SERVER['SERVER_NAME']];
           if ($_dn_id) {
-            settype($_dn_id, 'string'); //需要转换类型，与uid对比
+            $_dn_id = (string)$_dn_id; //需要转换类型，与uid对比
             $_data['i'] = $_dn_id;
           }
         }
@@ -3033,7 +3035,7 @@ class mtfFile {
             if (is_numeric($_data['i'])) {
               $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'i', 'WHERE i="' . $_data['i'] . '"');
               if ($_r['i']) {
-                $_nm = @$_data['nm'];
+                $_nm = ($_data['nm'] ?? null);
               } else {
                 $this->error('uid', 'login-need');
               }
@@ -3050,9 +3052,9 @@ class mtfFile {
       $_data['data'] = strip_tags(str_replace('&nbsp;', '', $_data['data']), "<p> <b> <br> <img> <div>"); //先strip_tags再html_entity_decode
       $_data['data'] = html_entity_decode($_data['data']); //&amp;->& &quot;->" '->' &lt;-> <  &gt;-> >
       $_bb = $this->mtfBBcode->parse($_data['data'], array('type' => 'add')); //先转BBcode，再转图片视频等
-      $_data['data'] = @$_bb['s'];
+      $_data['data'] = ($_bb['s'] ?? null);
 
-      $_diff = $this->_diff($_old_mtfdat, @$_bb['ss'] ? $_bb['ss'] : $_data['data']);
+      $_diff = $this->_diff($_old_mtfdat, ($_bb['ss'] ?? null) ? $_bb['ss'] : $_data['data']);
       if ($_diff['add_url']) {
         foreach ($_diff['add_url'] as $_i => $_url) {
           $_f['id'] = $this->getName();
@@ -3071,12 +3073,12 @@ class mtfFile {
           $_f['h'] = $_h['hash'];
           $_f['hm'] = $_h['hm'];
 
-          if ($_f['hm'] && @$_hash[$_f['hm']]) { //避免$_f['h']为空的情况
+          if ($_f['hm'] && !empty($_hash[$_f['hm']])) { //避免$_f['h']为空的情况
             $_f['id'] = $_hash[$_f['hm']];
           } else {
             $_hash[$_f['hm']] = $_f['id'];
             $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'i', 'WHERE hm!=\'\' AND hm="' . $_f['hm'] . '"'); //使用md5判断，避免相似
-            if (@$_r['i']) {
+            if (!empty($_r['i'])) {
               $this->mtfRelate->sql('i1', $this->db['table'], array('q' => $_mtfdata_id), 'WHERE i=' . $_r['i']);
               $_f['id'] = $_r['i'];
               //权限处理：
@@ -3119,7 +3121,7 @@ class mtfFile {
 
           $_f = $this->pathInfo($_f_p);
           $_f['c'] = $this->config($_f_p);
-          if (@$_f['c']['ext']) {
+          if (!empty($_f['c']['ext'])) {
             $_f['e'] = $_f['c']['ext'];
           }
 
@@ -3130,7 +3132,7 @@ class mtfFile {
           if (!is_numeric($_f['id'])) {
             //引用
             $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'i,e', 'WHERE i=' . $_i);
-            if (@$_r['i']) { //如果是已经存在的文件
+            if (!empty($_r['i'])) { //如果是已经存在的文件
               $this->mtfRelate->sql('i1', $this->db['table'], array('q' => $_mtfdata_id), 'WHERE i=' . $_r['i']);
               $skip = 1;
             } else {
@@ -3148,7 +3150,7 @@ class mtfFile {
 
           if (!$skip) {
             $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'i', 'WHERE i=' . $_f['id']);
-            if (@$_r['i']) { //如果是已经存在的文件
+            if (!empty($_r['i'])) { //如果是已经存在的文件
               $this->mtfRelate->sql('i1', $this->db['table'], array('q' => $_mtfdata_id), 'WHERE i=' . $_r['i']);
               //权限处理：
               $_auth_id[] = $_r['i'];
@@ -3160,13 +3162,13 @@ class mtfFile {
               $_f['h'] = $_h['hash'];
               $_f['hm'] = $_h['hm'];
 
-              if ($_f['hm'] && @$_hash[$_f['hm']]) { //避免$_f['h']为空的情况
+              if ($_f['hm'] && !empty($_hash[$_f['hm']])) { //避免$_f['h']为空的情况
                 $_f['id'] = $_hash[$_f['hm']];
               } else {
                 $_hash[$_f['hm']] = $_f['id'];
                 unset($_r);
                 $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'i', 'WHERE hm!=\'\' AND hm="' . $_f['hm'] . '"');
-                if (@$_r['i']) {
+                if (!empty($_r['i'])) {
                   $this->mtfRelate->sql('i1', $this->db['table'], array('q' => $_mtfdata_id), 'WHERE i=' . $_r['i']);
                   $_f['id'] = $_r['i'];
                 } else {
@@ -3187,13 +3189,13 @@ class mtfFile {
           if ($_ar[0]) {
             $_f = $this->pathInfo($_ar[1]);
             $_f['c'] = $this->config($_f['p']); //视频/音频
-            $_data['data'] = preg_replace($_ar[0], $_f['id'] . '.' . (@$_f['c']['ext'] ? $_f['c']['ext'] : $_f['e']), $_data['data']);
+            $_data['data'] = preg_replace($_ar[0], $_f['id'] . '.' . (($_f['c']['ext'] ?? null) ? $_f['c']['ext'] : $_f['e']), $_data['data']);
           }
         }
       }
       if ($_diff['del_id']) {
         foreach ($_diff['del_id'] as $_i => $_ar) {
-          if (@$_ar[1] === 'mtfdat') {
+          if ($_ar[1] === 'mtfdat') {
             $this->mtfRelate->sql('d1', $this->db['table'], array('q' => $_mtfdata_id), 'WHERE i=' . $_i);
           } else {
             $__d['del'][] = $_i;
@@ -3257,7 +3259,7 @@ class mtfFile {
             $_to[] = $_i = $_uid;
 
             $_key = $this->mtfAttr->parseA($_r['k']);
-            if (@$_key['标题'][0]) {
+            if (!empty($_key['标题'][0])) {
               $_tags[] = $_key['标题'][0];
             }
           } elseif ($_r['e']) {
@@ -3275,7 +3277,7 @@ class mtfFile {
             if ($_mode === 'add') { //BBcode-回复可见
 
               $_attr = $this->mtfAttr->parseA($_r['a'], '|'); //禁止回复
-              if (@$_attr['禁止回复'][0]) {
+              if (($_attr['禁止回复'][0] ?? null)) {
                 $this->error('io', 'ban-reply');
               }
 
@@ -3297,7 +3299,7 @@ class mtfFile {
             if (is_numeric($_a[0]) && $_a[1]) {
               $_to[] = $_a[0];
               $_tags[] = $_a[1];
-            } elseif (!@$_a[1]) {
+            } elseif (empty($_a[1])) {
               $_tags[] = $_a[0];
             }
 
@@ -3312,7 +3314,7 @@ class mtfFile {
           if ($_uid) {
             array_push($_ar, $_uid);
           }
-          if (@$_writer) {
+          if (!empty($_writer)) {
             array_push($_ar, $_writer);
           }
           $_ar = array_unique($_ar);
@@ -3324,7 +3326,7 @@ class mtfFile {
           }
         }
 
-        if (@$_auth_id) { //被引用文件的权限处理
+        if (!empty($_auth_id)) { //被引用文件的权限处理
           foreach ($_auth_id as $__k => $__v) {
             if ($_auth) {
               $this->mtfRelate->sql('i1', $this->db['table'], array('ar' => $_auth, 'aw' => $_auth), 'WHERE i=' . $__v);
@@ -3340,7 +3342,7 @@ class mtfFile {
               if ($_r) {
                 //获取 消息的最大值
                 $_r = $this->mtfMysql->sql('s1', $this->db['table_msg'], 'max(i) as i', 'WHERE g=2');
-                if (@$_r['i']) {
+                if (!empty($_r['i'])) {
                   $_msg = $_r['i'];
                 }
                 if ($_o === '0') { //公告
@@ -3381,13 +3383,13 @@ class mtfFile {
         $_f['hm'] = $_h['hm'];
 
         //模式和变量
-        $_f['m'] = @$_data['m'];
-        $_f['d'] = @$_data['d'];
-        $_f['v'] = @$_data['v'];
-        $_f['tt'] = @$_data['tt'];
+        $_f['m'] = ($_data['m'] ?? null);
+        $_f['d'] = ($_data['d'] ?? null);
+        $_f['v'] = ($_data['v'] ?? null);
+        $_f['tt'] = ($_data['tt'] ?? null);
 
         //购买
-        if (@$_bb['av']['zan']) { //价格
+        if (!empty($_bb['av']['zan'])) { //价格
           $_f['bz'] = $_bb['av']['zan'];
           $_f['bn'] = $_bb['av']['num'];
         } else {
@@ -3402,11 +3404,11 @@ class mtfFile {
 
         $_d[] = $_f;
 
-        if ($_f['hm'] && @$_hash[$_f['hm']]) { //避免$_f['h']为空的情况
+        if ($_f['hm'] && !empty($_hash[$_f['hm']])) { //避免$_f['h']为空的情况
           $_f['id'] = $_hash[$_f['hm']];
         } else {
           $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'i', 'WHERE hm!=\'\' AND hm="' . $_f['hm'] . '"');
-          if (@$_r['i']) { //mtfdat
+          if (!empty($_r['i'])) { //mtfdat
             //$_f['id']=$_r['i'];
             if ($_mtfdata_id !== $_r['i']) { //避免编辑状态，自己和自己相似，造成循环
               file_put_contents($_f['p'], $_r['i'] . '.mtfdat');
@@ -3416,13 +3418,13 @@ class mtfFile {
               $this->mtfRelate->sql('i1', $this->db['table'], array('q' => $_f['id']), 'WHERE i="' . $_r['i'] . '"');
             }
           }
-          if (@$_d) {
+          if (!empty($_d)) {
             $__d = array('cdn' => array(), 'dat' => array());
             foreach ($_d as $_k => $_v) { //首次添加，记录父级
 
-              $___d = array('t0' => date('Y-m-d H:i:s'), 'i' => $this->de($_v['id']), 'e' => $_v['e'], 'h' => $_v['h'], 'hm' => $_v['hm'], 'm' => @$_v['m'], 'd' => @$_v['d'], 'tt' => @$_v['tt'], 'v' => @$_v['v'], 'fid' => $_fid, 'ip' => $_ip, 'q' => $_f['id']);
+              $___d = array('t0' => date('Y-m-d H:i:s'), 'i' => $this->de($_v['id']), 'e' => $_v['e'], 'h' => $_v['h'], 'hm' => $_v['hm'], 'm' => ($_v['m'] ?? null), 'd' => ($_v['d'] ?? null), 'tt' => ($_v['tt'] ?? null), 'v' => ($_v['v'] ?? null), 'fid' => $_fid, 'ip' => $_ip, 'q' => $_f['id']);
 
-              $___d += (@$_v['parent'] ? (array('p' => $_v['parent']) + (@$_writer ? array('aw' => $_writer) : array())) : array()) + (@$_v['msg'] ? array('msg' => $_v['msg']) : array()) + (@$_auth ? array('ar' => $_auth, 'aw' => $_auth) : array()) + (@$_nm ? array('nm' => $_nm) : array()) + (@$_v['o'] ? array('o' => $_v['o']) : array()) + (@$_v['bz'] || $_v['bz'] === 0 ? array('bz' => $_v['bz'], 'bn' => @$_v['bn']) : array());
+              $___d += (($_v['parent'] ?? null) ? (array('p' => $_v['parent']) + (($_writer ?? null) ? array('aw' => $_writer) : array())) : array()) + (($_v['msg'] ?? null) ? array('msg' => $_v['msg']) : array()) + (($_auth ?? null) ? array('ar' => $_auth, 'aw' => $_auth) : array()) + (($_nm ?? null) ? array('nm' => $_nm) : array()) + (($_v['o'] ?? null) ? array('o' => $_v['o']) : array()) + (($_v['bz'] ?? null) || $_v['bz'] === 0 ? array('bz' => $_v['bz'], 'bn' => ($_v['bn'] ?? null)) : array());
 
               if ($_k === count($_d) - 1) {
                 $___d = array_merge($___d, array('q' => ''));
@@ -3438,7 +3440,7 @@ class mtfFile {
                 $__d['cdn'][] = $_v['id'] . '.' . $_v['e'];
               }
 
-              if (@$_v['k']) {
+              if (!empty($_v['k'])) {
                 $this->mtfAttr->sql('i1', $this->db['table'], array('k' => array('标签' => $_v['k'])), 'WHERE i=' . $this->de($_v['id']));
               }
             }
@@ -3456,7 +3458,7 @@ class mtfFile {
 
       if ($_mode === 'add') {
         $_data[$_f['id']] = $this->getContent($_f['p'], 'list', array('pi' => $_uid, 'o' => $_uid, 'nm' => $_nm));
-        if (@$_msg) {
+        if (!empty($_msg)) {
           $_data[$_f['id']]['list']['msg'] = $_msg;
         }
         $_data['to'] = implode(',', $_to);
@@ -3465,17 +3467,17 @@ class mtfFile {
         //发送邮件通知
         foreach ($_mail as $_k => $_v) {
           $_r = $this->mtfAttr->sql('s1', $this->db['table'], 'a,k', 'WHERE i=' . $_v);
-          if (@$_r['a']['邮件发送时间']) {
+          if (!empty($_r['a']['邮件发送时间'])) {
             if ((time() - strtotime(str_replace('：', ':', $_r['a']['邮件发送时间'][0]))) / 86400 < $this->conf['time']['mail']) {
               break; //两次邮件发送时间的间隔需要小于1天
             }
           }
-          if (@$_r['a']['邮箱']) {
+          if (!empty($_r['a']['邮箱'])) {
             $_mailtoaddress = $_r['a']['邮箱'][0];
-          } elseif (@$_r['a']['QQ']) {
-            $_mailtoaddress = @$_r['a']['QQ'][0] . '@qq.com';
+          } elseif (!empty($_r['a']['QQ'])) {
+            $_mailtoaddress = ($_r['a']['QQ'][0] ?? null) . '@qq.com';
           }
-          if (@$_r['k']['标题']) {
+          if (($_r['k']['标题'] ?? null)) {
             $_mailtoname = $_r['k']['标题'][0];
           } else {
             $_mailtoname = $_v;
@@ -3497,7 +3499,7 @@ class mtfFile {
         }
       }
 
-      return array('data' => $_data, 'mode' => $_mode, 'i_e' => @$_f['id'] ? $this->mtfCrypt->en($_f['id']) : '');
+      return array('data' => $_data, 'mode' => $_mode, 'i_e' => ($_f['id'] ?? null) ? $this->mtfCrypt->en($_f['id']) : '');
     }
   }
 
@@ -3516,7 +3518,7 @@ class mtfFile {
   public function mtfQueueDel($_data = array()) {
 
     $_is = $_data['i'];
-    $_uid = $this->uid2id(@$_SERVER['HTTP_UID']);
+    $_uid = $this->uid2id(($_SERVER['HTTP_UID'] ?? null));
 
     if (!is_array($_is)) {
       $_is = array($_is);
@@ -3527,33 +3529,33 @@ class mtfFile {
     foreach ($_is as $__k => $_i) {
       $__r = $this->mtfMysql->sql('s1', $this->db['table'], 'i,a,e,o,q,h,hm,r', 'WHERE i="' . $this->de($_i) . '"');
 
-      if (!@$__r['e']) {
+      if (empty($__r['e'])) {
         //如果已经被删除，直接跳过
         continue;
       }
 
-      $_attr = $this->mtfAttr->parseA(@$__r['a'], '|');
+      $_attr = $this->mtfAttr->parseA(($__r['a'] ?? null), '|');
       //关注与粉丝
-      if (@$_attr['关注']) {
+      if (!empty($_attr['关注'])) {
         foreach ($_attr['关注'] as $_k => $_v) {
           $this->mtfAttr->sql('d1', $this->db['table'], array('a' => array('粉丝' => $_i)), 'WHERE i=' . $_v, 0, '|');
         }
       }
-      if (@$_attr['粉丝']) {
+      if (!empty($_attr['粉丝'])) {
         foreach ($_attr['粉丝'] as $_k => $_v) {
           $this->mtfAttr->sql('d1', $this->db['table'], array('a' => array('关注' => $_i)), 'WHERE i=' . $_v, 0, '|');
         }
       }
 
       //字幕
-      if (@$_attr['字幕']) {
+      if (!empty($_attr['字幕'])) {
         foreach ($_attr['字幕'] as $_k => $_v) {
           $__d['del'][] = $_v;
         }
       }
 
       //清理实名认证的图片
-      if (@$_attr['证件']) {
+      if (!empty($_attr['证件'])) {
         foreach ($_attr['证件'] as $_k => $_v) {
           $__d['del'][] = $_v;
         }
@@ -3567,7 +3569,7 @@ class mtfFile {
         }
       }
 
-      $_t = @$this->conf['ext2type'][@$__r['e']];
+      $_t = $this->conf['ext2type'][$__r['e'] ?? ''] ?? null;
 
       //关系：被包含的内容
       $_r = $this->mtfMysql->sql('s', $this->db['table'], 'i', 'WHERE FIND_IN_SET(' . $_i . ', r)');
@@ -3585,11 +3587,11 @@ class mtfFile {
         }
       }
 
-      if (@$__r['q']) { //如果文件被其他文件引用，能够引用其他文件的都是 mtfdat和视频/音频
+      if (!empty($__r['q'])) { //如果文件被其他文件引用，能够引用其他文件的都是 mtfdat和视频/音频
 
         if ($this->hasRight($_uid, $__r['i'], '授权', '', 0)) { //如果是自己的文件
 
-          if (strlen(@$_data['id']) <= 18) { //只有父级是文章时触发 头像上级是人
+          if (strlen(($_data['id'] ?? null)) <= 18) { //只有父级是文章时触发 头像上级是人
             if ($_data['id'] !== $__r['i']) {
               $_r = str_replace($_data['id'], '', str_replace($_data['id'] . ',', '', str_replace(',' . $_data['id'], '', $__r['q'])));
               if ($__r['e'] === 'mtfdat') {
@@ -3600,7 +3602,7 @@ class mtfFile {
                 }
               } else {
                 $_r = $this->mtfMysql->sql('s', $this->db['table'], 'i', 'WHERE i IN(' . $_r . ') AND ( o=' . $__r['o'] . ' OR e=\'people\' )');
-                if (@$_r[0]) { //如果自己的其它文章，还引用了这个文件，不删除这个文件
+                if (!empty($_r[0])) { //如果自己的其它文章，还引用了这个文件，不删除这个文件
                   $this->mtfRelate->sql('d1', $this->db['table'], array('q' => $_data['id']), 'WHERE i=' . $__r['i']);
                   $__r['q'] = $_data['id']; //删除对被删除文件的引用
                   $_return = 1;
@@ -3653,7 +3655,7 @@ class mtfFile {
                 $_h = str_replace($__r['i'] . '.' . $__r['e'], '', $_h);
                 file_put_contents($_f, $_h);
                 if (!trim($_h)) { //如果文章变为空，删除文章本身
-                  if (@$_data['a'] !== 'edit') { //编辑模式下，删除原来图片，新增图片时，避免文章被删除
+                  if (($_data['a'] ?? null) !== 'edit') { //编辑模式下，删除原来图片，新增图片时，避免文章被删除
                     $__d['del'][] = $_v;
                   }
                 }
@@ -3665,7 +3667,7 @@ class mtfFile {
             $this->mtfMysql->sql('u', $this->db['table'], array('h' => $__r['h'], 'hm' => $__r['hm'], 'q' => implode(',', $_replace_q)), 'WHERE i=' . $_replace_id);
           }
 
-          if (@$_return === 1) {
+          if ($_return === 1) {
             return false;
           }
 
@@ -3684,10 +3686,10 @@ class mtfFile {
           }
         }
         if ($this->hasRight($_uid, $__r['i'], '授权', '', 0)) { //如果是自己的文件
-          if (strlen(@$_data['id']) === 18) { //只有父级是文章时触发
+          if (strlen(($_data['id'] ?? null)) === 18) { //只有父级是文章时触发
             if ($_t === 'mtfdat') {
               if ($_i !== $_data['id']) { //删除的是引用到文章内的文章
-                if (@$_data['a'] !== 'reply') { //排除对文章的回复
+                if (($_data['a'] ?? null) !== 'reply') { //排除对文章的回复
                   return false;
                 }
               }
@@ -3706,13 +3708,13 @@ class mtfFile {
         foreach ($this->conf['convert'] as $__k => $__v) {
           foreach ($__v as $_k2 => $_v2) {
             if ($__k === $_t) {
-              $__c[$__k][$_v2['b']] = array('w' => @$_v2['w'], 'ext' => $_v2['ext']);
+              $__c[$__k][$_v2['b']] = array('w' => ($_v2['w'] ?? null), 'ext' => $_v2['ext']);
             }
           }
         }
-        if (@$_attr['比特率']) {
+        if (!empty($_attr['比特率'])) {
           foreach ($_attr['比特率'] as $_k => $_v) {
-            if (@$__c[$_t][$_v]) {
+            if (!empty($__c[$_t][$_v])) {
               $_n = $_i . $this->config2Url(array('b' => $_v, 'w' => $__c[$_t][$_v]['w'])) . '.' . $__c[$_t][$_v]['ext'];
               $__d['cdn'][] = array('n' => $_n);
               //删除日志
@@ -3723,7 +3725,7 @@ class mtfFile {
       }
 
       //删除缩略图
-      if (@$this->conf['preview'][$_t]['ext']) {
+      if (!empty($this->conf['preview'][$_t]['ext'])) {
         $__d['cdn'][] = array('n' => $_i . '.' . $this->conf['preview'][$_t]['ext']);
         if ($_t === 'video') {
           $__d['cdn'][] = array('n' => $_i . '.' . 'jpg');
@@ -3765,10 +3767,8 @@ class mtfFile {
     }
   }
 
-  private function _jsonOrder($_rrr, $_i, $_rr) {
-    $_tmp = array($_i => array());
-    $_tmp[$_i] = $_rr;
-    $_rrr[] = $_tmp;
+  private function _jsonOrder(array $_rrr, $_i, $_rr): array {
+    $_rrr[] = [$_i => $_rr];
     return $_rrr;
   }
 
@@ -3796,8 +3796,8 @@ class mtfFile {
             return false;
           }
 
-          if (@$_w[$_t]) {
-            if (@$_w[$_t][0]['n']) {
+          if (!empty($_w[$_t])) {
+            if (!empty($_w[$_t][0]['n'])) {
               if ($this->fen('zan', $_s, $_o, $_uid, $_v, $_w[$_t][0]['v'], $_ip, $_fid, $_once)) {
 
                 if ($_t === 't') {
@@ -3807,7 +3807,7 @@ class mtfFile {
 
                 $_w[$_t][0]['n']--;
                 if ($_rec) {
-                  if (!@$_w[$_t][0]['u']) {
+                  if (empty($_w[$_t][0]['u'])) {
                     $_w[$_t][0]['u'] = array();
                   }
                   $_w[$_t][0]['u'][] = $_uid;
@@ -3855,7 +3855,7 @@ class mtfFile {
       foreach ($__r as $_k => $_v) {
 
         $__sub = $this->mtfAttr->parseA($_v['a'], '|');
-        $__sub2 = array(@$__sub['字幕语种'][0] ? $__sub['字幕语种'][0] : 'default', $_v['i'], $_v['e']);
+        $__sub2 = array(($__sub['字幕语种'][0] ?? null) ? $__sub['字幕语种'][0] : 'default', $_v['i'], $_v['e']);
         //将语种为zh-cn,zh-tw提前
         switch ($__sub['字幕语种'][0]) {
         case 'zh-cn':
@@ -3910,13 +3910,13 @@ class mtfFile {
     foreach ($this->conf['convert'] as $__k => $__v) {
       foreach ($__v as $_v2) {
         if ($__k === $_t) {
-          $__c[$__k][$_v2['b']] = array('w' => @$_v2['w'], 'ext' => $_v2['ext']);
+          $__c[$__k][$_v2['b']] = array('w' => ($_v2['w'] ?? null), 'ext' => $_v2['ext']);
         }
       }
     }
-    if (@$_attr['比特率']) {
+    if (!empty($_attr['比特率'])) {
       foreach ($_attr['比特率'] as $__k => $__v) {
-        if (@$__c[$_t][$__v]) {
+        if (!empty($__c[$_t][$__v])) {
           $_b = $__c[$_t][$__v];
           array_unshift($_source, array('b' => $__v, 'w' => $_b['w'], 'ext' => $_b['ext']));
         }
@@ -3927,7 +3927,7 @@ class mtfFile {
     }
 
     $_txt = '';
-    if (@$_attr['字幕']) {
+    if (!empty($_attr['字幕'])) {
       $_ar = $this->_getSub($_attr['字幕']);
       $_attr['字幕'] = $_ar['sub'];
       $_txt = $_ar['txt'];
@@ -4047,7 +4047,7 @@ class mtfFile {
     return array_unique($_tag);
   }
 
-  private function _readMsg($_is = array(), $_uid) {
+  private function _readMsg($_is, $_uid) {
     if ($_uid) {
       if (!is_array($_is)) {
         $_is = array($_is);
@@ -4187,7 +4187,7 @@ class mtfFile {
             $_var['web'] = 1;
             if ($_uid) { //在其他人的主页读取消息
               $_limit = 50;
-              $__r = $this->mtfMysql->sql('s', $this->db['table_msg'], 'f,v,i,vv,tt', 'WHERE g=2 AND (( f=' . $_v . ' AND tt=' . $_uid . ' ) ' . (@$_data['sub'] ? '' : ' OR ( f=' . $_uid . ' AND tt=' . $_v . ' )') . ') ORDER BY vv DESC,t DESC LIMIT 0,' . $_limit);
+              $__r = $this->mtfMysql->sql('s', $this->db['table_msg'], 'f,v,i,vv,tt', 'WHERE g=2 AND (( f=' . $_v . ' AND tt=' . $_uid . ' ) ' . (($_data['sub'] ?? null) ? '' : ' OR ( f=' . $_uid . ' AND tt=' . $_v . ' )') . ') ORDER BY vv DESC,t DESC LIMIT 0,' . $_limit);
               $_a = array();
               $_b = array();
               $_msg = array();
@@ -4204,7 +4204,7 @@ class mtfFile {
               }
 
               if ($_a) {
-                if (@$_data['msg'] === '1' || (@$_data['order'] !== 'my' || @$_data['sub'] === 2) || $_v === '0') { //主页状态，也读 已读消息
+                if (($_data['msg'] ?? null) === '1' || (($_data['order'] ?? null) !== 'my' || ($_data['sub'] ?? null) === 2) || $_v === '0') { //主页状态，也读 已读消息
 
                   $_index = count($_arr) - 1;
                   if ($_arr) {
@@ -4229,14 +4229,14 @@ class mtfFile {
             }
           }
 
-          if (!@$_data['k'] && @$_data['sub'] && $_data['page']) {
+          if (!($_data['k'] ?? null) && !empty($_data['sub']) && $_data['page']) {
             $_ar = explode('_', $_data['page']);
             $_arr = array_slice($_arr, $_ar[0] * $_ar[1] - 1, $_ar[1]);
             unset($_ar);
           }
           $_msg_unread = array();
 
-          if ($_uid && (!@$_data['sub'] || @$_data['sub'] === 2) && $_msg && $_arr) {
+          if ($_uid && (!($_data['sub'] ?? null) || ($_data['sub'] ?? null) === 2) && $_msg && $_arr) {
             foreach ($_arr as $_k => $_v) {
               if (in_array($_v, $_msg_v)) {
                 $_msg_unread[] = $_msg[$_v];
@@ -4248,7 +4248,7 @@ class mtfFile {
           }
 
           if ($_arr) {
-            if (!@$_data['order'] || $_data['order'] === 'my') {
+            if (!($_data['order'] ?? null) || $_data['order'] === 'my') {
               if ($_r['e'] === 'mtfdat' && $_r['o']) { //默认提前作者评论
                 $_order[] = 'o=' . $_r['o'] . ' DESC';
               }
@@ -4259,13 +4259,13 @@ class mtfFile {
               unset($__r);
             }
 
-            $_sql[] = '(i IN (' . implode(',', $_arr) . ')' . (@$_data['k'] ? ' OR o=' . $_v : '') . ')';
+            $_sql[] = '(i IN (' . implode(',', $_arr) . ')' . (($_data['k'] ?? null) ? ' OR o=' . $_v : '') . ')';
 
           } else {
             $_sql[] = 'i=-1'; //无结果
           }
 
-          if ($_data['order'] === 'my' && !@$_data['sub']) { //sub动态页查看
+          if ($_data['order'] === 'my' && !($_data['sub'] ?? null)) { //sub动态页查看
             if ($this->_dn_404($_v)) {
               return array('301' => 'https://' . $this->_dn_404($_v)); //无Key返回301
             } elseif ($this->conf['dn'][$_v]) {
@@ -4330,7 +4330,7 @@ class mtfFile {
             $_order[] = 'i DESC ';
 
             $__r = $this->mtfMysql->sql('s1', $this->db['table'], 'nz,nz0', 'WHERE i=' . $_uid);
-            if (@$__r['nz']) {
+            if (!empty($__r['nz'])) {
               $_ch = '累计 ♥ ： ' . $__r['nz'] . '　 可用 ♥ ： ' . $__r['nz0'];
             }
 
@@ -4368,7 +4368,7 @@ class mtfFile {
                 }
                 $_a[] = $__v['f'];
                 if ($__v['vv']) {
-                  if (@$this->_cache['nmsg1'][$__v['f']]) {
+                  if (!empty($this->_cache['nmsg1'][$__v['f']])) {
                     $this->_cache['nmsg1'][$__v['f']] += $__v['vv'];
                   } else {
                     $this->_cache['nmsg1'][$__v['f']] = $__v['vv'];
@@ -4390,7 +4390,7 @@ class mtfFile {
               if ($_index === 1) {
                 //读取关注的人
                 $__r = $this->mtfAttr->sql('s1', $this->db['table'], 'a', 'WHERE i=' . $_uid, 0, '|');
-                if (@$__r['a']['关注']) {
+                if (!empty($__r['a']['关注'])) {
                   $_p = $__r['a']['关注'];
                   $_order[] = 'i IN(' . implode(',', $_p) . ') DESC'; //提前关注的人
                 }
@@ -4454,7 +4454,7 @@ class mtfFile {
               $_dn_id = array_flip($this->conf['dn'])[$_SERVER['SERVER_NAME']];
               $_id = $this->_ui($_v, $_dn_id);
               $_r = $this->mtfMysql->sql('s1', $this->db['table'], 'i,top', 'WHERE i=' . $_id);
-              if (@$_r['top']) {
+              if (!empty($_r['top'])) {
                 $_sql_v[] = 'i IN (' . $_r['top'] . ') AS istop';
                 $_order[] = 'field(i,' . $_r['top'] . ') DESC';
               }
@@ -4502,7 +4502,7 @@ class mtfFile {
             $_v = array_slice($_v, 0, 6); //只存前6个元素
             if ($_v && is_array($_v)) {
               foreach ($_v as $__k => $__v) {
-                if (@$__v['k'] && @$__v['i'] && is_numeric($__v['i'])) {
+                if ($__v['k'] && !empty($__v['i']) && is_numeric($__v['i'])) {
                   $__v['i'] = mb_substr($__v['i'], 0, 30); //只保留前30个数字
                   $__v['k'] = mb_substr($__v['k'], 0, 30); //只保留前30个数字
                   $_v[$__k]['i'] = $__v['i'];
@@ -4520,7 +4520,7 @@ class mtfFile {
               }
 
             }
-            if (@$_data['fav']) {
+            if (!empty($_data['fav'])) {
               $_var['fav'] = 1;
             }
             unset($_v);
@@ -4538,7 +4538,7 @@ class mtfFile {
             if (!$_uid || !$this->isAdmin($_uid)) { //非管理员排除消息
               $_sql[] = 'msg=\'\'';
             }
-            settype($_v, 'int');
+            $_v = (int)$_v;
             if ($_v > 0) {
               $_sql[] = 'o=' . $_v;
             } else {
@@ -4572,7 +4572,7 @@ class mtfFile {
           break;
         case 'order':
           if ($_v !== 'my') {
-            $_v = str_replace('i IN top DESC,', @$_top ? 'i IN (' . $_top . ') DESC,' : '', $_v);
+            $_v = str_replace('i IN top DESC,', ($_top ?? null) ? 'i IN (' . $_top . ') DESC,' : '', $_v);
             if ($_v === 'randbynz') {
               $_v = 'i>99999999 DESC,nz>' . floor(substr(time(), -3) / 5) . ' DESC,t0 DESC';
             }
@@ -4671,11 +4671,11 @@ class mtfFile {
           case 'sign':
             $_uid = $_data['uid'];
             $_step = $_data['step'];
-            settype($_step, 'int');
+            $_step = (int)$_step;
             $_uid = $this->uid2id($_data['uid']);
             if ($_step === 0) {
               $_r = $this->mtfMysql->sql('s1', $this->db['table_msg'], 'i', 'WHERE g=0 AND t>=\'' . date('Y-m-d') . '\' AND s=\'签到 ♥\' AND tt=\'' . $_uid . '\'');
-              if (@$_r['i']) {
+              if (!empty($_r['i'])) {
                 $_sign = 1;
               } else {
                 $_sign = 0;
@@ -4844,7 +4844,7 @@ class mtfFile {
                 $_as[] = $_v['i'];
               }
 
-              if (@$_v['p'] && strlen($_v['p']) === 18) { //除去人，只保留文章
+              if ($_v['p'] && strlen($_v['p']) === 18) { //除去人，只保留文章
                 $_parents_tmp[] = $_v['p'];
               }
             }
@@ -4894,7 +4894,7 @@ class mtfFile {
             if ($_parents_diff) {
               $_parents = array_merge($_parents, $_parents_diff);
               $__r = $this->mtfQueueList(array('mom' => 1, 'i' => implode(',', $_parents_diff), 'e' => '!people'));
-              if (@$__r[0]) {
+              if (!empty($__r[0])) {
                 foreach ($__r as $__k => $__v) {
                   foreach ($__v as $_k => $_v) {
                     $this->_cache['list'][$_k] = $_v;
@@ -4922,18 +4922,18 @@ class mtfFile {
           }
           //区分非人物中的消息、文章
           if ($_tpl === 'list' && $_t !== 'people') {
-            if (@$_dat['sub']) {
+            if (!empty($_dat['sub'])) {
               $_class = 'sub';
-            } elseif (@$_dat['mom']) {
+            } elseif (!empty($_dat['mom'])) {
               $_class = '';
               //$_rr[$_v['i']]['list']['mom']=1;//避免列表中音频与内容中的音频重复，播放列表自动切换
             } elseif ($_var['web'] === 1) {
-              if (@$_v['istop']) {
+              if (!empty($_v['istop'])) {
                 $_class = 'top';
-              } elseif (@$_v['isbox']) {
+              } elseif (!empty($_v['isbox'])) {
                 // $_class='box'; // mtf-box 已移除，默认没有样式
-                if (!isset($_data['pi']) || @$_var['pi_isset'] === 1) { //如果未定义，再定义，优先考虑自定义
-                  if (@$_data['id'] === $_v['o']) { //自己的文章，不显示pifno
+                if (!isset($_data['pi']) || ($_var['pi_isset'] ?? null) === 1) { //如果未定义，再定义，优先考虑自定义
+                  if (($_data['id'] ?? null) === $_v['o']) { //自己的文章，不显示pifno
                     $_data['pi'] = 0;
                   } else {
                     $_data['pi'] = 1;
@@ -4941,7 +4941,7 @@ class mtfFile {
                   $_var['pi_isset'] = 1;
                 }
               } else {
-                $_class = @$_v['isme'] ? 'rtl' : 'ltr';
+                $_class = ($_v['isme'] ?? null) ? 'rtl' : 'ltr';
               }
             }
             $_rr[$_v['i']]['list']['c'] = $_class;
@@ -4968,7 +4968,7 @@ class mtfFile {
               $_h = array();
               if ($_t === 'image') {
                 $_h['img'] = $this->_isDownGifExt($_v['e'], $_t);
-                if (@$_key['标题'][0]) {
+                if (!empty($_key['标题'][0])) {
                   $_h['img']['alt'] = $this->mtfUnit->clearEmoji($_key['标题'][0]);
                 }
                 if ($_v['url']) {
@@ -4991,7 +4991,7 @@ class mtfFile {
               $_a = explode(',', $_v['q']);
               $_l = $this->mtfQueueList(array('mom' => 1, 'i' => $_a[0], 'e' => '!people'));
 
-              if (@$_l[0][$_a[0]]) {
+              if (!empty($_l[0][$_a[0]])) {
                 $_rrr = $this->_jsonOrder($_rrr, $_a[0], array('list' => array('c' => 'mom', 'quota' => $_l[0][$_a[0]]['list']))); //读取父级文章
               }
               unset($_a);
@@ -5091,7 +5091,7 @@ class mtfFile {
                     }
 
                     if ($_v['o']) {
-                      $_tmp += array('o' => $_v['o'], 'nm' => @$this->_cache['list'][$_v['o']]['k']['标题'][0]);
+                      $_tmp += array('o' => $_v['o'], 'nm' => ($this->_cache['list'][$_v['o']]['k']['标题'][0] ?? null));
                     } else {
                       $tmp['nm'] = $_v['nm'];
                     }
@@ -5156,16 +5156,16 @@ class mtfFile {
               $_rr[$_v['i']] = $this->_get_data($_v, $_attr);
             } else {
               $_a = $this->_get_people($_v['i'], 'card', $_uid, $_v['nm']);
-              if (@$_data['sub']) {
-                if (@$_data['sub'] === '1') { //与$_dat['sub']不同
-                  $_sub = $this->mtfQueueList(array('sub' => 2, 'mom' => $_var['mom'], 'id' => $_v['i'], 'page' => '1_1', 'order' => 'my', 'msg' => @$_data['msg']));
+              if (!empty($_data['sub'])) {
+                if (($_data['sub'] ?? null) === '1') { //与$_dat['sub']不同
+                  $_sub = $this->mtfQueueList(array('sub' => 2, 'mom' => $_var['mom'], 'id' => $_v['i'], 'page' => '1_1', 'order' => 'my', 'msg' => ($_data['msg'] ?? null)));
                 }
                 //动态页面，去掉底部HTML和友情链接
                 unset($_a['b']);
                 unset($_a['count']);
                 unset($_a['des']);
                 unset($_a['tag']);
-              } elseif (@$_dat_ar[1]['order'] === 'my' && @$_a['b']) { //只有主页显示友情链接
+              } elseif ($_dat_ar[1]['order'] === 'my' && !empty($_a['b'])) { //只有主页显示友情链接
                 $_tmp = explode('_', $_dat_ar[1]['page']);
                 if ($_tmp[0] === '1') {
                   $bhtml .= $_a['b'];
@@ -5175,8 +5175,8 @@ class mtfFile {
                 unset($_tmp);
               }
 
-              $_rrr = $this->_jsonOrder($_rrr, $_v['i'], array('people' => $_a + (@$_data['sub'] ? array('sub' => 1) : array()) + (@$_dat['sub'] === 2 ? array('subp' => 1) : array()))); //如果要显示子文章，则sub=1，不显示 ♥/粉丝/关注
-              if (@$_sub[0]) { //如果有子文章
+              $_rrr = $this->_jsonOrder($_rrr, $_v['i'], array('people' => $_a + (($_data['sub'] ?? null) ? array('sub' => 1) : array()) + (($_dat['sub'] ?? null) === 2 ? array('subp' => 1) : array()))); //如果要显示子文章，则sub=1，不显示 ♥/粉丝/关注
+              if (!empty($_sub[0])) { //如果有子文章
                 $_rrr = $this->_jsonOrder($_rrr, $_v['i'], array('sub' => $_sub[0]));
                 unset($_sub);
               }
