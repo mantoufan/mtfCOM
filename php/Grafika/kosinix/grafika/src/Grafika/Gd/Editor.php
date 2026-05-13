@@ -285,28 +285,14 @@ final class Editor implements EditorInterface {
 
     } else {
 
-      // Loop using image1
-      for ($y = 0; $y < $image1->getHeight(); $y++) {
-        for ($x = 0; $x < $image1->getWidth(); $x++) {
-
-          // Get image1 pixel
-          $rgb1 = imagecolorat($image1->getCore(), $x, $y);
-          $r1 = ($rgb1 >> 16) & 0xFF;
-          $g1 = ($rgb1 >> 8) & 0xFF;
-          $b1 = $rgb1 & 0xFF;
-
-          // Get image2 pixel
-          $rgb2 = imagecolorat($image2->getCore(), $x, $y);
-          $r2 = ($rgb2 >> 16) & 0xFF;
-          $g2 = ($rgb2 >> 8) & 0xFF;
-          $b2 = $rgb2 & 0xFF;
-
-          // Compare pixel value
-          if (
-            $r1 !== $r2 or
-            $g1 !== $g2 or
-            $b1 !== $b2
-          ) {
+      // Loop using image1 - compare raw RGB values directly
+      $gd1 = $image1->getCore();
+      $gd2 = $image2->getCore();
+      $h = $image1->getHeight();
+      $w = $image1->getWidth();
+      for ($y = 0; $y < $h; $y++) {
+        for ($x = 0; $x < $w; $x++) {
+          if ((imagecolorat($gd1, $x, $y) & 0xFFFFFF) !== (imagecolorat($gd2, $x, $y) & 0xFFFFFF)) {
             return false;
           }
         }
@@ -450,24 +436,24 @@ final class Editor implements EditorInterface {
     $opacity = ($opacity > 1) ? 1 : $opacity;
     $opacity = ($opacity < 0) ? 0 : $opacity;
 
-    for ($y = 0; $y < $image->getHeight(); $y++) {
-      for ($x = 0; $x < $image->getWidth(); $x++) {
-        $rgb = imagecolorat($image->getCore(), $x, $y);
-        $alpha = ($rgb >> 24) & 0x7F; // 127 in hex. These are binary operations.
+    $gd = $image->getCore();
+    $h = $image->getHeight();
+    $w = $image->getWidth();
+    for ($y = 0; $y < $h; $y++) {
+      for ($x = 0; $x < $w; $x++) {
+        $rgb = imagecolorat($gd, $x, $y);
+        $alpha = ($rgb >> 24) & 0x7F;
+        if ($alpha >= 127) continue; // Skip fully transparent pixels
+
         $r = ($rgb >> 16) & 0xFF;
         $g = ($rgb >> 8) & 0xFF;
         $b = $rgb & 0xFF;
 
-        // Reverse alpha values from 127-0 (transparent to opaque) to 0-127 for easy math
-        // Previously: 0 = opaque, 127 = transparent.
-        // Now: 0 = transparent, 127 = opaque
         $reverse = 127 - $alpha;
         $reverse = round($reverse * $opacity);
 
-        if ($alpha < 127) { // Process non transparent pixels only
-          imagesetpixel($image->getCore(), $x, $y,
-            imagecolorallocatealpha($image->getCore(), $r, $g, $b, 127 - $reverse));
-        }
+        imagesetpixel($gd, $x, $y,
+          imagecolorresolvealpha($gd, $r, $g, $b, 127 - $reverse));
       }
     }
 
@@ -837,7 +823,7 @@ final class Editor implements EditorInterface {
         $reverse = 127 - $a2;
         $reverse = round($reverse * $opacity);
 
-        $argb3 = imagecolorallocatealpha($canvas, $r3, $g3, $b3, 127 - $reverse);
+        $argb3 = imagecolorresolvealpha($canvas, $r3, $g3, $b3, 127 - $reverse);
         imagesetpixel($canvas, $canvasX, $canvasY, $argb3);
       }
     }
@@ -903,7 +889,7 @@ final class Editor implements EditorInterface {
         $reverse = 127 - $a2;
         $reverse = round($reverse * $opacity);
 
-        $argb3 = imagecolorallocatealpha($canvas, $r3 * 255, $g3 * 255, $b3 * 255, 127 - $reverse);
+        $argb3 = imagecolorresolvealpha($canvas, $r3 * 255, $g3 * 255, $b3 * 255, 127 - $reverse);
         imagesetpixel($canvas, $canvasX, $canvasY, $argb3);
       }
     }
@@ -920,17 +906,16 @@ final class Editor implements EditorInterface {
   private function _entropy($hist) {
     $entropy = 0;
     $hist_size = array_sum($hist['r']) + array_sum($hist['g']) + array_sum($hist['b']);
+    if ($hist_size === 0) return 0;
+    $inv = 1.0 / $hist_size;
     foreach ($hist['r'] as $p) {
-      $p = $p / $hist_size;
-      $entropy += $p * log($p, 2);
+      if ($p > 0) { $p *= $inv; $entropy += $p * log($p, 2); }
     }
     foreach ($hist['g'] as $p) {
-      $p = $p / $hist_size;
-      $entropy += $p * log($p, 2);
+      if ($p > 0) { $p *= $inv; $entropy += $p * log($p, 2); }
     }
     foreach ($hist['b'] as $p) {
-      $p = $p / $hist_size;
-      $entropy += $p * log($p, 2);
+      if ($p > 0) { $p *= $inv; $entropy += $p * log($p, 2); }
     }
     return $entropy * -1;
   }
@@ -974,7 +959,7 @@ final class Editor implements EditorInterface {
         $reverse = 127 - $a2;
         $reverse = round($reverse * $opacity);
 
-        $argb3 = imagecolorallocatealpha($canvas, $r3, $g3, $b3, 127 - $reverse);
+        $argb3 = imagecolorresolvealpha($canvas, $r3, $g3, $b3, 127 - $reverse);
         imagesetpixel($canvas, $canvasX, $canvasY, $argb3);
       }
     }
@@ -990,42 +975,25 @@ final class Editor implements EditorInterface {
    * @throws \Exception
    */
   private function _flip($image, $mode) {
-    $old = $image->getCore();
+    $gd = $image->getCore();
     $w = $image->getWidth();
     $h = $image->getHeight();
     if ($mode === 'h') {
-      $new = imagecreatetruecolor($w, $h);
-      for ($x = 0; $x < $w; $x++) {
-        imagecopy($new, $old, $w - $x - 1, 0, $x, 0, 1, $h);
-      }
-      imagedestroy($old); // Free resource
-      return new Image(
-        $new,
-        $image->getImageFile(),
-        $w,
-        $h,
-        $image->getType(),
-        $image->getBlocks(),
-        $image->isAnimated()
-      );
+      imageflip($gd, IMG_FLIP_HORIZONTAL);
     } else if ($mode === 'v') {
-      $new = imagecreatetruecolor($w, $h);
-      for ($y = 0; $y < $h; $y++) {
-        imagecopy($new, $old, 0, $h - $y - 1, 0, $y, $w, 1);
-      }
-      imagedestroy($old); // Free resource
-      return new Image(
-        $new,
-        $image->getImageFile(),
-        $w,
-        $h,
-        $image->getType(),
-        $image->getBlocks(),
-        $image->isAnimated()
-      );
+      imageflip($gd, IMG_FLIP_VERTICAL);
     } else {
       throw new \Exception(sprintf('Unsupported mode "%s"', $mode));
     }
+    return new Image(
+      $gd,
+      $image->getImageFile(),
+      $w,
+      $h,
+      $image->getType(),
+      $image->getBlocks(),
+      $image->isAnimated()
+    );
   }
 
   /**
@@ -1155,6 +1123,8 @@ final class Editor implements EditorInterface {
     if ($resizeH - $smallCropH <= 0) {
       $hist['0-0'] = $this->_entropy($image->histogram(array(array(0, 0), array($smallCropW, $smallCropH))));
     }
+
+    imagedestroy($image->getCore()); // Free the small cloned image
 
     asort($hist);
     end($hist);

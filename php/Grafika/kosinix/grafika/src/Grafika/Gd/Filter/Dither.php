@@ -60,6 +60,10 @@ class Dither implements FilterInterface{
 
         $new = imagecreatetruecolor($width, $height);
 
+        // Pre-allocate black and white colors to avoid per-pixel allocation
+        $colorBlack = imagecolorallocate($new, 0, 0, 0);
+        $colorWhite = imagecolorallocate($new, 255, 255, 255);
+
         for ( $y = 0; $y < $height; $y+=1 ) {
             for ( $x = 0; $x < $width; $x+=1 ) {
 
@@ -85,11 +89,7 @@ class Dither implements FilterInterface{
 
                 // Current pixel
                 imagesetpixel( $new, $x, $y,
-                    imagecolorallocate( $new,
-                        $newPixel,
-                        $newPixel,
-                        $newPixel
-                    )
+                    $newPixel === 0 ? $colorBlack : $colorWhite
                 );
 
                 $qError = $oldPixel - $newPixel; // Quantization error
@@ -140,6 +140,10 @@ class Dither implements FilterInterface{
 
         $new = imagecreatetruecolor( $width, $height );
 
+        // Pre-allocate black and white colors to avoid per-pixel allocation
+        $colorBlack = imagecolorallocate($new, 0, 0, 0);
+        $colorWhite = imagecolorallocate($new, 255, 255, 255);
+
         $thresholdMap = array(
             array( 15, 135, 45, 165 ),
             array( 195, 75, 225, 105 ),
@@ -167,11 +171,7 @@ class Dither implements FilterInterface{
 
                 // Current pixel
                 imagesetpixel( $new, $x, $y,
-                    imagecolorallocate( $new,
-                        $newPixel,
-                        $newPixel,
-                        $newPixel
-                    )
+                    $newPixel === 0 ? $colorBlack : $colorWhite
                 );
 
             }

@@ -488,13 +488,14 @@ final class GifHelper {
             $width  = imagesx($old);
             $height = imagesy($old);
             $new = imagecreatetruecolor($newW, $newH); // Create a blank image
-			
+
 			//Keep transparent
 			$color = imagecolorallocate($new,255,255,255);
 			imagecolortransparent($new,$color);
 			imagefill($new,0,0,$color);
-			
+
             if($firstFrameGd){
+                imagedestroy($new); // Free unused blank image
                 $new = $firstFrameGd;
             }
             // Account for frame imageLeft and imageTop
@@ -515,6 +516,8 @@ final class GifHelper {
                 $width,
                 $height
             );
+            imagedestroy($old); // Free old frame resource
+
             ob_start();
             imagegif($new);
             $binaryRaw = ob_get_contents();

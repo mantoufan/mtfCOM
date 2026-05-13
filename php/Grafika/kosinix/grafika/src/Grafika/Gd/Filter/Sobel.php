@@ -27,6 +27,13 @@ class Sobel implements FilterInterface
 
         $pixels = array();
         $new    = imagecreatetruecolor($width, $height);
+
+        // Pre-allocate grayscale color palette (0-255) to avoid per-pixel allocation
+        $colorCache = array();
+        for ($i = 0; $i <= 255; $i++) {
+            $colorCache[$i] = imagecolorallocate($new, $i, $i, $i);
+        }
+
         for ($y = 0; $y < $height; $y++) {
             for ($x = 0; $x < $width; $x++) {
                 // row 0
@@ -85,8 +92,7 @@ class Sobel implements FilterInterface
                 if ($edge > 255) {
                     $edge = 255;
                 }
-                $color = imagecolorallocate($new, $edge, $edge, $edge);
-                imagesetpixel($new, $x, $y, $color);
+                imagesetpixel($new, $x, $y, $colorCache[$edge]);
 
             }
         }
