@@ -13,12 +13,7 @@ class mtfRelate{
 	}
 	
 	private function _array_remove($ar,$v){
-		foreach($ar as $_k=>$_v) {
-			if($v == $_v){
-				unset($ar[$_k]);
-			}
-		}
-		return $ar;
+		return array_values(array_diff($ar, array($v)));
 	}
 	
 	public function sql($action,$table,$values='',$if='',$debug='')

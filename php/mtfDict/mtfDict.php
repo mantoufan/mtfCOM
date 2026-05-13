@@ -44,8 +44,12 @@ class mtfDict{
 			$parser->setStartLine(0);
 			$parser->setNumberOfBlocks(INF);
 			foreach ($parser->parse() as $_k) {
+				$_batch=array();
 				foreach ($_k['parsedLines'] as $_v) {
-					$this->mtfMysql->sql('i',$this->db['table'],array('s'=>$_v['simplified'],'t'=>$_v['traditional'],'p'=>$_v['pinyinDiacritic'],'e'=>$_v['english']));
+					$_batch[]="('".addslashes($_v['simplified'])."','".addslashes($_v['traditional'])."','".addslashes($_v['pinyinDiacritic'])."','".addslashes($_v['english'])."')";
+				}
+				if($_batch){
+					$this->mtfMysql->sql('r','INSERT INTO '.$this->db['table'].' (s,t,p,e) VALUES '.implode(',',$_batch));
 				}
 			}
 		}else{

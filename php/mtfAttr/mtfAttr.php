@@ -141,11 +141,22 @@ class mtfAttr{
 								if(is_array($_v3)){
 									$_r[$_k2][$_k3]=array_merge($_r[$_k2][$_k3],$_v3);
 								}else{
-									$_r[$_k2][$_k3][]=$_v3;	
+									$_r[$_k2][$_k3][]=$_v3;
 								}
-								$_r[$_k2][$_k3]=array_filter(array_unique($_r[$_k2][$_k3]));
 							}
 						
+						}
+					}
+				}
+				// dedup after all inner iterations complete
+				if($action==='u0'||$action==='u1'||$action==='i1'){
+					foreach($_r as $_dk=>$_dv){
+						if(is_array($_dv)){
+							foreach($_dv as $_dk2=>$_dv2){
+								if(is_array($_dv2)){
+									$_r[$_dk][$_dk2]=array_filter(array_unique($_dv2));
+								}
+							}
 						}
 					}
 				}

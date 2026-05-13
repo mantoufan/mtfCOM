@@ -2,8 +2,9 @@
 class mtfKeyword{
 	private $_root;
 	public function __construct($__root='')
-    {	
+    {
 		$this->_root=str_replace('\\','/',dirname(__file__)).'/';
+		ini_set('memory_limit', '256M');
 	}
 	public function get($word)
 	{
@@ -32,7 +33,6 @@ class mtfKeyword{
 			}
 		}
 		if(!$do){
-			ini_set('memory_limit', '256M');
 			// 加入头文件
 			include($this->_root.'../JieBa/autoload.php');
 			Fukuball\Jieba\Jieba::init(array('dict'=>'small'));

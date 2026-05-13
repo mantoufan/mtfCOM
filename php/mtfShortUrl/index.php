@@ -35,35 +35,44 @@
                 }
                 $url = urldecode($url);
                 $md5 = md5($url);
-                
-                $r = mysqli_query($m, "SELECT code FROM `mtf_shorturl` WHERE md5 = '" . $md5 ."'");
+
+                $stmt = mysqli_prepare($m, "SELECT code FROM `mtf_shorturl` WHERE md5 = ?");
+                mysqli_stmt_bind_param($stmt, 's', $md5);
+                mysqli_stmt_execute($stmt);
+                $r = mysqli_stmt_get_result($stmt);
                 if ($r && $r->num_rows > 0) {
                     $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
                     $code = $row['code'];
+                    mysqli_stmt_close($stmt);
                 } else {
-                    $maxId = 1;
-                    $r = mysqli_query($m, 'SELECT MAX(id) as max_id FROM `mtf_shorturl`');
-                    if ($r) {
-                        $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
-                        $maxId = $row['max_id'] + 1;
-                    }
-                    $code = base_convert($maxId, 10, 36);
-                    $r = mysqli_query($m, "INSERT INTO `mtf_shorturl` (`id`, `code`, `md5`, `url`, `hits`, `add_time`,`upd_time`) VALUES ('" . $maxId . "', '" . $code . "', '" . $md5 . "', '" . $url . "', '0', CURRENT_TIMESTAMP , CURRENT_TIMESTAMP);");
+                    mysqli_stmt_close($stmt);
+                    $code = base_convert(time() . rand(100, 999), 10, 36);
+                    $stmt = mysqli_prepare($m, "INSERT INTO `mtf_shorturl` (`code`, `md5`, `url`, `hits`, `add_time`,`upd_time`) VALUES (?, ?, ?, '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+                    mysqli_stmt_bind_param($stmt, 'sss', $code, $md5, $url);
+                    $r = mysqli_stmt_execute($stmt);
                     if (!$r) {
-                        logger('新增网址失败：'."INSERT INTO `mtf_shorturl` (`id`, `code`, `md5`, `url`, `hits`, `add_time`,`upd_time`) VALUES ('" . $maxId . "', '" . $code . "', '" . $md5 . "', '" . $url . "', '0', CURRENT_TIMESTAMP , CURRENT_TIMESTAMP);");
+                        logger('新增网址失败：' . mysqli_error($m));
                         die('新增网址失败，请重试');
                     }
+                    mysqli_stmt_close($stmt);
                 }
                 die('http' . (isSsl() ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . ($_SERVER[PHP_SELF] ? substr($_SERVER[PHP_SELF], 0, strrpos($_SERVER[PHP_SELF], '/')) : '') . '/' . $code);
             }
         } else if ($a[0]) {
             $code = $a[0];
-            $r = mysqli_query($m, "SELECT url FROM `mtf_shorturl` WHERE code = '" . $code ."'");
+            $stmt = mysqli_prepare($m, "SELECT url FROM `mtf_shorturl` WHERE code = ?");
+            mysqli_stmt_bind_param($stmt, 's', $code);
+            mysqli_stmt_execute($stmt);
+            $r = mysqli_stmt_get_result($stmt);
             if ($r && $r->num_rows > 0) {
                 $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
                 $url = $row['url'];
+                mysqli_stmt_close($stmt);
                 // 浏览次数 + 1，不关心结果
-                mysqli_query($m, "UPDATE `mtf_shorturl` SET `hits` = `hits` + 1 WHERE code = '" . $code ."'");
+                $stmt2 = mysqli_prepare($m, "UPDATE `mtf_shorturl` SET `hits` = `hits` + 1 WHERE code = ?");
+                mysqli_stmt_bind_param($stmt2, 's', $code);
+                mysqli_stmt_execute($stmt2);
+                mysqli_stmt_close($stmt2);
                 // 302跳转到指定网址
                 header('Location:' . $url);
             } else {

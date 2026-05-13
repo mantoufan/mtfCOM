@@ -143,12 +143,7 @@ class mtfQueue{
 	}
 	
 	public function resetAll($g=''){
-		$_ar=$this->mtfMysql->sql('s',$this->db['table'],'i,d,u,g,s,t,o','WHERE '.($g?'`g`=\''.$g.'\'':'1').' AND (`s`=\''.$this->_stop.'\' OR `s`=\''.$this->_out.'\') ORDER BY t ASC');
-		if($_ar){
-			foreach($_ar AS $_k => $_v){
-				$this->reset($_v['i']);
-			}
-		}
+		$this->mtfMysql->sql('r','UPDATE '.$this->db['table'].' SET `s`=\''.$this->_start.'\' WHERE '.($g?'`g`=\''.$g.'\'':'1').' AND (`s`=\''.$this->_stop.'\' OR `s`=\''.$this->_out.'\')');
 	}
 		
 	public function stop($i)

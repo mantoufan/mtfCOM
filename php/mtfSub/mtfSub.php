@@ -112,10 +112,12 @@ class mtfSub{
 		return $this->Vtt2Ass($this->Srt2Vtt($s),'srt');
 	}
 	public function Srt2Lrc($sub){
-		@define('SRT_STATE_SUBNUMBER', 0);
-		@define('SRT_STATE_TIME',      1);
-		@define('SRT_STATE_TEXT',      2);
-		@define('SRT_STATE_BLANK',     3);
+		if(!defined('SRT_STATE_SUBNUMBER')){
+			define('SRT_STATE_SUBNUMBER', 0);
+			define('SRT_STATE_TIME',      1);
+			define('SRT_STATE_TEXT',      2);
+			define('SRT_STATE_BLANK',     3);
+		}
 		$ar=explode("\n",$sub);
 		unset($sub);
 		$subs=array();
@@ -162,10 +164,12 @@ class mtfSub{
 		return implode('',$subs);
 	}
 	public function Srt2Txt($sub){
-		@define('SRT_STATE_SUBNUMBER', 0);
-		@define('SRT_STATE_TIME',      1);
-		@define('SRT_STATE_TEXT',      2);
-		@define('SRT_STATE_BLANK',     3);
+		if(!defined('SRT_STATE_SUBNUMBER')){
+			define('SRT_STATE_SUBNUMBER', 0);
+			define('SRT_STATE_TIME',      1);
+			define('SRT_STATE_TEXT',      2);
+			define('SRT_STATE_BLANK',     3);
+		}
 		/*
 		$ar=explode("\n\n\n",$sub);
 		$l=count($ar);
@@ -237,7 +241,7 @@ class mtfSub{
 		if($ar[0]=='WEBVTT'){
 			$i=0;
 			foreach($ar as $k=>$line) {
-				if(stristr($line,' --> ')){
+				if(stripos($line,' --> ')!==false){
 					$i++;
 					$aj=explode(' ',$line);
 					$ar[$k]=$i."\n".str_replace('.',',',$aj[0]).' '.$aj[1].' '.str_replace('.',',',$aj[2]);
@@ -254,7 +258,7 @@ class mtfSub{
 		if($ar[0]=='WEBVTT'){
 			$i=0;
 			foreach($ar as $k=>$line) {
-				if(stristr($line,' --> ')){
+				if(stripos($line,' --> ')!==false){
 					$i++;
 					$aj=explode(' ',$line);
 					

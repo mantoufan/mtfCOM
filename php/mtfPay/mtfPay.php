@@ -36,7 +36,7 @@ class mtfPay{
 	public function notify(){
 		$_u=$_arv['url'];$_n=$_arv['num'];
 		unset($_arv['url']);unset($_arv['num']);
-		for ($i=1; $x<=$_n; $x++) {
+		for ($i=1; $i<=$_n; $i++) {
 			$_r=$this->mtfHTTP->curl(array('u'=>$_arv['url'].'?'.http_build_query($_arv),'t'=>5));
 			if($_r==='200'){
 				return TRUE;

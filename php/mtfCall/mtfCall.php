@@ -12,7 +12,7 @@ class mtfCall {
 		$this->_root = $_root;
     }
     public function call($name, $command) {
-        exec('C:/Windows/mtfCallBin/' . $this->calls[$name] . ' ' .  $command, $res);
+        exec('C:/Windows/mtfCallBin/' . $this->calls[$name] . ' ' .  escapeshellarg($command), $res);
         return $res;
     }
 }

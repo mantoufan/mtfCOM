@@ -101,7 +101,7 @@ class mtfMysql{
   	 	foreach($post as $k=>$v)
    		{
 	   		$keys[]=$k;
-			$values[]='\''.addslashes($v).'\'';
+			$values[]='\''.mysqli_real_escape_string($this->_link,$v).'\'';
    		}
    		return array($keys,$values);
 	}

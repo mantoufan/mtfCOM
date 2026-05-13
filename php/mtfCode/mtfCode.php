@@ -10,13 +10,15 @@ class mtfCode{
 	public function deQRCode($_f_p,$_code_http_dir_path='')
 	{
 		if(file_exists($_f_p)){
-			
-			$source=imagecreatefromstring(file_get_contents($_f_p));
-			
+
+			$_imgdata=file_get_contents($_f_p);
+			$source=imagecreatefromstring($_imgdata);
+
 			$_pre='qr'.uniqid();
 			$_f_p=$_pre.'.jpg';
-			
+
 			imagejpeg($source, $_f_p, 70);
+			imagedestroy($source);
 			$source=imagecreatefromstring(file_get_contents($_f_p));
 			
 			//保留颜色数目

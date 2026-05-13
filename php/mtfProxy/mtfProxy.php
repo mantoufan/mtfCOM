@@ -292,7 +292,7 @@ class mtfProxy
         $ips = [];
         foreach ($_ips as $_k => $_ip) {
             $_h = curl_multi_getcontent($handles[$_k]);
-            if ($_h && stristr($_h, $_arv['html'])) {
+            if ($_h && stripos($_h, $_arv['html']) !== false) {
                 $ips[] = $_ip;
             }
             curl_close($handles[$_k]);
