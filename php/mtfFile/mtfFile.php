@@ -4480,15 +4480,17 @@ class mtfFile {
                   $_v = str_replace(' | ', '|', implode(' ', $_a['word']));
                   $_a = explode(' ', $_v);
                   foreach ($_a as $__k => $__v) {
+                    if ($__v === '') continue;
                     $__a = explode('|', $__v);
                     if (count($__a) === 1) {
                       $_sql[] = 'k LIKE \'%' . $__v . '%\'';
                     } else {
                       $_or = array();
                       foreach ($__a as $___k => $___v) {
+                        if ($___v === '') continue;
                         $_or[] = 'k LIKE \'%' . $___v . '%\'';
                       }
-                      $_sql[] = '(' . implode(' OR ', $_or) . ')';
+                      if ($_or) $_sql[] = '(' . implode(' OR ', $_or) . ')';
                     }
                   }
                 }
@@ -4508,13 +4510,15 @@ class mtfFile {
                   $_v[$__k]['i'] = $__v['i'];
                   $_v[$__k]['k'] = $__v['k'];
                 }
-                if (stristr($__v['k'], ':')) {
-                  $_s[] = 'FIND_IN_SET(\'' . $__v['k'] . '\', k)';
-                } else {
-                  $_s[] = 'k LIKE \'%' . $__v['k'] . '%\'';
+                if ($__v['k'] !== '' && $__v['k'] !== null) {
+                  if (stristr($__v['k'], ':')) {
+                    $_s[] = 'FIND_IN_SET(\'' . $__v['k'] . '\', k)';
+                  } else {
+                    $_s[] = 'k LIKE \'%' . $__v['k'] . '%\'';
+                  }
                 }
               }
-              $_sql[] = '(e=\'mtfdat\' AND (' . implode(' OR ', $_s) . '))';
+              if ($_s) $_sql[] = '(e=\'mtfdat\' AND (' . implode(' OR ', $_s) . '))';
               if ($_uid) {
                 $this->mtfMysql->sql('u', $this->db['table'], array('fol' => $this->mtfUnit->JsonEncodeCN($_v)), 'WHERE i=' . $_uid);
               }
