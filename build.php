@@ -200,11 +200,16 @@ if($j){
 		curl_setopt($ch, CURLOPT_URL , $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 300);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, array(
 			'id' => $id,
 			'upload' => new CURLFile($f)
 		));
 		$h = curl_exec($ch);
+		if (curl_errno($ch)) {
+			t('curl error: ' . curl_error($ch));
+		}
 		t($h);
 	}
 	if($tmp){
