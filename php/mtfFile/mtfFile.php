@@ -4720,7 +4720,35 @@ class mtfFile {
           $_total = $_r['total'];
         }
         $__sql_v = $_sql_default_v . ($_sql_v ? ',' . implode(',', $_sql_v) : '');
-        $_r = $this->mtfMysql->sql('s', $this->db[$_sql_default_table], $__sql_v, $__sql . $_orders . $_limit, $_data['debug']);
+        // 检测 ORDER BY 中的布尔表达式（如 e='mtfdat' DESC），拆成 UNION ALL 走索引
+        // 仅当 WHERE 简单（无 LIKE/FULLTEXT 等需全表扫描的条件）时启用
+        $_union_match = $_orders
+          && $__sql === "WHERE e!='mtftag'"
+          && preg_match("/(\w+)='([^']+)'\s+DESC/", implode(',', $_order), $_m);
+        if ($_union_match) {
+          $_union_col = $_m[1]; // e
+          $_union_val = $_m[2]; // mtfdat
+          // 去掉布尔表达式后剩余的 ORDER BY 项
+          $_union_rest_parts = array();
+          foreach ($_order as $_o) {
+            if (!preg_match("/\w+='[^']+'\s+DESC/", $_o)) {
+              $_union_rest_parts[] = $_o;
+            }
+          }
+          $_union_rest_orders = $_union_rest_parts ? ' ORDER BY ' . implode(',', $_union_rest_parts) : '';
+          $_tbl = $this->db[$_sql_default_table];
+          $_union_total = $_limit ? (int)$_page * (int)$_per : 10;
+          // 第一个子查询: 把 e!='mtftag' 替换为 e='mtfdat'（后者已隐含前者）
+          $_union_where1 = str_replace($_union_col . "!='mtftag'", $_union_col . "='" . $_union_val . "'", $__sql);
+          // 第二个子查询: 在原 WHERE 基础上追加 e!='mtfdat'
+          $_union_where2 = $__sql . " AND " . $_union_col . "!='" . $_union_val . "'";
+          $_union_sub = "(SELECT " . $__sql_v . " FROM " . $_tbl . " " . $_union_where1 . $_union_rest_orders . " LIMIT " . $_union_total . ")"
+            . " UNION ALL "
+            . "(SELECT " . $__sql_v . " FROM " . $_tbl . " " . $_union_where2 . $_union_rest_orders . " LIMIT " . $_union_total . ")";
+          $_r = $this->mtfMysql->sql('s', "(" . $_union_sub . ") AS _u", '*', $_limit);
+        } else {
+          $_r = $this->mtfMysql->sql('s', $this->db[$_sql_default_table], $__sql_v, $__sql . $_orders . $_limit, $_data['debug']);
+        }
       } else {
         $_r = '';
       }
